@@ -22,36 +22,29 @@
   --ink:        #000;
   --white:      #fff;
   --paper:      #f7fbfd;
-  --glass:      rgba(247, 251, 253, .5);
-  --card-glass: rgba(255, 255, 255, .6);
+  /* One translucent surface per mode. Every frosted panel on the site — header
+     bar, cards, footer card — uses these two and nothing else. */
+  --glass:      rgba(247, 251, 253, .6);
+  --dark-glass: rgba(0, 29, 60, .6);
   --line:       #b0bfd2;
   --muted:      #8695a5;
   --rule:       #276bc0;
 
   --teal:       #22adad;
   --green:      #8cda3e;
-  --green-hl:   #95db42;
-  --sky:        #2ec4f2;
-  --sky-hl:     #46ccf5;
+  --sky:        #46ccf5;
   --violet:     #858be0;
-  --leaf:       #befa97;
-  --leaf-2:     #b4fb87;
 
   --shadow-card: 0 24px 24px rgba(202, 212, 226, .4);
   --shadow-card-strong: 0 24px 24px rgba(202, 212, 226, .6);
-  --shadow-panel: drop-shadow(0 24px 24px rgba(159, 170, 201, .5));
   --menu-bg:    rgba(0, 29, 60, .9);
 
-  /* header, light state (default) and dark state (over "Who We Work With") */
-  --header-bg:        rgba(247, 251, 253, .5);
-  --header-border:    #b0bfd2;
-  --header-ink:       #000;
-  --header-bg-dk:     rgba(0, 29, 60, .5);
-  --header-border-dk: #276bc0;
+  /* header, light state (default) and dark state (over "Who We Are").
+     The surfaces themselves are --glass / --dark-glass; only the border and
+     type colour differ per state. */
+  --header-border:    var(--line);
+  --header-border-dk: var(--rule);
   --header-ink-dk:    #fff;
-  /* card glass, blue mode — same move as the header bar, one step more opaque
-     because the cards are .6 rather than .5 */
-  --card-glass-dk:    rgba(0, 29, 60, .6);
 
   --font:        "Archivo", sans-serif;
   --font-narrow: "Archivo Narrow", sans-serif;
@@ -193,11 +186,11 @@ p, h1, h2, h3, h4 { margin: 0; }
 .hl {
   width: 2px;
   height: 48px;
-  background: var(--sky-hl);
+  background: var(--sky);
   transition: transform .1s ease;
 }
 .hl--left, .hl--right { position: absolute; top: 0; height: 64px; }
-.hl--left  { left: 0;  background: var(--green-hl); }
+.hl--left  { left: 0;  background: var(--green); }
 .hl--right { right: 0; }
 
 .btn {
@@ -228,7 +221,7 @@ p, h1, h2, h3, h4 { margin: 0; }
 }
 .btn__icon img { width: 24px; height: 24px; }
 
-.btn--green  .hl { background: var(--green-hl); }
+.btn--green  .hl { background: var(--green); }
 .btn--violet .hl { background: var(--violet); }
 /* Icon-only variant: the label is there for screen readers and scramble text */
 .btn--icon .btn__label-wrap { display: none; }
@@ -283,7 +276,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   width: 100%;
   border: 1px solid var(--header-border);
   border-radius: 4px;
-  background-color: var(--header-bg);
+  background-color: var(--glass);
   -webkit-backdrop-filter: blur(8px);
           backdrop-filter: blur(8px);
   overflow: hidden;
@@ -386,7 +379,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   color: var(--white);
   transition: color .2s;
 }
-.menu__links a:hover { color: var(--leaf); }
+.menu__links a:hover { color: var(--green); }
 
 .menu__socials {
   z-index: 9999999;
@@ -406,7 +399,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   color: var(--white);
   transition: color .2s;
 }
-.menu__socials a:hover { color: var(--leaf-2); }
+.menu__socials a:hover { color: var(--green); }
 
 .menu__close {
   position: absolute;
@@ -594,7 +587,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   padding: 48px;
   border: 1px solid var(--line);
   border-radius: 4px;
-  background-color: var(--card-glass);
+  background-color: var(--glass);
   -webkit-backdrop-filter: blur(12px);
           backdrop-filter: blur(12px);
 }
@@ -747,6 +740,10 @@ p, h1, h2, h3, h4 { margin: 0; }
   border: 1px solid var(--line);
   border-radius: 4px;
   background-color: var(--glass);
+  /* same frost as the research cards below them, so the whole section reads as
+     one material sitting on the canvas */
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
 }
 .tab.is-active { border-color: var(--teal); }
 
@@ -772,7 +769,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   max-width: 300px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background-color: var(--card-glass);
+  background-color: var(--glass);
   -webkit-backdrop-filter: blur(12px);
           backdrop-filter: blur(12px);
   box-shadow: 0 24px 24px rgba(202, 212, 226, .5);
@@ -960,7 +957,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   width: 2px;
   height: 44px;
   border-radius: 0 2px 2px 0;
-  background: var(--sky-hl);
+  background: var(--sky);
 }
 
 /* the row is justified across the column, so it ends flush with the field above */
@@ -1027,7 +1024,7 @@ p, h1, h2, h3, h4 { margin: 0; }
 
 /* --- header --- */
 .is-blue .site-header .header-bar {
-  background-color: var(--header-bg-dk);
+  background-color: var(--dark-glass);
   border-color: var(--header-border-dk);
 }
 .is-blue .site-header .btn-label     { color: var(--header-ink-dk); }
@@ -1051,7 +1048,7 @@ p, h1, h2, h3, h4 { margin: 0; }
 /* Same move as the header bar: glass fill swaps white for navy at the same
    alpha, border goes to the blue rule colour, label goes white. */
 .is-blue .who .btn {
-  background-color: var(--header-bg-dk);
+  background-color: var(--dark-glass);
   border-color: var(--header-border-dk);
 }
 .is-blue .who .btn .btn-label { color: var(--header-ink-dk); }
@@ -1064,7 +1061,7 @@ p, h1, h2, h3, h4 { margin: 0; }
 .is-blue .research__header .h3,
 .is-blue .research__header .body-text { color: var(--blue-ink); }
 .is-blue .tab {
-  background-color: var(--header-bg-dk);
+  background-color: var(--dark-glass);
   border-color: var(--blue-line);
 }
 .is-blue .tab .btn-label { color: var(--blue-ink); }
@@ -1073,7 +1070,7 @@ p, h1, h2, h3, h4 { margin: 0; }
 /* --- cards: the six "What We Do" panels and the four blog cards --- */
 .is-blue .card-x,
 .is-blue .card {
-  background-color: var(--card-glass-dk);
+  background-color: var(--dark-glass);
   border-color: var(--blue-line);
 }
 .is-blue .card-x .h4,
