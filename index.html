@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IGAP — Shaping Policy. Building Markets.</title>
+  <meta name="description" content="IGAP is a research-led strategic advisory organisation working across market entry, public policy, government affairs, policy communications, institutional engagement and independent research.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=Archivo+Narrow:wght@400;500;600;700&family=Space+Grotesk:wght@500&display=swap">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/_embed-fragments.css">
+
+  <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="images/webclip.png">
+
+  <!-- Only needed if you switch the hero back to the ES-module build below.
+       Three.js is vendored in vendor/three/ — no CDN. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/three.module.js",
+      "three/addons/": "./vendor/three/addons/"
+    }
+  }
+  </script>
+</head>
+
+<body>
+
+<!-- ============================================================= HEADER -->
+<header class="site-header" data-menu-root>
+  <nav class="menu" aria-label="Main menu" hidden>
+    <div class="menu__bg"></div>
+    <div class="menu__inner">
+      <ul class="menu__links">
+        <li><a href="#">about us</a></li>
+        <li><a href="#">our work</a></li>
+        <li><a href="#">knowledge</a></li>
+        <li><a href="#">events</a></li>
+        <li><a href="#">contact</a></li>
+      </ul>
+      <ul class="menu__socials">
+        <li><a href="#">reports</a></li>
+        <li><a href="#">blogs</a></li>
+        <li><a href="#">igap primers</a></li>
+        <li><a href="#">media</a></li>
+      </ul>
+    </div>
+    <button class="menu__close" type="button" data-menu-close aria-label="Close menu">
+      <img src="images/System-Icons_2.svg" width="24" height="24" alt="">
+    </button>
+  </nav>
+
+  <div class="header-bar">
+    <div class="header-bar__slot header-bar__slot--left">
+      <button class="btn-menu" type="button" data-menu-open aria-expanded="false">
+        <img src="images/menu-icon.svg" width="24" height="24" alt="">
+        <span class="btn-label btn-label--menu">Menu</span>
+      </button>
+      <span class="hl hl--left" aria-hidden="true"></span>
+    </div>
+
+    <a class="site-logo" href="index.html" aria-current="page">
+      <img src="images/Logo-coloured.png" alt="IGAP">
+    </a>
+
+    <div class="header-bar__slot header-bar__slot--right">
+      <a class="btn-work" href="#">
+        <span class="btn-label">Work With IGAP</span>
+        <img src="images/Arrow-Dark.svg" alt="" width="24" height="24">
+      </a>
+      <span class="hl hl--right" aria-hidden="true"></span>
+    </div>
+  </div>
+</header>
+
+<!-- ====================================================== MOBILE HEADER -->
+<header class="site-header site-header--mobile" data-menu-root>
+  <nav class="menu" aria-label="Main menu" hidden>
+    <div class="menu__bg"></div>
+    <div class="menu__inner">
+      <ul class="menu__links">
+        <li><a href="#">about us</a></li>
+        <li><a href="#">our work</a></li>
+        <li><a href="#">knowledge</a></li>
+        <li><a href="#">events</a></li>
+        <li><a href="#">contact</a></li>
+      </ul>
+      <ul class="menu__socials">
+        <li><a href="#">reports</a></li>
+        <li><a href="#">blogs</a></li>
+        <li><a href="#">igap primers</a></li>
+        <li><a href="#">media</a></li>
+      </ul>
+    </div>
+    <button class="menu__close" type="button" data-menu-close aria-label="Close menu">
+      <img src="images/System-Icons_2.svg" width="24" height="24" alt="">
+    </button>
+  </nav>
+
+  <div class="header-bar header-bar--mobile">
+    <a class="site-logo site-logo--mobile" href="index.html">
+      <img src="images/Logo-coloured.png" alt="IGAP">
+    </a>
+    <button class="btn-menu" type="button" data-menu-open aria-expanded="false">
+      <img src="images/menu-icon.svg" width="24" height="24" alt="">
+      <span class="btn-label btn-label--menu">Menu</span>
+    </button>
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- ========================================================== HERO -->
+  <section class="hero">
+
+    <!-- fixed canvas layer: lives behind every section on the page -->
+    <div class="hero__canvas-layer">
+      <div class="hero__embed">
+        <canvas id="igap-scene"></canvas>
+        <div class="igap-scroll-space"></div>
+      </div>
+      <div class="hero__scroll-hint">
+        <div class="hero__scroll-hint-inner">
+          <div class="igap-scroll-line" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- fold 1 -->
+    <div class="hero__panel">
+      <div class="hero__copy">
+        <div class="hero__copy-main">
+          <div></div>
+          <div class="hero__intro">
+            <span class="nugget" aria-hidden="true"><i></i><i></i><i></i></span>
+            <h1 class="h1 h1--mobile" data-reveal>Shaping Policy. <br>Building Markets.</h1>
+            <h1 class="h1 h1--desktop" data-reveal>Shaping <br>Policy. <br>Building <br>Markets.</h1>
+            <p class="intro">IGAP is a research led policy and strategic advisory organisation working across public policy, governance, markets and strategic affairs.</p>
+          </div>
+          <div class="btn-row">
+            <div class="btn">
+              <a class="btn__label-wrap" href="#"><span class="btn-label">See Our Work</span></a>
+              <span class="hl" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
+        <div class="cta-stack cta-stack--row">
+          <div class="btn btn--green">
+            <a class="btn__label-wrap" href="#"><span class="btn-label">Contact Us</span></a>
+            <span class="hl" aria-hidden="true"></span>
+          </div>
+          <div class="btn btn--icon btn--violet">
+            <a class="btn__label-wrap" href="#"><span class="btn-label">Work With Us</span></a>
+            <span class="btn__icon"><img src="images/IconIcon_Linkedin.svg" alt="LinkedIn" width="24" height="24"></span>
+            <span class="hl" aria-hidden="true"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- fold 2 -->
+    <div class="hero__panel hero__panel--sticky">
+      <div class="hero__copy">
+        <div class="hero__block">
+          <span class="nugget" aria-hidden="true"><i></i><i></i><i></i></span>
+          <h2 class="h3" data-reveal>Research-led. <br>Institutionally grounded. <br>Strategy-driven.</h2>
+          <p class="intro">IGAP combines analytical depth with a practical understanding of how policy, markets and public institutions operate. We bring together evidence, institutional insight and strategic thinking to understand what is changing, assess what it means, and determine how best to respond.</p>
+        </div>
+        <div class="cta-stack cta-stack--wide">
+          <div class="btn btn--green">
+            <a class="btn__label-wrap" href="#"><span class="btn-label">About us</span></a>
+            <span class="hl" aria-hidden="true"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spacer spacer--hero"></div>
+  </section>
+
+  <!-- ===================================================== WHAT WE DO -->
+  <section class="expertise" aria-labelledby="what-we-do">
+    <div class="spacer spacer--hero"></div>
+
+    <div class="expertise__header">
+      <div class="expertise__col">
+        <h2 class="h3" id="what-we-do" data-reveal>What We do</h2>
+      </div>
+      <div class="expertise__col">
+      </div>
+      <div class="expertise__col">
+        <p class="body-text">IGAP helps organisations and public institutions turn complex policy, market and institutional questions into clear strategy and practical action.</p>
+      </div>
+    </div>
+
+    <div class="sticky-row sticky-row--a sticky-row--left">
+      <article class="card-x card-x--1">
+        <h3 class="h4">Research &amp; Policy Advocacy</h3>
+        <div class="card-x__icon" aria-hidden="true"></div>
+      </article>
+    </div>
+    <div class="sticky-row sticky-row--a sticky-row--center">
+      <article class="card-x card-x--2">
+        <h3 class="h4">Policy Insight &amp; Regulatory Strategy</h3>
+        <div class="card-x__icon" aria-hidden="true"></div>
+      </article>
+    </div>
+    <div class="sticky-row sticky-row--a sticky-row--right">
+      <article class="card-x card-x--3">
+        <h3 class="h4">Government Engagement &amp; Institutional Strategy</h3>
+        <div class="card-x__icon" aria-hidden="true"></div>
+      </article>
+    </div>
+
+    <div class="sticky-row sticky-row--b sticky-row--left">
+      <article class="card-x card-x--4">
+        <h3 class="h4">Policy Communications, Issue Management &amp; Thought Leadership</h3>
+        <div class="card-x__icon" aria-hidden="true"></div>
+      </article>
+    </div>
+    <div class="sticky-row sticky-row--b sticky-row--center">
+      <article class="card-x card-x--5">
+        <h3 class="h4">Market, Investment &amp; Ecosystem Strategy</h3>
+        <div class="card-x__icon" aria-hidden="true"></div>
+      </article>
+    </div>
+    <div class="sticky-row sticky-row--b sticky-row--right">
+      <article class="card-x card-x--6">
+        <h3 class="h4">Coalitions, Partnerships &amp; Industry Platforms</h3>
+        <div class="card-x__icon" aria-hidden="true"></div>
+      </article>
+    </div>
+
+    <div class="spacer spacer--sticky"></div>
+  </section>
+
+  <!-- ============================================== WHO WE ARE -->
+  <section class="audience" aria-labelledby="who-we-are">
+    <div class="who">
+      <h2 class="h3 h3--light who__title" id="who-we-are" data-reveal>Who We Are</h2>
+      <div class="who__foot">
+        <div class="who__block">
+          <span class="nugget" aria-hidden="true"><i></i><i></i><i></i></span>
+          <p class="who__lede" data-reveal>India’s most consequential questions cut across institutions, sectors and priorities.</p>
+          <p class="intro intro--light">IGAP brings together interdisciplinary legal, policy and sectoral expertise with a close understanding of geopolitics, India’s developmental priorities, political economy, regulation and institutional practice.</p>
+          <p class="intro intro--light">Our work combines independent research with strategic advisory and policy engagement to develop rigorous, practical approaches to complex public and market questions.</p>
+        </div>
+        <div class="cta-stack cta-stack--wide">
+          <div class="btn btn--green">
+            <a class="btn__label-wrap" href="#"><span class="btn-label">About IGAP</span></a>
+            <span class="hl" aria-hidden="true"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ RESEARCH & INSIGHTS -->
+  <section class="research" aria-labelledby="research-insights">
+    <div class="research__top">
+      <div class="research__header">
+        <h2 class="h3" id="research-insights" data-reveal>Research &amp; Insights</h2>
+        <p class="body-text body-text--300">Independent research is central to how IGAP works by sharing evidence-led insights on issues shaping policy, markets &amp; institutions in India.</p>
+      </div>
+      <div class="tabs">
+        <a class="tab is-active" href="#"><span class="btn-label btn-label--tab">featured</span></a>
+        <a class="tab" href="#"><span class="btn-label btn-label--tab">reports</span></a>
+        <a class="tab" href="#"><span class="btn-label btn-label--tab">policy briefs</span></a>
+        <a class="tab" href="#"><span class="btn-label btn-label--tab">igap primers</span></a>
+        <a class="tab" href="#"><span class="btn-label btn-label--tab">regulatory trackers</span></a>
+        <a class="tab" href="#"><span class="btn-label btn-label--tab">consultation responses</span></a>
+        <a class="tab" href="#"><span class="btn-label btn-label--tab">op-eds</span></a>
+        <a class="tab" href="#"><span class="btn-label btn-label--tab">media</span></a>
+        <a class="tab" href="#"><span class="btn-label btn-label--tab">events &amp; convenings</span></a>
+      </div>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <img class="card__image" src="images/Rectangle-246.png" width="300" height="225" loading="lazy" alt="">
+        <div class="card__body">
+          <h3 class="card__title">The Conversation Nobody Planned For: AI, Emotional Support, and the Indian Context</h3>
+          <div class="card__meta">
+            <div class="card__meta-text">
+              <span class="card__kicker">reports</span>
+              <span class="card__date">October 13, 2025</span>
+            </div>
+            <img class="card__arrow" src="images/Arrow.svg" width="24" height="24" loading="lazy" alt="">
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="card__image" src="images/IIGF_2025_2.webp" width="300" height="225" loading="lazy" alt=""
+             srcset="images/IIGF_2025_2-p-500.webp 500w, images/IIGF_2025_2-p-800.webp 800w, images/IIGF_2025_2-p-1080.webp 1080w, images/IIGF_2025_2.webp 1200w"
+             sizes="(max-width: 479px) 100vw, 300px">
+        <div class="card__body">
+          <h3 class="card__title">From Law to Action — The Digital Personal Data Protection Act and Rules: Overview and Key Implications</h3>
+          <div class="card__meta">
+            <div class="card__meta-text">
+              <span class="card__kicker">reports</span>
+              <span class="card__date">May 13, 2026</span>
+            </div>
+            <img class="card__arrow" src="images/Arrow.svg" width="24" height="24" loading="lazy" alt="">
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="card__image" src="images/Web-Online-Child-Safety-Report-Fine-2.jpeg" width="300" height="225" loading="lazy" alt=""
+             srcset="images/Web-Online-Child-Safety-Report-Fine-2-p-500.jpeg 500w, images/Web-Online-Child-Safety-Report-Fine-2-p-800.jpeg 800w, images/Web-Online-Child-Safety-Report-Fine-2-p-1080.jpeg 1080w, images/Web-Online-Child-Safety-Report-Fine-2-p-1600.jpeg 1600w, images/Web-Online-Child-Safety-Report-Fine-2-p-2000.jpeg 2000w, images/Web-Online-Child-Safety-Report-Fine-2.jpeg 2490w"
+             sizes="(max-width: 479px) 100vw, 300px">
+        <div class="card__body">
+          <h3 class="card__title">Born Connected: Keeping Childhood Safe in a Digital India</h3>
+          <div class="card__meta">
+            <div class="card__meta-text">
+              <span class="card__kicker">reports</span>
+              <span class="card__date">April 1, 2026</span>
+            </div>
+            <img class="card__arrow" src="images/Arrow.svg" width="24" height="24" loading="lazy" alt="">
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="card__image" src="images/Data-protection-updated3-scaled.jpeg" width="300" height="225" loading="lazy" alt=""
+             srcset="images/Data-protection-updated3-scaled-p-500.jpeg 500w, images/Data-protection-updated3-scaled-p-800.jpeg 800w, images/Data-protection-updated3-scaled-p-1080.jpeg 1080w, images/Data-protection-updated3-scaled-p-1600.jpeg 1600w, images/Data-protection-updated3-scaled-p-2000.jpeg 2000w, images/Data-protection-updated3-scaled.jpeg 2560w"
+             sizes="(max-width: 479px) 100vw, 300px">
+        <div class="card__body">
+          <h3 class="card__title">IGAP Comments: Draft National Telecom Policy, 2025</h3>
+          <div class="card__meta">
+            <div class="card__meta-text">
+              <span class="card__kicker">reports</span>
+              <span class="card__date">July 26, 2026</span>
+            </div>
+            <img class="card__arrow" src="images/Arrow.svg" width="24" height="24" loading="lazy" alt="">
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ========================================== START A CONVERSATION -->
+  <section class="cta-section">
+    <h2 class="h1 h1--center h1--narrow" data-reveal>Have a complex policy or institutional question?</h2>
+    <p class="intro intro--center">We can help make sense of it and shape a way forward.</p>
+    <div class="btn btn--green">
+      <a class="btn__label-wrap" href="#"><span class="btn-label">Let’s Start a Conversation</span></a>
+      <span class="hl" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <!-- ======================================================== FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="images/Footer-Logo.png" alt="IGAP — Indian Governance and Policy Project" width="148" height="48">
+        </div>
+        <div class="footer-field">
+          <span class="footer-label">Email Us</span>
+          <a class="footer-email" href="mailto:relations@igap.in">relations@igap.in</a>
+        </div>
+      </div>
+
+      <div class="footer-field footer-locations">
+        <span class="footer-label">Locations</span>
+        <ul class="footer-locations__list">
+          <li>New Delhi</li>
+          <li>Bengaluru</li>
+          <li>Hyderabad</li>
+          <li>Singapore</li>
+        </ul>
+      </div>
+
+      <div class="footer-right">
+        <!-- TODO: point action= at the newsletter endpoint once one exists. -->
+        <form class="footer-form" method="post" action="#">
+          <p class="footer-form__title">Receive new research, policy insights and updates from IGAP</p>
+          <div class="footer-form__field">
+            <input class="footer-form__input" type="email" name="email" autocomplete="email"
+                   placeholder="Enter your Email Address" aria-label="Email address" required>
+            <button class="footer-form__submit" type="submit" aria-label="Subscribe">
+              <img src="images/Arrow.svg" width="24" height="24" alt="">
+            </button>
+            <span class="footer-form__nugget" aria-hidden="true"></span>
+          </div>
+        </form>
+
+        <nav class="footer-nav" aria-label="Footer">
+          <a href="#">home</a>
+          <a href="#">about</a>
+          <a href="#">What We do</a>
+          <a href="#">knowledge</a>
+          <a href="#">events</a>
+          <a href="#">Contact</a>
+        </nav>
+      </div>
+
+    </div>
+  </footer>
+
+</main>
+
+<script src="js/text-reveal.js"></script>
+<script src="js/scramble-hover.js"></script>
+<script src="js/site.js"></script>
+<!-- Hero (Three.js). The bundle is a classic script, so the page works when
+     opened straight off disk as well as over http. Source of truth is
+     js/hero-scene.js — see README.md to rebuild after editing it. -->
+<script defer src="js/hero-scene.bundle.js"></script>
+<!-- <script type="module" src="js/hero-scene.js"></script> -->
+
+</body>
+</html>

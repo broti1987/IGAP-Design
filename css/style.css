@@ -1,0 +1,1345 @@
+/* =============================================================================
+   IGAP — Home v2
+   Hand-authored rebuild of the Webflow wireframe. No framework, no build step.
+   Sections, in source order:
+     1. Tokens
+     2. Reset & base
+     3. Typography
+     4. Buttons & shared bits
+     5. Header + menu overlay
+     6. Hero (fixed canvas layer + two folds)
+     7. What we do (sticky cards)
+     8. Who we work with
+     9. Research & insights
+    10. Start a conversation
+    11. Footer
+    12. Scroll-reveal states
+    13. Responsive
+   ========================================================================== */
+
+/* ------------------------------------------------------------- 1. TOKENS */
+:root {
+  --ink:        #000;
+  --white:      #fff;
+  --paper:      #f7fbfd;
+  --glass:      rgba(247, 251, 253, .5);
+  --card-glass: rgba(255, 255, 255, .6);
+  --line:       #b0bfd2;
+  --muted:      #8695a5;
+  --rule:       #276bc0;
+
+  --teal:       #22adad;
+  --green:      #8cda3e;
+  --green-hl:   #95db42;
+  --sky:        #2ec4f2;
+  --sky-hl:     #46ccf5;
+  --violet:     #858be0;
+  --leaf:       #befa97;
+  --leaf-2:     #b4fb87;
+
+  --shadow-card: 0 24px 24px rgba(202, 212, 226, .4);
+  --shadow-card-strong: 0 24px 24px rgba(202, 212, 226, .6);
+  --shadow-panel: drop-shadow(0 24px 24px rgba(159, 170, 201, .5));
+  --menu-bg:    rgba(0, 29, 60, .9);
+
+  /* header, light state (default) and dark state (over "Who We Work With") */
+  --header-bg:        rgba(247, 251, 253, .5);
+  --header-border:    #b0bfd2;
+  --header-ink:       #000;
+  --header-bg-dk:     rgba(0, 29, 60, .5);
+  --header-border-dk: #276bc0;
+  --header-ink-dk:    #fff;
+  /* card glass, blue mode — same move as the header bar, one step more opaque
+     because the cards are .6 rather than .5 */
+  --card-glass-dk:    rgba(0, 29, 60, .6);
+
+  --font:        "Archivo", sans-serif;
+  --font-narrow: "Archivo Narrow", sans-serif;
+
+  --gutter: 72px;
+  /* Content stops widening past this and centres; the fixed canvas behind it
+     still runs the full viewport, so the artwork and the navy wash are edge to
+     edge while the columns stay a readable measure on a 1920 display. */
+  --page-max: 1440px;
+  --ease-out-quart: cubic-bezier(.165, .84, .44, 1);
+}
+
+/* --------------------------------------------------------- 2. RESET/BASE */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background-color: var(--ink);
+  font-family: var(--font);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+img { display: block; max-width: 100%; }
+ul  { list-style: none; margin: 0; padding: 0; }
+a   { color: inherit; text-decoration: none; }
+button {
+  font: inherit; color: inherit;
+  background: none; border: 0; padding: 0;
+  cursor: pointer;
+}
+p, h1, h2, h3, h4 { margin: 0; }
+
+.page { display: flex; flex-direction: column; width: 100%; }
+
+/* Vertical breathing room between folds. Height only — no content. */
+.spacer          { position: relative; z-index: -1; width: 100%; }
+.spacer--hero    { height: 80vh; }
+.spacer--sticky  { position: sticky; top: 0; height: 100svh; }
+/* the lead-in above the sticky "What We Do" cards runs shorter than the one
+   that closes the hero */
+.expertise .spacer--hero { height: 200px; }
+
+/* ------------------------------------------------------- 3. TYPOGRAPHY */
+.h1 {
+  width: 100%;
+  font-family: var(--font-narrow);
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 105%;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--ink);
+}
+.h1--center { text-align: center; }
+.h1--narrow { max-width: 900px; }
+.h1--mobile { display: none; }
+
+.h3 {
+  font-family: var(--font);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 140%;
+  text-transform: capitalize;
+  color: var(--ink);
+}
+.h3--light { color: var(--white); }
+
+.h4 {
+  width: 100%;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 140%;
+  text-transform: capitalize;
+  color: var(--ink);
+}
+.h4--light { color: var(--white); }
+
+.intro {
+  max-width: 400px;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 160%;
+  color: var(--ink);
+}
+.intro--center { max-width: none; text-align: center; }
+.intro--light  { color: var(--white); }
+
+.body-text {
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 160%;
+  color: var(--ink);
+}
+.body-text--light  { width: 100%; color: var(--white); text-transform: capitalize; }
+.body-text--300    { width: 300px; }
+
+/* Small teal label used for "latest work" and the footer email */
+.eyebrow {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 160%;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+/* The three-bar brand mark that sits above a heading */
+.nugget { display: flex; }
+.nugget i            { width: 24px; height: 2px; background: var(--green); }
+.nugget i:nth-child(2) { background: var(--teal); }
+.nugget i:nth-child(3) { background: var(--sky); }
+
+/* Stacked variant (hidden in this design, kept for the audience rows) */
+.nugget--stacked { display: none; flex-direction: column; margin-top: 6px; }
+.nugget--stacked i { width: 2px; height: 8px; }
+
+/* --------------------------------------------------------- 4. BUTTONS */
+.btn-label {
+  font-family: var(--font-narrow);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 160%;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.btn-label--tab { font-size: 10px; }
+
+/* The 2px accent bar that widens on hover */
+.hl {
+  width: 2px;
+  height: 48px;
+  background: var(--sky-hl);
+  transition: transform .1s ease;
+}
+.hl--left, .hl--right { position: absolute; top: 0; height: 64px; }
+.hl--left  { left: 0;  background: var(--green-hl); }
+.hl--right { right: 0; }
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background-color: var(--glass);
+  -webkit-backdrop-filter: blur(5px);
+          backdrop-filter: blur(5px);
+  overflow: hidden;
+}
+.btn__label-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 20px;
+}
+.btn__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+}
+.btn__icon img { width: 24px; height: 24px; }
+
+.btn--green  .hl { background: var(--green-hl); }
+.btn--violet .hl { background: var(--violet); }
+/* Icon-only variant: the label is there for screen readers and scramble text */
+.btn--icon .btn__label-wrap { display: none; }
+.btn:not(.btn--icon) .btn__icon { display: none; }
+
+/* Hover: Webflow scaled the bar 10× from its centre, clipped by the overflow */
+.btn:hover .hl,
+.header-bar__slot:hover .hl { transform: scaleX(10); transition-duration: .3s; }
+
+.cta-stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  gap: 12px;
+}
+.cta-stack--wide { gap: 16px; }
+/* Actions on one line, bottom-aligned (hero fold 1: Contact Us + LinkedIn). */
+.cta-stack--row  { flex-direction: row; align-items: flex-end; }
+
+/* Two actions side by side (hero fold 1). The plain .btn keeps the default
+   sky-blue accent bar; .btn--green overrides it. */
+.btn-row { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* ---------------------------------------------- 5. HEADER + MENU OVERLAY */
+.site-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 24px 48px;
+}
+.site-header--mobile { display: none; }
+
+/* The footer is the end of the page, so the bar retracts rather than sitting
+   on top of it. Toggled by setupHeaderRetract() in js/site.js. The transform is
+   on the bar, not on .site-header — the menu overlay is a child of the header
+   and must not ride along when it opens over the footer. */
+.is-footer-in .header-bar { transform: translateY(-200%); }
+
+.header-bar {
+  position: relative;
+  max-width: calc(var(--page-max) - 2 * 24px);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  border: 1px solid var(--header-border);
+  border-radius: 4px;
+  background-color: var(--header-bg);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  overflow: hidden;
+  transition: background-color .12s ease, border-color .12s ease,
+              transform .45s var(--ease-out-quart);
+}
+.header-bar__slot { display: flex; width: 200px; }
+.header-bar__slot--left  { flex-direction: column; align-items: flex-start; }
+.header-bar__slot--right { flex-direction: column; align-items: flex-end; }
+
+.btn-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 20px;
+}
+.btn-work {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 64px;
+  padding: 0 24px 0 12px;
+}
+
+.site-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 48px;
+}
+.site-logo img {
+  width: 64px;
+  height: auto;
+  filter: brightness(0) saturate(0);   /* knocked back to black by default */
+  transition: filter .12s ease;
+}
+
+/* Header's part of blue mode lives in section 12 with the rest of it. */
+.site-header .btn-label   { transition: color .12s ease; }
+.btn-menu img,
+.btn-work img             { transition: filter .12s ease; }
+
+/* --- menu overlay --- */
+.menu {
+  position: absolute;
+  inset: 0;
+  z-index: 88888;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100vw;
+  max-width: 1110px;
+  height: 100svh;
+  margin: 0 auto;
+}
+.menu[hidden] { display: none; }
+
+.menu__bg {
+  position: fixed;
+  inset: 0;
+  z-index: 8888;
+  background-color: var(--menu-bg);
+  -webkit-backdrop-filter: blur(20px);
+          backdrop-filter: blur(20px);
+  transform: translateX(-100%);
+  transition: transform .5s var(--ease-out-quart);
+}
+.menu__inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+}
+.menu__links,
+.menu__socials {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity .2s ease, transform .2s var(--ease-out-quart);
+}
+.menu__links {
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 65px;
+}
+.menu__links a {
+  display: block;
+  padding: 12px 0;
+  font-family: var(--font-narrow);
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 110%;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--white);
+  transition: color .2s;
+}
+.menu__links a:hover { color: var(--leaf); }
+
+.menu__socials {
+  z-index: 9999999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 24px;
+  margin-right: 170px;
+}
+.menu__socials a {
+  font-family: var(--font-narrow);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 130%;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--white);
+  transition: color .2s;
+}
+.menu__socials a:hover { color: var(--leaf-2); }
+
+.menu__close {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 65px 0 0 65px;
+  border: 1px solid var(--white);
+  border-radius: 100px;
+  -webkit-backdrop-filter: blur(20px);
+          backdrop-filter: blur(20px);
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+/* open state */
+.menu.is-open .menu__bg     { transform: translateX(0); }
+.menu.is-open .menu__links,
+.menu.is-open .menu__socials { opacity: 1; transform: translateX(0); transition-duration: .5s; }
+.menu.is-open .menu__close   { opacity: 1; transition-duration: .5s; }
+
+/* -------------------------------------------------------------- 6. HERO */
+.hero { position: relative; overflow: visible; }
+
+.hero__canvas-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100svh;
+  background-color: var(--white);
+}
+.hero__embed {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100svh;
+  background-color: var(--paper);
+}
+.hero__scroll-hint {
+  position: absolute;
+  inset: 0;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 24px 48px 24px 24px;
+}
+
+.hero__panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+}
+.hero__panel--sticky { position: sticky; top: 0; z-index: 2; }
+
+.hero__copy {
+  position: absolute;
+  inset: auto 0 0;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 100%;
+  padding: 48px;
+}
+.hero__copy-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+}
+.hero__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 0 0 24px;
+}
+.hero__block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 1rem;
+  max-width: 490px;
+  padding: 0 0 24px 24px;
+}
+
+/* ------------------------------------------------------ 7. WHAT WE DO */
+.expertise { display: flex; flex-direction: column; width: 100%; }
+
+.expertise__header {
+  position: sticky;
+  /* The header and the card stack are ONE visual unit that centres together.
+     NOTE the gap between them is the header's own padding-bottom PLUS the
+     offset baked into .sticky-row--a — it used to be 48 of each, so 96 in
+     total, which pushed the stack too close to the bottom on short laptops.
+     Now 24 + 24: 114 header + 24 + 493 cards = 631, so the unit's top is
+     50svh - 270 and the cards follow at a fixed offset below it.
+     Centred in the space BELOW the fixed nav (which ends at 90px), not in the
+     whole viewport — on the full height the title landed 20px under the nav at
+     1440x900. max() is the floor for short viewports: 154 keeps 64px of clear
+     air under the nav. */
+  top: max(154px, calc(50svh - 270px));
+  z-index: 3;
+  display: flex;
+  align-self: center;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 32px;
+  width: 100%;
+  padding: 0 var(--gutter) 24px;
+  max-width: var(--page-max);
+  margin-inline: auto;
+}
+.expertise__col { position: relative; z-index: 3; display: flex; width: 300px; }
+
+.sticky-row {
+  position: sticky;
+  z-index: 3;
+  display: flex;
+  align-self: center;
+  align-items: flex-end;
+  gap: 32px;
+  width: 100%;
+  padding: 0 var(--gutter);
+  /* Each row is a full-width sticky box, and rows later in the DOM paint over
+     earlier ones at the same z-index — so a later row's empty area sits on top
+     of the cards above it and swallows their pointer events. Harmless while
+     nothing was interactive; it kills the card hover. The rows carry nothing
+     but the cards, so they let clicks through and the cards take them back. */
+  pointer-events: none;
+  max-width: var(--page-max);
+  margin-inline: auto;
+}
+.card-x { pointer-events: auto; }
+/* The pinned frame is the viewport and the card block centres in it, rather
+   than sitting a fixed distance from the top — so the composition holds its
+   place on a 720px laptop and a 1200px display alike.
+   Centred in the space BELOW the sticky header (which ends at 278px), not in
+   the whole viewport: the block is 493px tall (a uniform 393px card, band B
+   100px under band A) and centring that on the full height put the cards over
+   the section title on anything under ~900px.
+   The max() is a floor for short viewports: the cards never climb into the
+   header, and always keep a 48px gap below it. Past that point the tail of the
+   stack runs below the fold, which is a stack you scroll anyway.
+   Document flow is untouched: only `top` changes, so the section's scroll
+   length — and everything the canvas times off it — is exactly as before. */
+.sticky-row--a { top: max(292px, calc(50svh - 132px)); }   /* unit top + 114 + 24 */
+.sticky-row--b { top: max(392px, calc(50svh - 32px)); }
+.sticky-row--left   { justify-content: flex-start; }
+.sticky-row--center { justify-content: center; }
+.sticky-row--right  { justify-content: flex-end; }
+
+.card-x {
+  --card-w: 300px;   /* read by the mobile justify maths — keep them in step */
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: var(--card-w);
+  padding: 48px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background-color: var(--card-glass);
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+}
+/* Shadow drawn by a pseudo-element with mix-blend-mode: multiply.
+   CAVEAT, measured: the blend does NOT reach the page behind the card. Both
+   .sticky-row (position: sticky) and .card-x (z-index + backdrop-filter) create
+   stacking contexts, and a stacking context is a blending isolation group, so
+   the multiply is confined to the card's own subtree. Over this section's
+   near-white backdrop that is academic — multiply against white is the identity,
+   so it renders the same as normal either way. It only becomes a real
+   difference over the canvas artwork or a dark backdrop, and getting there needs
+   the shadow moved to a proxy element outside every sticky ancestor. */
+.card-x::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: var(--shadow-card);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.card-x--1::before { box-shadow: var(--shadow-card-strong); }
+
+/* NB: these url()s must live in this stylesheet. A relative url() inside a
+   CSS custom property is resolved against the stylesheet that *consumes* it,
+   so setting --icon from an inline style on the element resolves it against
+   css/ and 404s. */
+/* Reserve three lines in every card heading so a two-line title doesn't make a
+   shorter card. .h4 is 140% line-height, hence 3 x 1.4em. */
+.card-x .h4 { min-height: calc(3 * 1.4em); }
+
+.card-x__icon {
+  position: relative;
+  z-index: 1;
+  width: 204px;
+  height: 204px;
+  aspect-ratio: 1;
+  background-position: 0 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.card-x--1 .card-x__icon { background-image: url("../images/card-icon-1.webp"); }
+.card-x--2 .card-x__icon { background-image: url("../images/card-icon-2.webp"); }
+.card-x--3 .card-x__icon { background-image: url("../images/card-icon-3.webp"); }
+.card-x--4 .card-x__icon { background-image: url("../images/card-icon-4.webp"); }
+.card-x--5 .card-x__icon { background-image: url("../images/card-icon-5.webp"); }
+.card-x--6 .card-x__icon { background-image: url("../images/card-icon-6.webp"); }
+
+/* ---------------------------------------------------- 8. WHO WE ARE */
+/* One full screen, like a hero fold: section title pinned top-left, the
+   statement block sitting bottom-left, the action bottom-right, and the whole
+   right-hand half left clear for the canvas braid. */
+.audience {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.who {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100svh;
+  padding: 140px var(--gutter) 48px;
+  max-width: var(--page-max);
+  margin-inline: auto;
+}
+
+.who__title { padding-left: 0; }
+.who__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+}
+.who__block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  max-width: 490px;
+}
+/* The proposition carries the same weight as the hero's second-fold statement:
+   .h3 size and weight, but sentence case rather than .h3's capitalize. */
+.who__lede {
+  max-width: 400px;   /* same measure as .intro below it */
+  font-family: var(--font);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 140%;
+  color: var(--ink);
+}
+
+/* ------------------------------------------- 9. RESEARCH & INSIGHTS */
+.research {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  width: 100%;
+  margin-top: 100px;
+  padding: 48px 0;
+}
+.research__top {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 64px;
+  width: 100%;
+  padding: 0 var(--gutter);
+  max-width: var(--page-max);
+  margin-inline: auto;
+}
+.research__header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  /* .research__top is align-items: stretch, so this box is as tall as the
+     header beside it. Without align-content the wrapped lines stretch to fill
+     that height and every tab came out 62px instead of ~34. align-items stays
+     stretch so tabs within a line still match each other. */
+  /* .research__top is align-items: stretch, so this box is as tall as the
+     header beside it — the tab rows sit at its BOTTOM and align right.
+     align-content also stops the wrapped lines stretching to fill that height,
+     which was making every tab 62px tall instead of ~34. */
+  align-content: flex-end;
+  justify-content: flex-end;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+}
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background-color: var(--glass);
+}
+.tab.is-active { border-color: var(--teal); }
+
+.cards {
+  display: flex;
+  /* Wrap rather than squeeze. Without this the four cards stayed on one line at
+     every width and just got narrower — 208px at 1024, 144px at 768. With a
+     flexible basis they hold 4-up while that fits, then fall to 3 and 2. */
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 0 var(--gutter);
+  max-width: var(--page-max);
+  margin-inline: auto;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 260px;
+  width: 100%;
+  max-width: 300px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background-color: var(--card-glass);
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+  box-shadow: 0 24px 24px rgba(202, 212, 226, .5);
+  overflow: hidden;
+}
+.card__image { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 240px;
+  padding: 24px;
+  transition: padding var(--blue-fade);
+}
+.card__title {
+  width: 100%;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 140%;
+  text-transform: capitalize;
+  color: var(--ink);
+}
+.card__meta { display: flex; align-items: flex-end; gap: 10px; width: 100%; }
+.card__meta-text { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.card__kicker,
+.card__date {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 160%;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.card__kicker { color: var(--teal); }
+.card__date   { color: var(--ink); }
+.card__arrow  { width: 24px; height: 24px; }
+
+/* ------------------------------------------ 10. START A CONVERSATION */
+.cta-section {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  height: 100svh;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* ----------------------------------------------------------- 11. FOOTER */
+/* One glass band. Figma "Footer Desktop" 2813:873 / "Footer Mobile" 2813:1060.
+   Three columns bottom-aligned: brand + email, locations, then the subscribe
+   form sitting above the nav row. Everything is Archivo Medium 12/1.6. */
+.site-footer {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  /* matches .site-header, so the footer card and the header bar are the same
+     width and sit on the same left/right edges */
+  padding: 24px 48px;
+}
+.footer-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+  width: 100%;
+  /* same as .header-bar */
+  max-width: calc(var(--page-max) - 2 * 24px);
+  margin-inline: auto;
+  padding: 48px;
+  border: 1px solid var(--header-border);
+  border-radius: 8px;
+  background-color: var(--glass);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+}
+
+/* shared footer type */
+.footer-label,
+.footer-email,
+.footer-locations__list,
+.footer-nav a,
+.footer-form__title,
+.footer-form__input {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+/* the values read one step down from their labels */
+.footer-email,
+.footer-locations__list,
+.footer-nav a { font-size: 10px; }
+
+.footer-field { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.footer-label { letter-spacing: .05em; text-transform: capitalize; color: var(--muted); }
+.footer-email { letter-spacing: .05em; text-transform: uppercase; color: var(--teal); }
+
+/* brand + email */
+.footer-brand { display: flex; flex-direction: column; align-items: flex-start; gap: 32px; }
+.footer-logo img { width: 148px; height: 48px; filter: invert(1); }
+
+/* locations */
+.footer-locations { gap: 16px; }
+.footer-locations__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.footer-locations__list li:not(:last-child)::after { content: "|"; margin-left: 16px; }
+
+/* form + nav */
+.footer-right {
+  display: flex;
+  flex: 0 1 520px;
+  flex-direction: column;
+  align-self: stretch;
+  justify-content: space-between;
+  gap: 32px;
+}
+.footer-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+}
+.footer-form__title {
+  min-width: 0;
+  margin: 0;
+  text-transform: capitalize;
+  color: var(--ink);
+}
+.footer-form__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: none;
+  transition: border-color .2s var(--ease-out-quart);
+}
+.footer-form__field:focus-within { border-color: var(--sky); }
+.footer-form__input {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+}
+.footer-form__input::placeholder { color: var(--muted); text-transform: capitalize; }
+.footer-form__input:focus { outline: none; }
+.footer-form__submit {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+/* the accent tab every field and button on the site carries on its right edge */
+.footer-form__nugget {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 2px;
+  height: 44px;
+  border-radius: 0 2px 2px 0;
+  background: var(--sky-hl);
+}
+
+/* the row is justified across the column, so it ends flush with the field above */
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+}
+.footer-nav a { letter-spacing: .05em; text-transform: uppercase; color: var(--ink); }
+@media (hover: hover) {
+  .footer-nav a:hover,
+  .footer-locations__list li:hover { color: var(--teal); }
+}
+
+/* ------------------------------------------------ 12. SCROLL REVEALS */
+/* Removed. Webflow's "Fade In" and "Slide In Bottom" interactions were ported
+   as [data-fade] / [data-slide-in] plus an IntersectionObserver in js/site.js;
+   both have been dropped on request, along with the research cards' 0/.3/.6/.9s
+   stagger. Content is simply there when you scroll to it. The letter-by-letter
+   [data-reveal] scramble is a separate thing (js/text-reveal.js) and stays. */
+
+@media (prefers-reduced-motion: reduce) {
+  .igap-scroll-line { animation: none; }
+}
+
+/* ---------------------------------------------------------- BLUE MODE
+   The canvas behind the whole page turns navy for the "Who We Work With"
+   stretch. That is a page state, not a section style: anything else on screen
+   while it is true — the tail of "What We Do", the head of "Research &
+   Insights", the header — has to turn over with it, or it sits there in black
+   type on navy.
+
+   js/site.js puts .is-blue on <html> and takes it off again; the thresholds
+   are the same two that drive the background in js/hero-scene.js.
+
+   "Who We Work With" itself needs nothing here — it is authored light-on-dark
+   already, which is why it is the section the blue belongs to.
+
+   Every surface moves the same way the header bar does: the glass fill swaps
+   white for navy at the same alpha, the border goes to the blue rule colour,
+   and the type goes white. Images are left alone — the card photos and the
+   line-art icons are transparent PNG/WebP and read on either background. */
+:root {
+  --blue-ink:      #fff;                    /* type on navy */
+  --blue-line:     var(--header-border-dk); /* rules and borders on navy */
+  --blue-fade:     .12s ease;
+}
+
+.h3, .h4, .body-text, .intro, .who__lede,
+.tab, .tab .btn-label,
+.card__title, .card__date {
+  transition: color var(--blue-fade), border-color var(--blue-fade);
+}
+.card-x, .card-x::before, .who .btn, .who .btn-label {
+  transition: background-color var(--blue-fade), border-color var(--blue-fade),
+              box-shadow var(--blue-fade), color var(--blue-fade);
+}
+.card {
+  transition: background-color var(--blue-fade), border-color var(--blue-fade),
+              box-shadow var(--blue-fade), color var(--blue-fade);
+}
+
+/* --- header --- */
+.is-blue .site-header .header-bar {
+  background-color: var(--header-bg-dk);
+  border-color: var(--header-border-dk);
+}
+.is-blue .site-header .btn-label     { color: var(--header-ink-dk); }
+.is-blue .site-header .site-logo img { filter: brightness(.75) saturate(2); }
+.is-blue .site-header .btn-menu img,
+.is-blue .site-header .btn-work img  { filter: invert(1); }
+
+/* --- Who We Work With --- */
+/* Authored for navy, but it is on screen for a while after the blue leaves
+   (the sections overlap), so out of blue mode its type falls back to the
+   page's dark ink instead of staying white on a light background. */
+.h3--light, .h4--light, .body-text--light,
+.intro--light, .who__lede { color: var(--ink); }
+.is-blue .h3--light,
+.is-blue .h4--light,
+.is-blue .body-text--light,
+.is-blue .intro--light,
+.is-blue .who__lede { color: var(--blue-ink); }
+
+/* --- the "About IGAP" button, which stands on the navy --- */
+/* Same move as the header bar: glass fill swaps white for navy at the same
+   alpha, border goes to the blue rule colour, label goes white. */
+.is-blue .who .btn {
+  background-color: var(--header-bg-dk);
+  border-color: var(--header-border-dk);
+}
+.is-blue .who .btn .btn-label { color: var(--header-ink-dk); }
+
+/* --- What We Do: the pinned header above the cards --- */
+.is-blue .expertise__header .h3,
+.is-blue .expertise__header .body-text { color: var(--blue-ink); }
+
+/* --- Research & Insights: heading, intro and the tab row --- */
+.is-blue .research__header .h3,
+.is-blue .research__header .body-text { color: var(--blue-ink); }
+.is-blue .tab {
+  background-color: var(--header-bg-dk);
+  border-color: var(--blue-line);
+}
+.is-blue .tab .btn-label { color: var(--blue-ink); }
+.is-blue .tab.is-active  { border-color: var(--teal); }
+
+/* --- cards: the six "What We Do" panels and the four blog cards --- */
+.is-blue .card-x,
+.is-blue .card {
+  background-color: var(--card-glass-dk);
+  border-color: var(--blue-line);
+}
+.is-blue .card-x .h4,
+.is-blue .card__title,
+.is-blue .card__date { color: var(--blue-ink); }
+/* .card__kicker stays teal — it reads on both backgrounds. */
+
+/* The scroll-hint line lives in the FIXED canvas layer, so it is on screen for
+   the whole page, not just the hero — including the navy stretch, where its
+   black default is invisible. */
+.igap-scroll-line { transition: background-color var(--blue-fade); }
+.is-blue .igap-scroll-line { --line-color: var(--blue-ink); }
+
+/* The drop shadows are a pale blue-grey, which would halo on navy. */
+.is-blue .card-x::before { box-shadow: 0 24px 24px rgba(0, 10, 26, .45); }
+.is-blue .card-x--1::before { box-shadow: 0 24px 24px rgba(0, 10, 26, .6); }
+.is-blue .card { box-shadow: 0 24px 24px rgba(0, 10, 26, .45); }
+
+/* --- card hover ----------------------------------------------------------
+   Research posts only; "What We Do" has no hover state. No colour change — the
+   card reads as clickable through the cursor and the body opening up. Gated on
+   (hover: hover) so a tap on a touch device cannot leave one stuck. */
+.card { cursor: pointer; }
+@media (hover: hover) {
+  .card:hover .card__body { padding: 32px; }
+}
+
+/* ------------------------------------------------------ 13. RESPONSIVE */
+/* ---------------------------------------------------------- TABLET
+   480-991. This band used to fall through to the full desktop layout, which
+   overflowed sideways (155px at 600, 275px at 480) because the hero's action
+   pair and the research tab row are only corrected at <=479, and because the
+   four research cards never wrapped — 208px wide at 1024, 144 at 768.
+   Everything below narrows the desktop structure rather than adopting the phone
+   one, so the card stagger and the two-column headers survive. */
+@media screen and (max-width: 991px) {
+  :root { --gutter: 40px; }
+
+  .menu__links   { margin-left: 140px; }
+  .menu__socials { margin-right: 140px; }
+
+  /* hero — the action pair is what overflowed. The headline also has to come
+     down: at 4.5rem "MARKETS." alone is ~340px, which plus the actions beat the
+     available width at the bottom of this band. */
+  .hero__copy { padding: 32px; gap: 24px; }
+  .hero__copy-main { min-width: 0; }
+  .cta-stack--row { flex-direction: column; }
+  .hero__block { max-width: 420px; }
+  .h1 { font-size: 3rem; }
+  .h1--narrow { max-width: 620px; }
+
+  /* what we do — the middle column is a spacer on desktop; drop it and let the
+     title and standfirst take the two ends */
+  /* unit: 115 header + 32 gap + 437 cards = 584 */
+  /* tablet keeps the original 48px padding-bottom; only desktop was too airy */
+  .expertise__header { gap: 24px; padding-bottom: 48px; top: max(100px, calc(50svh - 292px)); }
+  .expertise__col { width: auto; flex: 1 1 0; }
+  .expertise__col:nth-child(2) { display: none; }
+  .card-x { --card-w: 260px; padding: 32px; gap: 20px; }
+  .sticky-row { gap: 20px; }
+  .sticky-row--a { top: max(247px, calc(50svh - 145px)); }
+  .sticky-row--b { top: max(327px, calc(50svh - 65px)); }
+
+  /* who we are */
+  .who { padding: 120px var(--gutter) 40px; }
+  .who__block { max-width: 60%; }
+
+  /* research — tabs go under the header, cards two up */
+  .research__top { flex-direction: column; gap: 24px; }
+  .research__header { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 40px; }
+  .cards { gap: 20px; }
+
+  /* footer — brand and locations keep the top row, the form/nav column wraps
+     underneath and takes the full width */
+  .footer-inner { flex-wrap: wrap; gap: 40px; padding: 40px; }
+  .footer-right { flex: 1 1 100%; gap: 32px; }
+  .footer-nav { gap: 20px; }
+}
+
+@media screen and (max-width: 767px) {
+  .menu__links a { font-size: 48px; }
+  .menu__socials { display: none; }
+}
+
+@media screen and (max-width: 479px) {
+  :root { --gutter: 24px; }
+
+  /* headers swap */
+  .site-header          { display: none; }
+  .site-header--mobile  { display: flex; height: auto; padding: 0; }
+  .header-bar--mobile {
+    height: 50px;
+    margin: 12px;
+    padding: 0 4px 0 16px;
+    -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+  }
+  .site-logo--mobile      { width: 50px; }
+  /* the mark is 173x70; pinning both axes stretched it ~2x vertically
+     (the Webflow export had the same bug) */
+  .site-logo--mobile img  { width: 48px; height: auto; }
+  .header-bar--mobile .btn-menu { width: 38px; height: 38px; padding: 0; gap: 0; }
+  .btn-label--menu { display: none; }
+
+  /* menu — one centred column on the gutter, with the close button parked
+     exactly where the Menu button it replaces was. Previously the block started
+     at y=0 (so the first link was cut off) and the close button landed on top
+     of the second one. */
+  .menu {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 88px var(--gutter);
+    overflow-y: auto;
+  }
+  .menu__inner {
+    flex: none;
+    margin: auto 0;   /* centres, and unlike justify-content never clips the top */
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 40px;
+    padding-left: 0;
+  }
+  .menu__links   { margin-left: 0; }
+  .menu__links a { padding: 10px 0; font-size: 32px; }
+  .menu__socials {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-right: 0;
+  }
+  .menu__close { inset: 17px 16px auto auto; margin: 0; }
+
+  /* type */
+  .h1 { font-size: 24px; line-height: 150%; }
+  .h1--desktop { display: none; }
+  .h1--mobile  { display: block; max-width: 210px; font-size: 40px; line-height: 105%; }
+  .h1--center.h1--narrow { line-height: 110%; }
+  .h3, .h3--light { font-size: 16px; line-height: 150%; }
+  .h4 { font-size: 1rem; }
+  .h4--light { font-size: 12px; }
+  .intro { max-width: 210px; font-size: 12px; }
+  .intro--center { max-width: 200px; }
+  .body-text { font-size: 12px; }
+  .btn-label { font-size: 10px; }
+
+  /* buttons */
+  .btn { height: 38px; }
+  .btn__label-wrap { height: 38px; padding: 0 12px; }
+  .btn__icon { width: 38px; height: 38px; }
+  .hl { height: 38px; }
+
+  /* hero */
+  .hero__panel { height: 100svh; }
+  .hero__copy  { gap: 24px; padding: 24px; }
+  /* Contact Us sits LEFT of the LinkedIn button on desktop; at 390px the copy
+     column (210) + that pair (157) overflows the 342 available, so the pair
+     stacks instead. Right-aligned either way. */
+  .cta-stack--row { flex-direction: column; }
+  .hero__copy-main { gap: 32px; width: auto; max-width: 490px; }
+  .hero__intro { padding: 0; }
+  .hero__block { gap: 12px; padding: 0; }
+  .hero__scroll-hint { padding-left: 16px; padding-right: 16px; }
+  .spacer--hero   { height: 80svh; }
+  .spacer--sticky { height: 80svh; }
+
+  /* what we do */
+  /* unit: 142 header + 24 gap + 397 cards = 563 */
+  .expertise__header { flex-direction: column; gap: 12px; top: max(80px, calc(50svh - 281px)); padding: 24px var(--gutter); }
+  .sticky-row {
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0 16px;
+  }
+  .sticky-row--a.sticky-row--left   { top: max(246px, calc(50svh - 115px)); }
+  .sticky-row--a.sticky-row--center { top: max(254px, calc(50svh - 107px)); }
+  .sticky-row--a.sticky-row--right  { top: max(262px, calc(50svh - 99px)); }
+  .sticky-row--b.sticky-row--left   { top: max(270px, calc(50svh - 91px)); }
+  .sticky-row--b.sticky-row--center { top: max(278px, calc(50svh - 83px)); }
+  .sticky-row--b.sticky-row--right  { top: max(286px, calc(50svh - 75px)); }
+  /* The six cards keep their 300px width and their stepped offset, but the
+     step is now whatever is left over after the card — so the first sits on
+     the left gutter, the last on the right, and the stack spans the page.
+     max() keeps it from going negative on phones narrower than the card. */
+  .card-x  { --step: 0; margin-left: calc(max(0px, 100% - var(--card-w)) * var(--step) / 5); }
+  .card-x--2 { --step: 1; }
+  .card-x--3 { --step: 2; }
+  .card-x--4 { --step: 3; }
+  .card-x--5 { --step: 4; }
+  .card-x--6 { --step: 5; }
+
+  /* who we are */
+  .who { padding: 100px 24px 32px; }
+  .who__title { padding-left: 0; }
+  /* A single column kept to 70% of the width, filling the space under the
+     title. margin-top: auto pushes the copy down off the title; the action
+     then takes the slack below it and sits on the bottom edge. */
+  .who__foot {
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 70%;
+    gap: 24px;
+  }
+  .who__block { gap: 12px; padding-left: 0; margin-top: auto; }
+  /* .intro is capped at 210px on mobile for the hero's narrow column; here the
+     70% measure above is what sets the width. */
+  .who__block .intro { max-width: none; }
+  /* .who__foot is already capped at 70%; the tablet band's 60% on the block
+     would compound with it */
+  .who__block { max-width: none; }
+  .who__lede { font-size: 20px; }
+  .cta-stack--wide { align-items: flex-start; }
+
+  /* research */
+  .research { gap: 24px; padding: 60px 0; overflow: hidden; }
+  .research__top { flex-direction: column; gap: 24px; }
+  .research__header { gap: 16px; }
+  /* both rows become swipeable carousels rather than wrapping or clipping */
+  .tabs, .cards {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-left: var(--gutter);
+  }
+  /* tabs keep their scroll indicator — it is the only cue that the row runs on.
+     justify-content MUST go back to flex-start here: the desktop rule aligns the
+     tab rows right, and in a scroll container flex-end pushes the overflow off
+     the left edge, which cannot be scrolled to — the row loads looking as if it
+     is already at its end. */
+  .tabs  { scroll-snap-type: x proximity; justify-content: flex-start; }
+  .cards {
+    scroll-snap-type: x mandatory;
+    gap: 16px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .cards::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: none; height: 32px; padding: 0 12px; border-radius: 2px;
+    scroll-snap-align: start;
+  }
+  .card { flex: 0 0 260px; min-width: 260px; max-width: 260px; scroll-snap-align: start; }
+  .card__kicker, .card__date { font-size: 10px; }
+
+  /* conversation */
+  .cta-section { padding: 32px 24px; }
+
+  /* footer — Figma "Footer Mobile" 2813:1060: logo and email share the top
+     row, everything below it centres */
+  .eyebrow { font-size: 10px; }
+  .site-footer { padding: 12px var(--gutter); }
+  .footer-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 64px;
+    padding: 48px 32px 32px;
+  }
+  .footer-brand { flex-direction: row; align-items: flex-start; gap: 32px; }
+  .footer-logo { flex: 1 1 0; min-width: 0; }
+  .footer-logo img { width: 100%; max-width: 151px; height: 48px; object-fit: contain; object-position: left center; }
+  .footer-brand .footer-field { gap: 8px; }
+  .footer-locations { align-items: center; }
+  .footer-locations__list { justify-content: center; }
+  .footer-right { gap: 64px; }
+  .footer-form { grid-template-columns: 1fr; gap: 16px; }
+  .footer-form__title { text-align: center; }
+  .footer-nav { justify-content: center; gap: 20px; }
+}

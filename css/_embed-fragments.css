@@ -1,0 +1,84 @@
+/* extracted verbatim from the Webflow embeds */
+
+/* One wrapper per text run: keeps the split behaving exactly like the
+     original text node even inside flex/grid containers (spaces preserved,
+     wrapping + max-width respected). */
+  .reveal-text {
+    display: inline;
+    min-width: 0;
+  }
+  .reveal-word {
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .reveal-letter {
+    display: inline-block;
+    opacity: 0;
+    filter: blur(6px);
+    will-change: opacity, filter;
+    /* Case is applied in JS at split time (word-aware). Without this,
+       CSS capitalize would uppercase every letter-span as its own word. */
+    text-transform: none;
+  }
+  .reveal-letter.is-visible {
+    opacity: 1;
+    filter: blur(0);
+  }
+
+#igap-scene {
+    position: fixed; inset: 0;
+    width: 100vw; height: 100vh;
+    display: block; z-index: 0;
+    background: radial-gradient(circle at 50% 42%, #FBFEFF, #D2DEED);
+    background-attachment: fixed;
+  }
+  .igap-scroll-space {
+    position: relative; width: 100%;
+    height: 1200svh;
+    z-index: 1; pointer-events: none;
+  }
+  .igap-label {
+    position: fixed; left: 0; top: 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500; font-size: 12px; letter-spacing: 0.22em;
+    color: #8695A5; pointer-events: none; white-space: nowrap;
+    z-index: 1; opacity: 0;
+    will-change: left, top, transform, opacity;
+  }
+
+.igap-scroll-line {
+    --line-h: 64px;
+    --line-w: 1px;
+    --line-color: #000;
+    --line-speed: 1.6s;
+    width: var(--line-w);
+    height: var(--line-h);
+    margin: 0 auto;                 /* centre within its container */
+    background: var(--line-color);
+    animation: igap-scroll-line var(--line-speed) cubic-bezier(0.7, 0, 0.3, 1) infinite;
+  }
+  /* clip-path reveals a segment: bottom edge grows down, then the top edge
+     follows it down — so it draws in and shrinks out in the same direction. */
+  @keyframes igap-scroll-line {
+    0%   { clip-path: inset(0 0 100% 0); }   /* nothing, gathered at the top */
+    50%  { clip-path: inset(0 0 0 0); }      /* grown fully, top → bottom */
+    100% { clip-path: inset(100% 0 0 0); }   /* shrunk away downward, at the bottom */
+  }
+
+.scramble-hover-letter {
+    display: inline-block;
+    position: relative;
+    white-space: pre;
+  }
+  /* Reserves the final character's exact width */
+  .scramble-hover-letter::before {
+    content: attr(data-layout-char);
+    visibility: hidden;
+  }
+  /* The visible character can change without affecting layout */
+  .scramble-hover-glyph {
+    position: absolute;
+    inset: 0;
+    text-align: center;
+    pointer-events: none;
+  }
