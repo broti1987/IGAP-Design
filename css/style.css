@@ -19,31 +19,36 @@
 
 /* ------------------------------------------------------------- 1. TOKENS */
 :root {
-  --ink:        #000;
+  --black:        #000;
   --white:      #fff;
   --paper:      #f7fbfd;
   /* One translucent surface per mode. Every frosted panel on the site — header
      bar, cards, footer card — uses these two and nothing else. */
   --glass:      rgba(247, 251, 253, .6);
   --dark-glass: rgba(0, 29, 60, .6);
-  --line:       #b0bfd2;
-  --muted:      #8695a5;
-  --rule:       #276bc0;
+  --light-grey:       #b0bfd2;
+  --grey:      #8695a5;
+  --cobalt:       #276bc0;
 
   --teal:       #22adad;
   --green:      #8cda3e;
   --sky:        #46ccf5;
   --violet:     #858be0;
 
-  --shadow-card: 0 24px 24px rgba(202, 212, 226, .4);
-  --shadow-card-strong: 0 24px 24px rgba(202, 212, 226, .6);
-  --menu-bg:    rgba(0, 29, 60, .9);
+  /* Two elevations, one per mode. Same geometry throughout; only the tint and
+     the alpha change. "lift" is the raised step — currently the first What We
+     Do card, which sits forward of the other five. */
+  --shadow-card:      0 24px 24px rgba(202, 212, 226, .45);
+  --shadow-lift:      0 24px 24px rgba(202, 212, 226, .6);
+  --dark-shadow-card: 0 24px 24px rgba(0, 10, 26, .45);
+  --dark-shadow-lift: 0 24px 24px rgba(0, 10, 26, .6);
+  --super-dark-glass:    rgba(0, 29, 60, .9);
 
   /* header, light state (default) and dark state (over "Who We Are").
      The surfaces themselves are --glass / --dark-glass; only the border and
      type colour differ per state. */
-  --header-border:    var(--line);
-  --header-border-dk: var(--rule);
+  --header-border:    var(--light-grey);
+  --header-border-dk: var(--cobalt);
   --header-ink-dk:    #fff;
 
   --font:        "Archivo", sans-serif;
@@ -64,9 +69,9 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  background-color: var(--ink);
+  background-color: var(--black);
   font-family: var(--font);
-  color: var(--ink);
+  color: var(--black);
   overflow-x: hidden;
 }
 
@@ -100,7 +105,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   letter-spacing: .02em;
   text-transform: uppercase;
   text-align: left;
-  color: var(--ink);
+  color: var(--black);
 }
 .h1--center { text-align: center; }
 .h1--narrow { max-width: 900px; }
@@ -112,7 +117,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   font-weight: 700;
   line-height: 140%;
   text-transform: capitalize;
-  color: var(--ink);
+  color: var(--black);
 }
 .h3--light { color: var(--white); }
 
@@ -123,7 +128,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   font-weight: 600;
   line-height: 140%;
   text-transform: capitalize;
-  color: var(--ink);
+  color: var(--black);
 }
 .h4--light { color: var(--white); }
 
@@ -133,7 +138,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   font-size: 16px;
   font-weight: 300;
   line-height: 160%;
-  color: var(--ink);
+  color: var(--black);
 }
 .intro--center { max-width: none; text-align: center; }
 .intro--light  { color: var(--white); }
@@ -143,7 +148,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   font-size: 14px;
   font-weight: 300;
   line-height: 160%;
-  color: var(--ink);
+  color: var(--black);
 }
 .body-text--light  { width: 100%; color: var(--white); text-transform: capitalize; }
 .body-text--300    { width: 300px; }
@@ -177,7 +182,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   line-height: 160%;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--black);
   white-space: nowrap;
 }
 .btn-label--tab { font-size: 10px; }
@@ -197,7 +202,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   position: relative;
   display: inline-flex;
   align-items: stretch;
-  border: 1px solid var(--line);
+  border: 1px solid var(--light-grey);
   border-radius: 2px;
   background-color: var(--glass);
   -webkit-backdrop-filter: blur(5px);
@@ -342,7 +347,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   position: fixed;
   inset: 0;
   z-index: 8888;
-  background-color: var(--menu-bg);
+  background-color: var(--super-dark-glass);
   -webkit-backdrop-filter: blur(20px);
           backdrop-filter: blur(20px);
   transform: translateX(-100%);
@@ -585,7 +590,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   gap: 24px;
   width: var(--card-w);
   padding: 48px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--light-grey);
   border-radius: 4px;
   background-color: var(--glass);
   -webkit-backdrop-filter: blur(12px);
@@ -610,7 +615,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   mix-blend-mode: multiply;
   pointer-events: none;
 }
-.card-x--1::before { box-shadow: var(--shadow-card-strong); }
+.card-x--1::before { box-shadow: var(--shadow-lift); }
 
 /* NB: these url()s must live in this stylesheet. A relative url() inside a
    CSS custom property is resolved against the stylesheet that *consumes* it,
@@ -651,7 +656,8 @@ p, h1, h2, h3, h4 { margin: 0; }
 .who {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* one child now that the title sits inside the block — keep it on the floor */
+  justify-content: flex-end;
   width: 100%;
   height: 100svh;
   padding: 140px var(--gutter) 48px;
@@ -673,15 +679,15 @@ p, h1, h2, h3, h4 { margin: 0; }
   gap: 1rem;
   max-width: 490px;
 }
-/* The proposition carries the same weight as the hero's second-fold statement:
-   .h3 size and weight, but sentence case rather than .h3's capitalize. */
+/* The proposition sits at body size and is separated from the copy below it by
+   weight alone — 700 against the .intro's 300. */
 .who__lede {
   max-width: 400px;   /* same measure as .intro below it */
   font-family: var(--font);
-  font-size: 24px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 140%;
-  color: var(--ink);
+  color: var(--black);
 }
 
 /* ------------------------------------------- 9. RESEARCH & INSIGHTS */
@@ -737,7 +743,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   align-items: center;
   justify-content: center;
   padding: 8px 12px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--light-grey);
   border-radius: 4px;
   background-color: var(--glass);
   /* same frost as the research cards below them, so the whole section reads as
@@ -767,12 +773,12 @@ p, h1, h2, h3, h4 { margin: 0; }
   flex: 1 1 260px;
   width: 100%;
   max-width: 300px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--light-grey);
   border-radius: 8px;
   background-color: var(--glass);
   -webkit-backdrop-filter: blur(12px);
           backdrop-filter: blur(12px);
-  box-shadow: 0 24px 24px rgba(202, 212, 226, .5);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 .card__image { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
@@ -793,7 +799,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   font-weight: 500;
   line-height: 140%;
   text-transform: capitalize;
-  color: var(--ink);
+  color: var(--black);
 }
 .card__meta { display: flex; align-items: flex-end; gap: 10px; width: 100%; }
 .card__meta-text { display: flex; flex-direction: column; gap: 4px; width: 100%; }
@@ -807,7 +813,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   text-transform: uppercase;
 }
 .card__kicker { color: var(--teal); }
-.card__date   { color: var(--ink); }
+.card__date   { color: var(--black); }
 .card__arrow  { width: 24px; height: 24px; }
 
 /* ------------------------------------------ 10. START A CONVERSATION */
@@ -819,38 +825,43 @@ p, h1, h2, h3, h4 { margin: 0; }
   align-items: center;
   justify-content: center;
   gap: 24px;
-  height: 100svh;
+  height: 80svh;
   padding: 2rem;
   text-align: center;
 }
 
 /* ----------------------------------------------------------- 11. FOOTER */
-/* One glass band. Figma "Footer Desktop" 2813:873 / "Footer Mobile" 2813:1060.
-   Three columns bottom-aligned: brand + email, locations, then the subscribe
-   form sitting above the nav row. Everything is Archivo Medium 12/1.6. */
+/* One glass band. Figma "Footer Desktop" 2813:873 / "Footer Mobile" 2817:1112.
+   Two full-height columns: brand with the logo pinned top and contact pinned
+   bottom, and a right column with the signup form on top of a three-list link
+   block. Everything is Archivo Medium — 12/1.6 for labels, 10/1.6 for links. */
 .site-footer {
   position: relative;
   z-index: 10;
   width: 100%;
-  /* matches .site-header, so the footer card and the header bar are the same
-     width and sit on the same left/right edges */
-  padding: 24px 48px;
+  /* sides match .site-header, so the footer card and the header bar sit on the
+     same left/right edges; the bottom matches them too, so the card is evenly
+     inset on the three edges that frame it */
+  padding: 24px 48px 48px;
 }
 .footer-inner {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 40px;
+  align-items: stretch;
   width: 100%;
   /* same as .header-bar */
   max-width: calc(var(--page-max) - 2 * 24px);
   margin-inline: auto;
-  padding: 48px;
+  /* fixed on desktop; the stacked bands below drop this to auto and take
+     whatever height their content needs */
+  min-height: 500px;
   border: 1px solid var(--header-border);
   border-radius: 8px;
   background-color: var(--glass);
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
+  /* the halves carry the padding now, and this clips the opaque one to the
+     card's rounded corners */
+  overflow: hidden;
 }
 
 /* shared footer type */
@@ -858,6 +869,8 @@ p, h1, h2, h3, h4 { margin: 0; }
 .footer-email,
 .footer-locations__list,
 .footer-nav a,
+.footer-social a,
+.footer-legal a,
 .footer-form__title,
 .footer-form__input {
   font-family: var(--font);
@@ -868,50 +881,85 @@ p, h1, h2, h3, h4 { margin: 0; }
 /* the values read one step down from their labels */
 .footer-email,
 .footer-locations__list,
-.footer-nav a { font-size: 10px; }
+.footer-nav a,
+.footer-social a,
+.footer-legal a { font-size: 10px; }
 
 .footer-field { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-.footer-label { letter-spacing: .05em; text-transform: capitalize; color: var(--muted); }
-.footer-email { letter-spacing: .05em; text-transform: uppercase; color: var(--teal); }
+.footer-label { letter-spacing: .05em; text-transform: capitalize; color: var(--grey); }
+.footer-email { letter-spacing: .05em; text-transform: uppercase; color: var(--teal); font-size: 12px; }
 
-/* brand + email */
-.footer-brand { display: flex; flex-direction: column; align-items: flex-start; gap: 32px; }
-.footer-logo img { width: 148px; height: 48px; filter: invert(1); }
+/* brand half — solid white against the glass, logo and tagline top,
+   contact bottom */
+.footer-brand {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 48px;
+  padding: 48px;
+  background-color: var(--white);
+  /* the one accent line in the footer, on the inner edge of the white half */
+  border-right: 1px solid var(--teal);
+}
+.footer-brand__top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 48px;
+  max-width: 458px;
+}
+.footer-logo img { width: 150px; height: 48px; filter: invert(1); }
+.footer-tagline {
+  margin: 0;
+  font-family: var(--font-narrow);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--black);
+}
+.footer-brand__foot { display: flex; flex-direction: column; gap: 32px; width: 100%; }
 
-/* locations */
-.footer-locations { gap: 16px; }
+.footer-locations { gap: 16px; width: 100%; }
 .footer-locations__list {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
   letter-spacing: .05em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--black);
 }
-.footer-locations__list li:not(:last-child)::after { content: "|"; margin-left: 16px; }
+.footer-locations__list li { white-space: nowrap; }
 
-/* form + nav */
+/* right column — form above, links below */
 .footer-right {
   display: flex;
-  flex: 0 1 520px;
+  flex: 1 1 0;
+  min-width: 0;
   flex-direction: column;
-  align-self: stretch;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 32px;
+  gap: 48px;
+  padding: 48px;
 }
 .footer-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  align-items: end;
+  align-items: start;
   gap: 16px;
-  width: 100%;
+  width: 520px;
+  max-width: 100%;
   margin: 0;
 }
 .footer-form__title {
   min-width: 0;
   margin: 0;
   text-transform: capitalize;
-  color: var(--ink);
+  color: var(--black);
 }
 .footer-form__field {
   position: relative;
@@ -921,12 +969,12 @@ p, h1, h2, h3, h4 { margin: 0; }
   min-width: 0;
   height: 44px;
   padding: 0 16px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--light-grey);
   border-radius: 2px;
   background: none;
   transition: border-color .2s var(--ease-out-quart);
 }
-.footer-form__field:focus-within { border-color: var(--sky); }
+.footer-form__field:focus-within { border-color: var(--teal); }
 .footer-form__input {
   flex: 1;
   min-width: 0;
@@ -934,9 +982,9 @@ p, h1, h2, h3, h4 { margin: 0; }
   padding: 0;
   border: 0;
   background: none;
-  color: var(--ink);
+  color: var(--black);
 }
-.footer-form__input::placeholder { color: var(--muted); text-transform: capitalize; }
+.footer-form__input::placeholder { color: var(--grey); text-transform: capitalize; }
 .footer-form__input:focus { outline: none; }
 .footer-form__submit {
   display: grid;
@@ -957,20 +1005,38 @@ p, h1, h2, h3, h4 { margin: 0; }
   width: 2px;
   height: 44px;
   border-radius: 0 2px 2px 0;
-  background: var(--sky);
+  background: var(--teal);
 }
 
-/* the row is justified across the column, so it ends flush with the field above */
+/* three stacked lists: primary nav, then social over legal */
+.footer-links { display: flex; align-items: stretch; gap: 16px; width: 520px; max-width: 100%; }
 .footer-nav {
   display: flex;
-  flex-wrap: wrap;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+.footer-aside {
+  display: flex;
+  flex: 0 0 252px;
+  flex-direction: column;
   justify-content: space-between;
   gap: 24px;
-  width: 100%;
 }
-.footer-nav a { letter-spacing: .05em; text-transform: uppercase; color: var(--ink); }
+.footer-social,
+.footer-legal { display: flex; flex-direction: column; gap: 24px; }
+
+.footer-nav a,
+.footer-social a,
+.footer-legal a { letter-spacing: .05em; text-transform: uppercase; }
+.footer-nav a    { color: var(--black); }
+.footer-social a,
+.footer-legal a  { color: var(--grey); }
 @media (hover: hover) {
   .footer-nav a:hover,
+  .footer-social a:hover,
+  .footer-legal a:hover,
   .footer-locations__list li:hover { color: var(--teal); }
 }
 
@@ -1037,7 +1103,7 @@ p, h1, h2, h3, h4 { margin: 0; }
    (the sections overlap), so out of blue mode its type falls back to the
    page's dark ink instead of staying white on a light background. */
 .h3--light, .h4--light, .body-text--light,
-.intro--light, .who__lede { color: var(--ink); }
+.intro--light, .who__lede { color: var(--black); }
 .is-blue .h3--light,
 .is-blue .h4--light,
 .is-blue .body-text--light,
@@ -1085,9 +1151,9 @@ p, h1, h2, h3, h4 { margin: 0; }
 .is-blue .igap-scroll-line { --line-color: var(--blue-ink); }
 
 /* The drop shadows are a pale blue-grey, which would halo on navy. */
-.is-blue .card-x::before { box-shadow: 0 24px 24px rgba(0, 10, 26, .45); }
-.is-blue .card-x--1::before { box-shadow: 0 24px 24px rgba(0, 10, 26, .6); }
-.is-blue .card { box-shadow: 0 24px 24px rgba(0, 10, 26, .45); }
+.is-blue .card-x::before { box-shadow: var(--dark-shadow-card); }
+.is-blue .card-x--1::before { box-shadow: var(--dark-shadow-lift); }
+.is-blue .card { box-shadow: var(--dark-shadow-card); }
 
 /* --- card hover ----------------------------------------------------------
    Research posts only; "What We Do" has no hover state. No colour change — the
@@ -1143,11 +1209,19 @@ p, h1, h2, h3, h4 { margin: 0; }
   .research__header { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 40px; }
   .cards { gap: 20px; }
 
-  /* footer — brand and locations keep the top row, the form/nav column wraps
-     underneath and takes the full width */
-  .footer-inner { flex-wrap: wrap; gap: 40px; padding: 40px; }
-  .footer-right { flex: 1 1 100%; gap: 32px; }
-  .footer-nav { gap: 20px; }
+  /* footer — the right half needs 520 for the form, which no longer fits
+     beside the brand in this band, so the two halves stack */
+  .footer-inner { flex-direction: column; min-height: 0; }
+  .footer-brand {
+    flex: none;
+    width: 100%;
+    padding: 40px;
+    /* halves are stacked here, so the accent line runs along the bottom */
+    border-right: 0;
+    border-bottom: 1px solid var(--teal);
+  }
+  .footer-right { flex: none; width: 100%; padding: 40px; align-items: stretch; }
+  .footer-form, .footer-links { width: 100%; }
 }
 
 @media screen and (max-width: 767px) {
@@ -1225,13 +1299,21 @@ p, h1, h2, h3, h4 { margin: 0; }
   /* hero */
   .hero__panel { height: 100svh; }
   .hero__copy  { gap: 24px; padding: 24px; }
+  /* fold 2 — "About us" sits under the copy rather than beside it, the same
+     move Who We Are already makes at this width */
+  .hero__panel--sticky .hero__copy {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+  }
   /* Contact Us sits LEFT of the LinkedIn button on desktop; at 390px the copy
      column (210) + that pair (157) overflows the 342 available, so the pair
      stacks instead. Right-aligned either way. */
-  .cta-stack--row { flex-direction: column; }
+  .cta-stack--row { flex-direction: row; }
   .hero__copy-main { gap: 32px; width: auto; max-width: 490px; }
   .hero__intro { padding: 0; }
   .hero__block { gap: 12px; padding: 0; }
+  .hero__block .intro { max-width: none; }
   .hero__scroll-hint { padding-left: 16px; padding-right: 16px; }
   .spacer--hero   { height: 80svh; }
   .spacer--sticky { height: 80svh; }
@@ -1281,7 +1363,7 @@ p, h1, h2, h3, h4 { margin: 0; }
   /* .who__foot is already capped at 70%; the tablet band's 60% on the block
      would compound with it */
   .who__block { max-width: none; }
-  .who__lede { font-size: 20px; }
+  .who__lede { font-size: 12px; }
   .cta-stack--wide { align-items: flex-start; }
 
   /* research */
@@ -1301,7 +1383,13 @@ p, h1, h2, h3, h4 { margin: 0; }
      tab rows right, and in a scroll container flex-end pushes the overflow off
      the left edge, which cannot be scrolled to — the row loads looking as if it
      is already at its end. */
-  .tabs  { scroll-snap-type: x proximity; justify-content: flex-start; }
+  .tabs  {
+    scroll-snap-type: x proximity;
+    justify-content: flex-start;
+    width: calc(100% + var(--gutter) * 2);
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+  }
   .cards {
     scroll-snap-type: x mandatory;
     gap: 16px;
@@ -1317,26 +1405,19 @@ p, h1, h2, h3, h4 { margin: 0; }
   .card__kicker, .card__date { font-size: 10px; }
 
   /* conversation */
-  .cta-section { padding: 32px 24px; }
+  .cta-section { height: 60svh; padding: 32px 24px; }
 
-  /* footer — Figma "Footer Mobile" 2813:1060: logo and email share the top
-     row, everything below it centres */
+  /* footer — Figma "Footer Mobile" 2817:1112: white block over glass block,
+     each 32px padded, and the two link columns share the width evenly */
   .eyebrow { font-size: 10px; }
-  .site-footer { padding: 12px var(--gutter); }
-  .footer-inner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 64px;
-    padding: 48px 32px 32px;
-  }
-  .footer-brand { flex-direction: row; align-items: flex-start; gap: 32px; }
-  .footer-logo { flex: 1 1 0; min-width: 0; }
-  .footer-logo img { width: 100%; max-width: 151px; height: 48px; object-fit: contain; object-position: left center; }
-  .footer-brand .footer-field { gap: 8px; }
-  .footer-locations { align-items: center; }
-  .footer-locations__list { justify-content: center; }
-  .footer-right { gap: 64px; }
-  .footer-form { grid-template-columns: 1fr; gap: 16px; }
-  .footer-form__title { text-align: center; }
-  .footer-nav { justify-content: center; gap: 20px; }
+  .site-footer { padding: 12px; }
+  .footer-inner { flex-direction: column; align-items: stretch; min-height: 0; }
+  .footer-brand { flex: none; width: 100%; gap: 48px; padding: 32px; }
+  .footer-brand__top { max-width: none; width: 100%; }
+  .footer-tagline { font-size: 16px; }
+  .footer-right { flex: none; width: 100%; gap: 48px; padding: 32px; align-items: stretch; }
+  .footer-form { grid-template-columns: 1fr; gap: 16px; width: 100%; }
+  .footer-links { gap: 24px; width: 100%; }
+  .footer-locations__list { gap: 12px; row-gap: 8px; }
+  .footer-aside { flex: 1 1 0; min-width: 0; }
 }
