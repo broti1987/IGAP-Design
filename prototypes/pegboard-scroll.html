@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pegboard Scroll Morph</title>
+<style>
+  :root {
+    --navy: #001d3c;
+    --slate: #395171;    /* site token (igap-rebuild/css/style.css), also the blue-mode dot colour */
+    --peg: var(--slate);
+    /* Pegboard Container — IGAP Design System (Figma 178:17617), dark mode values */
+    --dark-glass:       rgba(0, 29, 60, .6);
+    --cobalt:           #276bc0;
+    --dark-shadow-card: 0 24px 24px rgba(0, 10, 26, .45);
+    --radius-card:      8px;
+    --icons: 7;          /* number of states: resting board + six icons */
+    --screens-per: 1.1;  /* scroll screens per transition — the pacing dial */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--navy); }
+
+  /* Tall track; the stage pins inside it for the whole sequence. */
+  .track {
+    position: relative;
+    height: calc(100svh + (var(--icons) - 1 + 0.6) * var(--screens-per) * 100svh);
+  }
+  .stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;   /* board left half, right half clear */
+  }
+  .board-half {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* 520 × 520 in the design file. Inset 72/520 — the board sits clear of the
+     card's edge with real breathing room (≈ 3 peg steps), and lands the grid
+     at ~375px on desktop. */
+  .pegboard {
+    --pb: min(520px, 36vw, 62svh);
+    width: var(--pb);
+    aspect-ratio: 1;
+    padding: calc(var(--pb) * 72 / 520);
+    background: var(--dark-glass);
+    border: 1px solid var(--cobalt);
+    border-radius: var(--radius-card);
+    box-shadow: var(--dark-shadow-card);
+    overflow: hidden;
+  }
+  .board {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    touch-action: pan-y;
+  }
+
+  @media (max-width: 767px) {
+    .stage { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; } /* top half */
+    .pegboard { --pb: min(86vw, 42svh); }
+  }
+
+  .peg  { fill: var(--peg); pointer-events: none; }
+  .ring { fill: none; stroke: var(--peg); pointer-events: none; }
+  .band { fill: none; stroke-linejoin: round; pointer-events: all; }
+  /* While an icon is holding still, bands can be grabbed. touch-action: none
+     on the band only, so a finger on a band drags it, and anywhere else scrolls. */
+  .board.can-drag .band { cursor: grab; touch-action: none; }
+  .board.dragging, .board.dragging .band { cursor: grabbing; }
+  .band, .ring { stroke-width: 2.25px; vector-effect: non-scaling-stroke; }
+</style>
+</head>
+<body>
+
+<main class="track">
+  <div class="stage">
+    <div class="board-half">
+      <div class="pegboard">
+        <svg class="board" viewBox="0 0 264 264" aria-hidden="true">
+          <g id="pegs"></g>
+          <g id="rings"></g>
+          <g id="bands"></g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(() => {
+  /* ------------------------------------------------------------------
+     State 0 is the top fold — a pinwheel of four bands, one per colour slot
+     of icon 1 so every band travels into place. States 1–6 are lifted from Artboard 1–6.svg.
+     Every band is a pill stretched between two pegs: [colour, x1,y1, x2,y2]
+     in peg indices (0–11).
+     ------------------------------------------------------------------ */
+  const C = { teal: '#22adad', green: '#7ed329', sky: '#1dbcec' };
+
+  const ICONS = [
+    [ // 0 — top fold: pinwheel of four bands
+      ['teal', 3,3, 6,3], ['green', 8,3, 8,6], ['sky', 3,5, 3,8], ['teal', 5,8, 8,8],
+    ],
+    [ // 1 — diagonal cluster
+      ['green', 6,6, 8,4], ['teal', 5,6, 7,8], ['teal', 4,3, 6,5], ['sky', 3,7, 5,5],
+    ],
+    [ // 2 — staircase
+      ['teal', 2,9, 4,9], ['green', 4,6, 4,9], ['sky', 4,6, 6,6],
+      ['green', 6,4, 6,6], ['teal', 6,4, 9,4], ['sky', 9,2, 9,4],
+    ],
+    [ // 3 — closed tilted rectangle
+      ['sky', 2,6, 5,9], ['sky', 6,2, 9,5], ['green', 6,2, 4,4],
+      ['teal', 4,4, 2,6], ['teal', 9,5, 7,7], ['green', 7,7, 5,9],
+    ],
+    [ // 4 — three L-steps
+      ['sky', 2,7, 4,7], ['teal', 4,7, 4,9], ['teal', 4,5, 6,5],
+      ['green', 6,5, 6,7], ['green', 6,3, 8,3], ['sky', 8,3, 8,5],
+    ],
+    [ // 5 — rising line chart + arrowhead
+      ['sky', 2,7, 2,9], ['teal', 2,7, 3,7], ['green', 3,7, 5,5], ['sky', 5,5, 7,5],
+      ['green', 7,5, 9,3], ['teal', 9,3, 9,5], ['teal', 7,3, 9,3],
+    ],
+    [ // 6 — connected path
+      ['green', 2,7, 2,9], ['teal', 2,7, 4,7], ['green', 4,4, 4,7], ['sky', 4,4, 7,4],
+      ['green', 7,4, 7,6], ['teal', 7,6, 9,6], ['sky', 9,6, 9,9],
+    ],
+  ];
+
+  /* Corner rings — part of the board, constant. */
+  const RING_PEGS = [[1,10], [1,1], [10,1], [10,10]];
+
+  /* ---------------- Tuning ---------------- */
+  // Scroll choreography
+  const HOLD      = 0.34;  // share of each transition spent holding the icon at rest
+  const STAGGER   = 0.07;  // delay between bands, swept left → right
+  const LEAD      = 0.3;   // hold on the first / last icon (in transitions)
+  const SMOOTH_S  = 0.12;  // scroll follower time-constant
+  // Rubber band — while moving
+  const PULL      = 0.32;  // how far the leading end runs ahead of the trailing end (0 = together)
+  const THIN      = 0.5;   // how much a stretched band narrows (0 = never, 1 = fully)
+  const NECK      = 0.45;  // how much a stretched band pinches in the middle
+  const SPRING_K  = 170;   // end-point spring stiffness — higher = tighter
+  const SPRING_Z  = 0.42;  // damping ratio — lower = more bounce when an end lands
+  // Rubber band — hover pluck
+  const PLUCK_AMP = 7;     // peak sideways swing, in icon units (pill is 12.8 wide)
+  const PLUCK_HZ  = 7;     // vibration frequency
+  const PLUCK_TAU = 0.42;  // decay time-constant, seconds
+
+  /* Geometry */
+  const STEP = 260 / 11, R = 6.405;
+  const px = i => 2 + i * STEP;
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs, parent) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    parent && parent.appendChild(n);
+    return n;
+  };
+
+  // Static board
+  const gPegs = document.getElementById('pegs');
+  for (let y = 0; y < 12; y++) for (let x = 0; x < 12; x++)
+    el('circle', { class: 'peg', cx: px(x), cy: px(y), r: 2 }, gPegs);
+  const gRings = document.getElementById('rings');
+  RING_PEGS.forEach(([x, y]) => el('circle', { class: 'ring', cx: px(x), cy: px(y), r: R }, gRings));
+
+  // base = the intended icons, never touched. layout = what each screen shows
+  // right now; a screen's layout only differs from base while you've rearranged it.
+  const base = ICONS.map(ic => ic.map(([c, x1, y1, x2, y2]) => ({
+    col: hex(C[c]), a: [px(x1), px(y1)], b: [px(x2), px(y2)], o: 1,
+  })));
+  const cloneBand = b => ({ col: b.col, a: b.a.slice(), b: b.b.slice(), o: 1 });
+  const layout = base.map(ic => ic.map(cloneBand));
+  const N = ICONS.length - 1;
+
+  /* ------------------------------------------------------------------
+     Pairing — least total travel, colour kept whenever counts allow.
+     Ghosts are zero-length invisible bands on one end of their partner,
+     so new bands grow out of a peg and leaving bands shrink into one.
+     ------------------------------------------------------------------ */
+  const d = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
+  const COLOUR_COST = 400, GHOST_COST = 60;
+
+  function pairCost(A, B) {
+    if (!A || !B) return { c: GHOST_COST, flip: false };
+    const straight = d(A.a, B.a) + d(A.b, B.b);
+    const flipped  = d(A.a, B.b) + d(A.b, B.a);
+    const colour   = A.col.join() === B.col.join() ? 0 : COLOUR_COST;
+    return flipped < straight ? { c: flipped + colour, flip: true } : { c: straight + colour, flip: false };
+  }
+
+  function bestAssignment(A, B) {
+    const n = Math.max(A.length, B.length);
+    const a = [...A, ...Array(n - A.length).fill(null)];
+    const b = [...B, ...Array(n - B.length).fill(null)];
+    const cost = a.map(x => b.map(y => pairCost(x, y)));
+    let best = Infinity, bestPerm = null;
+    const perm = [], used = Array(n).fill(false);
+    (function rec(i, acc) {
+      if (acc >= best) return;
+      if (i === n) { best = acc; bestPerm = perm.slice(); return; }
+      for (let j = 0; j < n; j++) if (!used[j]) {
+        used[j] = true; perm[i] = j;
+        rec(i + 1, acc + cost[i][j].c);
+        used[j] = false;
+      }
+    })(0, 0);
+
+    return a.map((from, i) => {
+      const j = bestPerm[i];
+      let to = b[j];
+      const flip = !!(from && to && cost[i][j].flip);
+      if (flip) to = { ...to, a: to.b, b: to.a };
+      if (!from) from = { col: to.col, a: to.a, b: to.a, o: 0 };
+      if (!to)   to   = { col: from.col, a: from.b, b: from.b, o: 0 };
+      // The end that travels further leads; the other is dragged after it.
+      const aLeads = d(from.a, to.a) >= d(from.b, to.b);
+      return { from, to, aLeads, flip,
+               ai: i < A.length ? i : -1,      // index of this band in the screen it leaves
+               bi: j < B.length ? j : -1,      // …and in the screen it arrives at
+               fromLen: d(from.a, from.b), toLen: d(to.a, to.b) };
+    });
+  }
+
+  function buildTransition(i) {
+    const pairs = bestAssignment(layout[i], layout[i + 1]);
+    const mid = p => (p.from.a[0] + p.from.b[0] + p.to.a[0] + p.to.b[0]) / 4;
+    pairs.map((p, k) => [mid(p), k]).sort((x, y) => x[0] - y[0])
+         .forEach(([, k], rank) => pairs[k].rank = rank);
+    // stable identities ("screen:band") so live state follows a band, not a slot
+    pairs.forEach(p => {
+      p.fromId = p.ai >= 0 ? `${i}:${p.ai}` : null;
+      p.toId   = p.bi >= 0 ? `${i + 1}:${p.bi}` : null;
+    });
+    return { pairs, n: pairs.length };
+  }
+  const transitions = [];
+  for (let i = 0; i < N; i++) transitions.push(buildTransition(i));
+
+  // A screen's layout changed: re-pair both transitions that touch it.
+  let needRemap = false;
+  function rebuildAround(i) {
+    if (i > 0) transitions[i - 1] = buildTransition(i - 1);
+    if (i < N) transitions[i] = buildTransition(i);
+    needRemap = true;
+  }
+
+  const MAX = Math.max(...transitions.map(t => t.n));
+  const gBands = document.getElementById('bands');
+
+  /* Per-slot live state: spring-driven end points + pluck. */
+  const slots = Array.from({ length: MAX }, (_, k) => ({
+    k, path: el('path', { class: 'band' }, gBands),
+    a: null, b: null, va: [0, 0], vb: [0, 0],
+    pluck: null,              // { t0, amp, amp2 }
+    visible: false, len: 0, id: null,
+  }));
+
+  /* ------------------------------------------------------------------
+     Helpers
+     ------------------------------------------------------------------ */
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const lerp2 = (p, q, t) => [lerp(p[0], q[0], t), lerp(p[1], q[1], t)];
+  const clamp01 = v => Math.min(1, Math.max(0, v));
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  function hex(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+  const rgb = (p, q, t) => `rgb(${[0, 1, 2].map(i => Math.round(lerp(p[i], q[i], t))).join(',')})`;
+  const f2 = v => v.toFixed(2);
+
+  /* A pill whose long sides are cubic curves, so it can pinch (neck) when
+     stretched and swing sideways (bow) when plucked.
+     r      cap radius
+     bow1/2 sideways displacement of the band at ~1/3 and ~2/3 of its length
+     pinch  inward squeeze at the middle */
+  function pill(a, b, r, bow1, bow2, pinch) {
+    let dx = b[0] - a[0], dy = b[1] - a[1];
+    const len = Math.hypot(dx, dy);
+    if (len < 1e-3) { dx = 1; dy = 0; } else { dx /= len; dy /= len; }
+    const nx = -dy, ny = dx;
+    const K = 1 / 0.75;                   // control offset that yields the wanted mid displacement
+    const P = (t, s, off) => [a[0] + dx * len * t + nx * (s * r + off),
+                              a[1] + dy * len * t + ny * (s * r + off)];
+    // side 1 (+n): bows with the band, pinches inward (−)
+    const s1a = P(0, 1, 0), s1c1 = P(1/3, 1, K * (bow1 - pinch)), s1c2 = P(2/3, 1, K * (bow2 - pinch)), s1b = P(1, 1, 0);
+    // side 2 (−n): bows with the band, pinches inward (+)
+    const s2b = P(1, -1, 0), s2c2 = P(2/3, -1, K * (bow2 + pinch)), s2c1 = P(1/3, -1, K * (bow1 + pinch)), s2a = P(0, -1, 0);
+    const pt = p => `${f2(p[0])},${f2(p[1])}`;
+    return `M${pt(s1a)}C${pt(s1c1)} ${pt(s1c2)} ${pt(s1b)}` +
+           `A${f2(r)},${f2(r)} 0 0 0 ${pt(s2b)}` +
+           `C${pt(s2c2)} ${pt(s2c1)} ${pt(s2a)}` +
+           `A${f2(r)},${f2(r)} 0 0 0 ${pt(s1a)}Z`;
+  }
+
+  /* ------------------------------------------------------------------
+     Targets from scroll — where each end *should* be.
+     ------------------------------------------------------------------ */
+  function targets(t) {
+    const seg = Math.min(transitions.length - 1, Math.floor(t));
+    const u = clamp01((t - seg - HOLD / 2) / (1 - HOLD));
+    const tr = transitions[seg];
+    const span = 1 - STAGGER * (tr.n - 1);
+    const rest = u === 0 ? seg : u === 1 ? seg + 1 : -1;   // which icon is holding still, if any
+    return { seg, u, rest, n: tr.n, list: tr.pairs.map(p => {
+      const e = clamp01((u - p.rank * STAGGER) / span);
+      // leading end runs over [0, 1-PULL], trailing end over [PULL, 1]
+      const eLead  = ease(clamp01(e / (1 - PULL)));
+      const eTrail = ease(clamp01((e - PULL) / (1 - PULL)));
+      const ea = p.aLeads ? eLead : eTrail, eb = p.aLeads ? eTrail : eLead;
+      const eMid = ease(e);
+      return {
+        a: lerp2(p.from.a, p.to.a, ea),
+        b: lerp2(p.from.b, p.to.b, eb),
+        restLen: lerp(p.fromLen, p.toLen, eMid),
+        col: rgb(p.from.col, p.to.col, eMid),
+        o: p.from.o === 0 ? clamp01(eLead * 2.5) : p.to.o === 0 ? clamp01((1 - eTrail) * 2.5) : 1,
+        id: u < 0.5 ? p.fromId : p.toId,
+        p,
+      };
+    })};
+  }
+
+  /* When the scroll crosses into another transition, the slot → band
+     mapping changes. Hand each slot's live state (spring velocity, pluck)
+     to whichever new slot picks up the same band, so nothing jumps. */
+  let curSeg = -1;
+  function remap(list) {
+    const old = slots.map(s => ({ id: s.id, a: s.a, b: s.b, va: s.va, vb: s.vb, pluck: s.pluck, visible: s.visible }));
+    const takenK = new Set(), takenJ = new Set();
+    const take = (k, j, flip) => {
+      takenK.add(k); takenJ.add(j);
+      const s = slots[k], o = old[j];
+      s.a = (flip ? o.b : o.a).slice();  s.b = (flip ? o.a : o.b).slice();
+      s.va = (flip ? o.vb : o.va).slice(); s.vb = (flip ? o.va : o.vb).slice();
+      s.pluck = o.pluck;
+    };
+    // 1. same band (by identity) — exact, survives re-pairing after a drag
+    list.forEach((tg, k) => {
+      if (!tg.id) return;
+      const j = old.findIndex((o, j) => !takenJ.has(j) && o.a && o.id === tg.id);
+      if (j < 0) return;
+      const o = old[j];
+      take(k, j, d(o.a, tg.b) + d(o.b, tg.a) < d(o.a, tg.a) + d(o.b, tg.b));
+    });
+    // 2. otherwise the nearest visible band, closest pairs first
+    const cand = [];
+    list.forEach((tg, k) => {
+      if (takenK.has(k) || tg.o <= 0.02) return;
+      old.forEach((o, j) => {
+        if (takenJ.has(j) || !o.a || !o.visible) return;
+        const d1 = d(o.a, tg.a) + d(o.b, tg.b), d2 = d(o.a, tg.b) + d(o.b, tg.a);
+        cand.push({ k, j, dist: Math.min(d1, d2), flip: d2 < d1 });
+      });
+    });
+    cand.sort((x, y) => x.dist - y.dist);
+    for (const c of cand) {
+      if (c.dist > STEP * 1.5 || takenK.has(c.k) || takenJ.has(c.j)) continue;
+      take(c.k, c.j, c.flip);
+    }
+    list.forEach((tg, k) => {
+      if (takenK.has(k)) return;
+      const s = slots[k];
+      s.a = tg.a.slice(); s.b = tg.b.slice(); s.va = [0, 0]; s.vb = [0, 0]; s.pluck = null;
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Frame
+     ------------------------------------------------------------------ */
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const OMEGA = Math.sqrt(SPRING_K), DAMP = 2 * SPRING_Z * OMEGA;
+
+  function stepSpring(pos, vel, target, dt) {
+    for (let i = 0; i < 2; i++) {
+      const acc = SPRING_K * (target[i] - pos[i]) - DAMP * vel[i];
+      vel[i] += acc * dt; pos[i] += vel[i] * dt;
+    }
+  }
+
+  function frame(t, dt, now, settled) {
+    let tg = targets(t);
+
+    // Scrolled on while holding a band: let go of it where it is.
+    if (drag && (tg.rest !== drag.screen || tg.seg !== drag.seg)) { drop(drag.pt, drag.raw); tg = targets(t); }
+
+    // Once you've moved on to a neighbouring icon, the screen you rearranged
+    // goes back to its intended shape — scroll back and you see the real icon.
+    if (edited >= 0 && !drag && Math.abs(t - edited) >= 1 - HOLD / 2 - 1e-6) {
+      layout[edited] = base[edited].map(cloneBand);
+      rebuildAround(edited);
+      edited = -1;
+      tg = targets(t);
+    }
+
+    if (tg.seg !== curSeg || needRemap) {
+      if (curSeg < 0) tg.list.forEach((x, k) => { slots[k].a = x.a.slice(); slots[k].b = x.b.slice(); });
+      else remap(tg.list);
+      curSeg = tg.seg; needRemap = false;
+    }
+    current = tg;
+    canDrag = tg.rest >= 0 && settled;
+    svg.classList.toggle('can-drag', canDrag || !!drag);
+
+    slots.forEach((s, k) => {
+      const x = tg.list[k];
+      if (!x) { s.path.style.display = 'none'; s.visible = false; s.id = null; return; }
+      s.id = x.id;
+
+      // the end you're holding follows your pointer; the other stays hooked
+      const ta = drag && drag.slot === s && drag.end === 'a' ? drag.pt : x.a;
+      const tb = drag && drag.slot === s && drag.end === 'b' ? drag.pt : x.b;
+
+      if (reduce) { s.a = ta.slice(); s.b = tb.slice(); }
+      else {
+        const sub = Math.max(1, Math.ceil(dt / (1 / 240))), h = dt / sub;
+        for (let i = 0; i < sub; i++) { stepSpring(s.a, s.va, ta, h); stepSpring(s.b, s.vb, tb, h); }
+      }
+
+      const len = d(s.a, s.b);
+      s.len = len;
+      // stretch relative to the length the band "wants" right now
+      const rest = Math.max(x.restLen, STEP * 0.8);
+      const stretch = Math.max(0, len / rest - 1);
+      const r = R * (1 - THIN * (1 - 1 / Math.sqrt(1 + stretch * 2)));
+      const pinch = len > 1 ? Math.min(r * 0.8, R * NECK * Math.min(stretch, 1.2)) : 0;
+
+      let bow1 = 0, bow2 = 0, da = s.a, db = s.b;
+      if (s.pluck && len <= 1) {
+        // a band hooked on a single peg: tug it into an oval and let it boing back
+        const age = (now - s.pluck.t0) / 1000;
+        const env = Math.exp(-age / PLUCK_TAU);
+        if (env < 0.01) s.pluck = null;
+        else {
+          const w = Math.abs(s.pluck.amp) * 0.55 * env * Math.cos(2 * Math.PI * PLUCK_HZ * age);
+          const [ux, uy] = s.pluck.dir;
+          da = [s.a[0] - ux * w, s.a[1] - uy * w];
+          db = [s.b[0] + ux * w, s.b[1] + uy * w];
+        }
+      } else if (s.pluck && len > 1) {
+        const age = (now - s.pluck.t0) / 1000;
+        const env = Math.exp(-age / PLUCK_TAU);
+        if (env < 0.01) s.pluck = null;
+        else {
+          const w = 2 * Math.PI * PLUCK_HZ * age;
+          const f1 = s.pluck.amp * env * Math.cos(w);                  // fundamental: whole band swings
+          const f2 = s.pluck.amp2 * env * env * Math.cos(2 * w + 0.6); // 2nd harmonic: S-wobble
+          bow1 = (f1 + f2) * 0.87; bow2 = (f1 - f2) * 0.87;
+        }
+      }
+
+      s.path.setAttribute('d', pill(da, db, r, bow1, bow2, pinch));
+      s.path.setAttribute('stroke', x.col);
+      s.path.style.opacity = x.o;
+      s.path.style.display = '';
+      s.visible = x.o > 0.02;
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Hover / tap pluck — only the band, never the board.
+     ------------------------------------------------------------------ */
+  const svg = document.querySelector('.board');
+  let lastPt = null, vel = [0, 0];
+  function toSvg(e) {
+    const m = svg.getScreenCTM().inverse();
+    return [m.a * e.clientX + m.c * e.clientY + m.e, m.b * e.clientX + m.d * e.clientY + m.f];
+  }
+  svg.addEventListener('pointermove', e => {
+    const p = toSvg(e);
+    if (lastPt) vel = [p[0] - lastPt[0], p[1] - lastPt[1]];
+    lastPt = p;
+  });
+  svg.addEventListener('pointerleave', () => { lastPt = null; });
+
+  function pluck(s, e) {
+    if (reduce || !s.visible) return;
+    const now = performance.now();
+    if (s.pluck && now - s.pluck.t0 < 180) return;           // don't re-pluck mid-swing
+    if (s.len < 2) {                                          // single-peg loop
+      const v = Math.hypot(vel[0], vel[1]);
+      const dir = v > 0 ? [vel[0] / v, vel[1] / v] : [Math.SQRT1_2, Math.SQRT1_2];
+      s.pluck = { t0: now, amp: PLUCK_AMP * Math.min(1, 0.6 + v / 8), amp2: 0, dir };
+      return;
+    }
+    const dx = (s.b[0] - s.a[0]) / s.len, dy = (s.b[1] - s.a[1]) / s.len;
+    // swing in the direction the pointer crossed the band
+    const across = vel[0] * -dy + vel[1] * dx;
+    const sign = across === 0 ? (Math.random() < .5 ? -1 : 1) : Math.sign(across);
+    const speed = Math.min(1, 0.45 + Math.hypot(vel[0], vel[1]) / 8);
+    const lenScale = Math.min(1, 0.45 + s.len / (STEP * 4));  // short bands swing less
+    const amp = PLUCK_AMP * speed * lenScale * sign;
+    s.pluck = { t0: now, amp, amp2: amp * 0.35 * (Math.random() < .5 ? -1 : 1) };
+  }
+  /* ------------------------------------------------------------------
+     Drag — unhook the end nearest your grab, stretch it to any peg.
+     Only while an icon is holding still. Drop snaps to the nearest peg;
+     drop off the board and the end springs back.
+     ------------------------------------------------------------------ */
+  let drag = null, canDrag = false, current = null, edited = -1;
+  const EDGE = STEP * 0.6;                 // how far past the outer pegs an end can be pulled
+  const OFF  = STEP * 1.2;                 // let go further out than this = cancelled
+  const clampPt = p => p.map(v => Math.min(264 + EDGE, Math.max(-EDGE, v)));
+  const pegOf = v => Math.min(11, Math.max(0, Math.round((v - 2) / STEP)));
+
+  function grab(s, e) {
+    const k = s.k, x = current && current.list[k];
+    if (!canDrag || !x || x.o < 0.5) return false;
+    const pt = toSvg(e);
+    const end = d(pt, s.a) <= d(pt, s.b) ? 'a' : 'b';
+    // which band, in which screen's layout, and which of its ends
+    const atFrom = current.u === 0, p = x.p;
+    const ref = atFrom
+      ? { screen: current.seg,     idx: p.ai, end }
+      : { screen: current.seg + 1, idx: p.bi, end: p.flip ? (end === 'a' ? 'b' : 'a') : end };
+    if (ref.idx < 0) return false;
+    drag = { slot: s, end, ref, screen: current.rest, seg: current.seg, pt: clampPt(pt), raw: pt, pid: e.pointerId };
+    s.pluck = null;
+    svg.setPointerCapture(e.pointerId);
+    svg.classList.add('dragging');
+    return true;
+  }
+
+  function drop(pt, raw) {
+    const { ref, slot } = drag;
+    drag = null;
+    svg.classList.remove('dragging');
+    const off = raw[0] < -OFF || raw[0] > 264 + OFF || raw[1] < -OFF || raw[1] > 264 + OFF;
+    if (!off) {
+      if (edited >= 0 && edited !== ref.screen) {        // only one screen rearranged at a time
+        layout[edited] = base[edited].map(cloneBand); rebuildAround(edited);
+      }
+      layout[ref.screen][ref.idx][ref.end] = [px(pegOf(pt[0])), px(pegOf(pt[1]))];
+      edited = ref.screen;
+      rebuildAround(ref.screen);
+    }
+    // a small twang as it hooks on (or snaps back)
+    if (!reduce) slot.pluck = { t0: performance.now(), amp: PLUCK_AMP * 0.45 * (Math.random() < .5 ? -1 : 1), amp2: 0,
+                                dir: [Math.SQRT1_2, Math.SQRT1_2] };
+  }
+
+  svg.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.pid) return;
+    drag.raw = toSvg(e);
+    drag.pt = clampPt(drag.raw);
+  });
+  const release = e => { if (drag && e.pointerId === drag.pid) drop(drag.pt, drag.raw); };
+  svg.addEventListener('pointerup', release);
+  svg.addEventListener('pointercancel', release);
+
+  slots.forEach(s => {
+    s.path.addEventListener('pointerenter', e => { if (!drag) pluck(s, e); });
+    s.path.addEventListener('pointerdown', e => {
+      if (grab(s, e)) { e.preventDefault(); return; }
+      pluck(s, e);
+    });
+  });
+
+  /* ------------------------------------------------------------------
+     Scroll → t, through a smoothed follower
+     ------------------------------------------------------------------ */
+  const track = document.querySelector('.track');
+
+  function targetT() {
+    const max = track.offsetHeight - innerHeight;
+    const p = max > 0 ? clamp01((scrollY - track.offsetTop) / max) : 0;
+    return Math.min(N, Math.max(0, p * (N + 2 * LEAD) - LEAD));
+  }
+
+  let t = targetT(), last = performance.now();
+  frame(t, 0, last, true);
+  (function loop(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const target = targetT();
+    t = reduce ? target : t + (target - t) * (1 - Math.exp(-dt / SMOOTH_S));
+    if (Math.abs(target - t) < 1e-4) t = target;
+    frame(t, dt, now, Math.abs(target - t) < 0.02);
+    requestAnimationFrame(loop);
+  })(last);
+})();
+</script>
+</body>
+</html>

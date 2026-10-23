@@ -28,9 +28,10 @@
 #igap-scene {
     position: fixed; inset: 0;
     width: 100vw; height: 100vh;
-    display: block; z-index: 0;
-    background: radial-gradient(circle at 50% 42%, #FBFEFF, #D2DEED);
-    background-attachment: fixed;
+    display: block; z-index: 2;
+    /* The gradient moved to .scene-bg in style.css. It cannot live here any
+       more: the dot field is a DOM layer now and has to sit between the
+       backdrop and the braid, which is impossible while both are one element. */
   }
   .igap-scroll-space {
     position: relative; width: 100%;

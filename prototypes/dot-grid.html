@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dot Grid</title>
+<style>
+/* ===========================================================================
+   IGAP dot field — CSS only.
+
+   A port of the WebGL field in js/hero-scene.js. Same palette tokens, same
+   ring geometry, same scroll dolly. No canvas, no Three.
+
+   Three things the shader did that CSS has to do differently:
+
+   1. Per-dot hover scaling. A tiled radial-gradient is one pattern, so it
+      cannot vary dot by dot. Instead four layers, each drawing the WHOLE grid
+      at one ring's dot size, are masked down to that ring's annulus around the
+      cursor. The mask does the "which dots" part, the tile does the "how big"
+      part. Four layers, four ring sizes, exactly the shader's step function.
+
+   2. The size gradient (dots larger toward the bottom of the viewport). Same
+      problem, same answer: five bands, each a full grid at one dot size,
+      cross-faded by triangular linear-gradient masks so the alphas sum to 1.
+      Between two bands you get two concentric sizes at half alpha rather than
+      one interpolated size, which at a 2px dot is sub-pixel.
+
+   3. The zoom. The shader moved the camera; here --zoom scales spacing and dot
+      size together, anchored at the viewport centre. Visually identical for a
+      flat plane, which is all the dot field ever was.
+
+   JS sets five custom properties and nothing else: --mx, --my, --hover,
+   --grad, --zoom.
+   ========================================================================= */
+
+@property --hover { syntax: '<number>'; inherits: true; initial-value: 0; }
+@property --zoom  { syntax: '<number>'; inherits: true; initial-value: 1; }
+@property --grad  { syntax: '<number>'; inherits: true; initial-value: 1; }
+
+:root {
+  --light-grey: #aebacd;
+  --slate:      #395171;
+  --sky:        #46ccf5;
+  --cobalt:     #276bc0;
+  --navy:       #001d3c;
+
+  --dot:                var(--light-grey);
+  --dot-highlight:      var(--sky);
+  --dark-dot:           var(--slate);
+  --dark-dot-highlight: var(--cobalt);
+  --dot-size:           2px;
+  --dot-spacing:        20px;
+
+  /* live values the field actually draws with */
+  --c:  var(--dot);
+  --ch: var(--dot-highlight);
+  --s:  calc(var(--dot-spacing) * var(--zoom));
+  --r:  calc(var(--dot-size) / 2 * var(--zoom));
+
+  --page-bg: radial-gradient(circle at 50% 42%, #fbfeff, #d2deed);
+}
+html.is-blue {
+  --c:  var(--dark-dot);
+  --ch: var(--dark-dot-highlight);
+  --page-bg: var(--navy);
+}
+@media (max-width: 991px) { :root { --dot-spacing: 16px; } }
+@media (max-width: 479px) { :root { --dot-spacing: 12px; } }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--page-bg);
+  transition: background-color .4s linear;
+}
+
+/* --- the field ----------------------------------------------------------- */
+
+.dotfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+
+/* one tiled grid of dots. --dc is the colour, --dr the dot radius. */
+.dotfield__layer {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at center,
+    var(--dc) 0, var(--dc) var(--dr), transparent calc(var(--dr) + .6px));
+  background-size: var(--s) var(--s);
+  background-position: center;
+}
+
+/* --- base: five bands, small at the top, large at the bottom ------------- */
+/* grad steps 0.6 .. 1.4, matching the shader's mix(1.5, 0.5, screenY)      */
+
+.dotfield__band { --dc: var(--c); }
+.dotfield__band--1 { --dr: calc(var(--r) *  .6); -webkit-mask-image: linear-gradient(to bottom, #000 0 10%, transparent 30%); mask-image: linear-gradient(to bottom, #000 0 10%, transparent 30%); }
+.dotfield__band--2 { --dr: calc(var(--r) *  .8); -webkit-mask-image: linear-gradient(to bottom, transparent 10%, #000 30%, transparent 50%); mask-image: linear-gradient(to bottom, transparent 10%, #000 30%, transparent 50%); }
+.dotfield__band--3 { --dr: calc(var(--r) * 1.0); -webkit-mask-image: linear-gradient(to bottom, transparent 30%, #000 50%, transparent 70%); mask-image: linear-gradient(to bottom, transparent 30%, #000 50%, transparent 70%); }
+.dotfield__band--4 { --dr: calc(var(--r) * 1.2); -webkit-mask-image: linear-gradient(to bottom, transparent 50%, #000 70%, transparent 90%); mask-image: linear-gradient(to bottom, transparent 50%, #000 70%, transparent 90%); }
+.dotfield__band--5 { --dr: calc(var(--r) * 1.4); -webkit-mask-image: linear-gradient(to bottom, transparent 70%, #000 90% 100%); mask-image: linear-gradient(to bottom, transparent 70%, #000 90% 100%); }
+
+/* --- hover halo ---------------------------------------------------------- */
+/* A 7-cell box tracking the cursor. Only this box repaints on pointermove.
+   Its layers re-draw the same grid at ring dot sizes; background-position is
+   pulled back by the box offset so the tile stays phase-locked to the base. */
+
+.dotfield__halo {
+  position: absolute;
+  top: 0; left: 0;
+  width:  calc(var(--s) * 9);
+  height: calc(var(--s) * 9);
+  transform: translate3d(calc(var(--mx) - var(--s) * 4.5), calc(var(--my) - var(--s) * 4.5), 0);
+  will-change: transform;
+}
+.dotfield__halo .dotfield__layer {
+  /* `center` anchors the DOT (the tile's midpoint); a length anchors the tile's
+     top-left corner. Hence the extra half cell, without which the halo lattice
+     sits half a cell off the base and the ring masks slice through dots. */
+  background-position:
+    calc(50vw - var(--mx) + var(--s) * 4.5 - var(--s) / 2)
+    calc(50vh - var(--my) + var(--s) * 4.5 - var(--s) / 2);
+}
+
+/* ring scale r, colour mix (r - 1) / 2.5, both scaled by --hover.
+   ring bands at cell distance 0.5 / 1.5 / 2.5 / 3.5 */
+.dotfield__ring { --dr: calc(var(--r) * var(--grad) * var(--sc)); --dc: var(--mixc); }
+
+.dotfield__ring--0 {
+  --sc: calc(1 + 2.5 * var(--hover));
+  --mixc: color-mix(in srgb, var(--ch) calc(var(--hover) * 100%), var(--c));
+  -webkit-mask-image: radial-gradient(circle at center, #000 0 calc(var(--s) * .5), transparent calc(var(--s) * .5));
+          mask-image: radial-gradient(circle at center, #000 0 calc(var(--s) * .5), transparent calc(var(--s) * .5));
+}
+.dotfield__ring--1 {
+  --sc: calc(1 + 1.5 * var(--hover));
+  --mixc: color-mix(in srgb, var(--ch) calc(var(--hover) * 60%), var(--c));
+  -webkit-mask-image: radial-gradient(circle at center, transparent 0 calc(var(--s) * .5), #000 calc(var(--s) * .5) calc(var(--s) * 1.5), transparent calc(var(--s) * 1.5));
+          mask-image: radial-gradient(circle at center, transparent 0 calc(var(--s) * .5), #000 calc(var(--s) * .5) calc(var(--s) * 1.5), transparent calc(var(--s) * 1.5));
+}
+.dotfield__ring--2 {
+  --sc: calc(1 + 1 * var(--hover));
+  --mixc: color-mix(in srgb, var(--ch) calc(var(--hover) * 40%), var(--c));
+  -webkit-mask-image: radial-gradient(circle at center, transparent 0 calc(var(--s) * 1.5), #000 calc(var(--s) * 1.5) calc(var(--s) * 2.5), transparent calc(var(--s) * 2.5));
+          mask-image: radial-gradient(circle at center, transparent 0 calc(var(--s) * 1.5), #000 calc(var(--s) * 1.5) calc(var(--s) * 2.5), transparent calc(var(--s) * 2.5));
+}
+.dotfield__ring--3 {
+  --sc: calc(1 + .5 * var(--hover));
+  --mixc: color-mix(in srgb, var(--ch) calc(var(--hover) * 20%), var(--c));
+  -webkit-mask-image: radial-gradient(circle at center, transparent 0 calc(var(--s) * 2.5), #000 calc(var(--s) * 2.5) calc(var(--s) * 3.5), transparent calc(var(--s) * 3.5));
+          mask-image: radial-gradient(circle at center, transparent 0 calc(var(--s) * 2.5), #000 calc(var(--s) * 2.5) calc(var(--s) * 3.5), transparent calc(var(--s) * 3.5));
+}
+
+/* the shader switches hover off under 768px; so does this */
+@media (hover: none), (pointer: coarse), (max-width: 767px) {
+  .dotfield__halo { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dotfield__halo { display: none; }
+  :root { --zoom: 1 !important; }
+}
+
+/* --- prototype scaffolding only ----------------------------------------- */
+.runway { height: 300vh; }
+.mode {
+  position: fixed; z-index: 2; left: 16px; top: 16px;
+  font: 500 11px/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .08em;
+  text-transform: uppercase; padding: 9px 14px; border-radius: 6px;
+  border: 1px solid var(--c); background: transparent; color: var(--c);
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="dotfield" aria-hidden="true">
+  <div class="dotfield__layer dotfield__band dotfield__band--1"></div>
+  <div class="dotfield__layer dotfield__band dotfield__band--2"></div>
+  <div class="dotfield__layer dotfield__band dotfield__band--3"></div>
+  <div class="dotfield__layer dotfield__band dotfield__band--4"></div>
+  <div class="dotfield__layer dotfield__band dotfield__band--5"></div>
+  <div class="dotfield__halo">
+    <div class="dotfield__layer dotfield__ring dotfield__ring--3"></div>
+    <div class="dotfield__layer dotfield__ring dotfield__ring--2"></div>
+    <div class="dotfield__layer dotfield__ring dotfield__ring--1"></div>
+    <div class="dotfield__layer dotfield__ring dotfield__ring--0"></div>
+  </div>
+</div>
+
+<button class="mode" type="button">Blue mode</button>
+<div class="runway"></div>
+
+<script>
+/* The whole runtime. Five custom properties, one rAF loop, no layout reads
+   inside it. Easing constants are the shader's: 0.15 per frame on the pointer
+   and on the hover amount, 450ms before the field settles back. */
+(function () {
+  var root = document.documentElement;
+  var EASE = 0.15, LEAVE_MS = 450, ZOOM = 0.30;
+
+  var mx = innerWidth / 2, my = innerHeight / 2;   // eased pointer
+  var tx = mx, ty = my;                            // target pointer
+  var hover = 0, hoverTarget = 0, leaveTimer = null;
+  var zoom = 1;
+
+  var spacing = 20;
+  function readSpacing() {
+    spacing = parseFloat(getComputedStyle(root).getPropertyValue('--dot-spacing')) || 20;
+  }
+  readSpacing();
+  addEventListener('resize', readSpacing, { passive: true });
+
+  function smootherstep(a, b, x) {
+    var t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+    return t * t * t * (t * (t * 6 - 15) + 10);
+  }
+
+  addEventListener('pointermove', function (e) {
+    tx = e.clientX; ty = e.clientY;
+    hoverTarget = 1;
+    if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
+  }, { passive: true });
+
+  addEventListener('pointerout', function (e) {
+    if (e.relatedTarget || leaveTimer) return;
+    leaveTimer = setTimeout(function () { hoverTarget = 0; leaveTimer = null; }, LEAVE_MS);
+  }, { passive: true });
+
+  function frame() {
+    mx += (tx - mx) * EASE;
+    my += (ty - my) * EASE;
+    hover += (hoverTarget - hover) * EASE;
+
+    /* the shader's t: 0 -> 2 across the first two folds. Here, two viewports. */
+    var t = Math.min(2, scrollY / innerHeight);
+    zoom = 1 + ZOOM * smootherstep(0, 2, t);
+
+    /* grad = mix(1.5, 0.5, screenY-from-bottom) at the cursor */
+    var grad = 1.5 - (1 - my / innerHeight);
+
+    /* Snap the halo to the dot lattice. The shader works in cell ids
+       (floor(mouse / spacing) + 0.5), so the rings are always concentric with a
+       dot and the band edges fall between rows. Centring on the raw cursor
+       instead would slice through whichever dots the mask circle crossed. */
+    var s = spacing * zoom;
+    var sx = innerWidth / 2 + Math.round((mx - innerWidth / 2) / s) * s;
+    var sy = innerHeight / 2 + Math.round((my - innerHeight / 2) / s) * s;
+
+    root.style.setProperty('--mx', sx.toFixed(2) + 'px');
+    root.style.setProperty('--my', sy.toFixed(2) + 'px');
+    root.style.setProperty('--hover', hover.toFixed(4));
+    root.style.setProperty('--grad', grad.toFixed(4));
+    root.style.setProperty('--zoom', zoom.toFixed(4));
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  document.querySelector('.mode').addEventListener('click', function () {
+    root.classList.toggle('is-blue');
+    this.textContent = root.classList.contains('is-blue') ? 'Light mode' : 'Blue mode';
+  });
+})();
+</script>
+</body>
+</html>

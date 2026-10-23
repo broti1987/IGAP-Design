@@ -70,6 +70,9 @@
      while one of the two is on view; this keeps research light throughout and
      accepts that "Who We Are" is framed when it recolours. See the comment on
      measureDarkRange() in js/hero-scene.js before changing it. */
+  /* Defaults are the homepage's. A page can name its own blue stretch with
+     data-blue-from / data-blue-until on <body>, which is how the expertise
+     page turns blue for the capabilities and light again either side. */
   var BLUE_FROM = ".expertise";
   var BLUE_UNTIL = ".research";
   // Extra hold past the natural end, as a fraction of the viewport.
@@ -78,18 +81,29 @@
   var BLUE_HOLD = 0.30;
 
   function setupBlueMode() {
-    var section = document.querySelector(BLUE_FROM);
+    var d = document.body.dataset;
+    var section = document.querySelector(d.blueFrom || BLUE_FROM);
+    if (!section && (d.blueFrom || "") === "scroll") section = document.body;
     if (!section) return;
-    var end = document.querySelector(BLUE_UNTIL);
+    var end = document.querySelector(d.blueUntil || BLUE_UNTIL);
     var root = document.documentElement;
     var queued = false;
+
+    /* data-blue-from="scroll" turns blue on the first pixel of scroll rather
+       than when a section reaches the top. The expertise page wants that: its
+       hero is light and the capabilities are navy, and waiting until the first
+       capability lands means the colour changes while it is already on screen.
+       Starting at once means the page is blue before anything blue arrives. */
+    var fromScroll = (d.blueFrom || "") === "scroll";
 
     function apply() {
       queued = false;
       var vh = window.innerHeight;
-      var secRect = section.getBoundingClientRect();
-      var endTop = end ? end.getBoundingClientRect().top : secRect.bottom;
-      root.classList.toggle("is-blue", secRect.top <= 0 && endTop > vh * (1 - BLUE_HOLD));
+      var endTop = end ? end.getBoundingClientRect().top : Infinity;
+      var started = fromScroll
+        ? (window.scrollY || document.documentElement.scrollTop) > 0
+        : section.getBoundingClientRect().top <= 0;
+      root.classList.toggle("is-blue", started && endTop > vh * (1 - BLUE_HOLD));
     }
 
     function onScroll() {
@@ -105,9 +119,14 @@
 
   /* ------------------------------------------------- header retract */
   /* The footer is a card of its own at the end of the page; the fixed header
-     bar would otherwise hover over it. Slide the bar out the moment any part
-     of the footer crosses the bottom of the viewport, and bring it back on the
-     way up. Purely presentational — no layout depends on the class. */
+     bar would otherwise hover over it. Slide the bar out once the footer is
+     genuinely up the screen, and bring it back on the way down.
+
+     The margin matters: the bar only ever overlaps the footer near the TOP of
+     the viewport, so retracting at the footer's first pixel of contact at the
+     bottom was always early. It also broke any page whose content ends within
+     a viewport of the footer — capabilities.html, whose rail is exactly 100svh,
+     started with no header at all. */
   function setupHeaderRetract() {
     var footer = document.querySelector(".site-footer");
     if (!footer) return;
@@ -116,7 +135,7 @@
     if (!("IntersectionObserver" in window)) return;
     new IntersectionObserver(function (entries) {
       root.classList.toggle("is-footer-in", entries[0].isIntersecting);
-    }, { threshold: 0 }).observe(footer);
+    }, { threshold: 0, rootMargin: "0px 0px -50% 0px" }).observe(footer);
   }
 
   /* ---------------------------------------------------------- startup */

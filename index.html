@@ -120,6 +120,20 @@
     <!-- fixed canvas layer: lives behind every section on the page -->
     <div class="hero__canvas-layer">
       <div class="hero__embed">
+        <!-- The backdrop, in DOM order behind the canvas: the page gradient, the
+             navy wash that fades in with the tree, then the dot field. The wash
+             and the field used to be meshes inside the canvas; the field is CSS
+             now, so the wash had to come out with it or it would cover it. -->
+        <div class="scene-bg" aria-hidden="true"></div>
+        <div class="dotfield" aria-hidden="true">
+          <div class="dotfield__layer dotfield__band"></div>
+          <div class="dotfield__halo">
+            <div class="dotfield__layer dotfield__ring dotfield__ring--3"></div>
+            <div class="dotfield__layer dotfield__ring dotfield__ring--2"></div>
+            <div class="dotfield__layer dotfield__ring dotfield__ring--1"></div>
+            <div class="dotfield__layer dotfield__ring dotfield__ring--0"></div>
+          </div>
+        </div>
         <canvas id="igap-scene"></canvas>
         <div class="igap-scroll-space"></div>
       </div>
@@ -427,6 +441,7 @@
 <script src="js/text-reveal.js"></script>
 <script src="js/scramble-hover.js"></script>
 <script src="js/site.js"></script>
+<script src="js/dot-field.js"></script>
 <!-- Hero (Three.js). The bundle is a classic script, so the page works when
      opened straight off disk as well as over http. Source of truth is
      js/hero-scene.js — see README.md to rebuild after editing it. -->

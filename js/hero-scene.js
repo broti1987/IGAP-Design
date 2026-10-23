@@ -21,8 +21,9 @@ const CONFIG = {
          midColor: '#B0BFD2', midWeight: 0.6 },
   wire: { color: '#B0BFD2', weight: 0.9, rimWeight: 1.75, spin: 0.4, lighten: 0.45, nodeScale: 0.06, inset: 0.96 },
   fill: { color: '#F7FBFD', opacity: 1 },
-  dot: { color: '#CAD4E2', z: -1.5, sizeGradient: [0.5, 1.5], hoverRings: [3.5, 2.5, 2.0, 1.5],
-         hoverColor: '#2EC4F2', hoverEase: 0.15, hoverOutDelay: 450, treeOpacity: 0.4 },
+  // The field itself is CSS now (style.css section 14, js/dot-field.js). All
+  // that is left here is how far it zooms — see --zoom in frame().
+  dot: { zoom: 0.3 },
   camera: { zoom: 0.3 },
   // Band drop lives per-profile in SIZES (sinkDrop / restDrop) — desktop and
   // mobile have very different loop radii and camera distances, so one set of
@@ -48,14 +49,14 @@ const SIZES = {
              // once the tree has come back apart
              sinkDrop: 3.2, restDrop: 0.6,
              loopSpread: 0.2, loopAlignY: 1,
-             weight: 2.5, weightNode: 1.75, dotSpacing: 0.1, dotRadius: 0.04,
+             weight: 2.5, weightNode: 1.75,
              drift: 0.84, labelDist: 16, labelSize: 12 },
   mobile:  { loopSize: 4, loopX: 3.5, loopY: -1, sphereRadius: 0.4, nodeX: 0, nodeY: 1, triScale: 1.5, detail: 6,
              sphereDotSize: 0.15,
              bigScale: 2, bigX: 0, bigY: -10,
              sinkDrop: 3.2, restDrop: 0.6,
              loopSpread: 0, loopAlignY: 0,
-             weight: 4, weightNode: 5, dotSpacing: 0.25, dotRadius: 0.03,
+             weight: 4, weightNode: 5,
              drift: 0.84, labelDist: 8, labelSize: 10 },
 };
 function P() { return window.innerWidth < BREAKPOINT ? SIZES.mobile : SIZES.desktop; }
@@ -71,75 +72,11 @@ camera.position.set(0, 0, 5);
 let baseCamZ = 5;
 const group = new THREE.Group();
 scene.add(group);
-// Full-screen backdrop drawn behind the dots; fades in with the tree
-const bgFadeMat = new THREE.MeshBasicMaterial({ color: 0x001D3C, transparent: true, opacity: 0, depthTest: false, depthWrite: false });
-const bgFade = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), bgFadeMat);
-bgFade.position.z = -1.6;
-bgFade.renderOrder = -2;
-bgFade.frustumCulled = false;
-scene.add(bgFade);
-const dotUniforms = {
-  uColor:   { value: new THREE.Color(CONFIG.dot.color) },
-  uSpacing: { value: SIZES.desktop.dotSpacing },
-  uRadius:  { value: SIZES.desktop.dotRadius },
-  uMouse:      { value: new THREE.Vector2(1e9, 1e9) },
-  uHover:      { value: CONFIG.dot.hoverRings },
-  uHoverColor: { value: new THREE.Color(CONFIG.dot.hoverColor) },
-  uHoverAmt:   { value: 0 },
-  uSizeGrad:   { value: new THREE.Vector2(CONFIG.dot.sizeGradient[0], CONFIG.dot.sizeGradient[1]) },
-  uFade:       { value: 1 },
-};
-const dotMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(160, 160),
-  new THREE.ShaderMaterial({
-    uniforms: dotUniforms,
-    transparent: true, depthTest: false, depthWrite: false,
-    extensions: { derivatives: true },
-    vertexShader: `
-      varying vec2 vWorld;
-      varying float vScreenY;
-      void main() {
-        vec4 wp = modelMatrix * vec4(position, 1.0);
-        vWorld = wp.xy;
-        gl_Position = projectionMatrix * viewMatrix * wp;
-        vScreenY = gl_Position.y / gl_Position.w * 0.5 + 0.5;
-      }
-    `,
-    fragmentShader: `
-      precision highp float;
-      varying vec2 vWorld; varying float vScreenY;
-      uniform vec3 uColor; uniform float uSpacing; uniform float uRadius; uniform vec2 uMouse;
-      uniform float uHover[4]; uniform vec3 uHoverColor; uniform float uHoverAmt; uniform vec2 uSizeGrad;
-      uniform float uFade;
-      void main() {
-        vec2 g = vWorld / uSpacing;
-        vec2 cellId = floor(g) + 0.5;
-        vec2 cur    = floor(uMouse / uSpacing) + 0.5;
-        float dist  = distance(cellId, cur);
-        float ring =
-          dist < 0.5 ? uHover[0] :
-          dist < 1.5 ? uHover[1] :
-          dist < 2.5 ? uHover[2] :
-          dist < 3.5 ? uHover[3] : 1.0;
-        float scale = 1.0 + (ring - 1.0) * uHoverAmt;
-        float grad = mix(uSizeGrad.y, uSizeGrad.x, clamp(vScreenY, 0.0, 1.0));
-        float rad = uRadius * grad * scale;
-        float hb = clamp((scale - 1.0) / max(uHover[0] - 1.0, 0.001), 0.0, 1.0);
-        vec3 col = mix(uColor, uHoverColor, hb);
-        vec2 cell = fract(g) - 0.5;
-        float d = length(cell);
-        float aa = fwidth(d);
-        float alpha = (1.0 - smoothstep(rad - aa, rad + aa, d)) * uFade;
-        if (alpha < 0.01) discard;
-        gl_FragColor = vec4(col, alpha);
-      }
-    `,
-  })
-);
-dotMesh.position.z = CONFIG.dot.z;
-dotMesh.renderOrder = -1;
-dotMesh.frustumCulled = false;
-scene.add(dotMesh);
+// The navy backdrop and the dot field both left the scene: they are .scene-bg
+// and .dotfield in css/style.css now. The wash had to go with the field —
+// drawn here it would have covered a DOM layer sitting behind the canvas.
+// frame() publishes --bg-wash and --zoom so both stay on this scroll clock.
+const cssVar = (name, v) => document.documentElement.style.setProperty(name, v);
 const CONFIG_PARTICLES = { max: 400, rate: 2.5, idleRate: 50, speed: 0.9, life: 1.1, size: 0.035,
                            proximity: 0.15, scatter: 0.6, gravity: 0.5, damp: 0.92 };
 const pMax = CONFIG_PARTICLES.max;
@@ -177,6 +114,7 @@ const pMat = new THREE.ShaderMaterial({
       float a = vAlpha * m;
       if (a < 0.01) discard;
       gl_FragColor = vec4(vColor, a);
+      #include <colorspace_fragment>
     }
   `,
 });
@@ -296,27 +234,16 @@ function projectPx(x, y, z) {
 const isTouch = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
 const raycaster = new THREE.Raycaster();
 const zPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-const dotPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -CONFIG.dot.z);
-const _dotHit = new THREE.Vector3();
-const dotMouseTarget = new THREE.Vector2(1e9, 1e9);
 const mouseNDC = new THREE.Vector2(10, 10);
 const mouseWorld = new THREE.Vector3(9999, 9999, 0);
 let pointerEnergy = 0;
 const hubOffset = { x: 0, y: 0 };
-let hoverTargetAmt = 0;
-let hoverLeaveTimer = null;
 window.addEventListener('pointermove', e => {
   mouseNDC.x = (e.clientX / window.innerWidth) * 2 - 1;
   mouseNDC.y = -(e.clientY / window.innerHeight) * 2 + 1;
   raycaster.setFromCamera(mouseNDC, camera);
   raycaster.ray.intersectPlane(zPlane, mouseWorld);
   pointerEnergy = 1;
-  hoverTargetAmt = 1;
-  if (hoverLeaveTimer) { clearTimeout(hoverLeaveTimer); hoverLeaveTimer = null; }
-}, { passive: true });
-window.addEventListener('pointerout', e => {
-  if (e.relatedTarget || hoverLeaveTimer) return;
-  hoverLeaveTimer = setTimeout(() => { hoverTargetAmt = 0; hoverLeaveTimer = null; }, CONFIG.dot.hoverOutDelay);
 }, { passive: true });
 const N = 320;
 const LOOP_CENTERS = [
@@ -766,7 +693,7 @@ let pLastT = 0;
 let extraFade = 0;   // 0 = three strokes per strand, 1 = six
 let revealT = REVEAL_TOTAL;  // cascade clock, 0 = hidden, REVEAL_TOTAL = fully drawn
 let bgWash = 0;      // navy wash 0..1, eased in time to match the stylesheet
-                     // (bgFade is already the mesh it drives, above)
+                     // (published as --bg-wash; .scene-bg::after is what it drives)
 function frame() {
   const time = clock.getElapsedTime();
   const dt = Math.min(0.05, time - pLastT);
@@ -823,22 +750,20 @@ function frame() {
   // the CSS ease over that duration.
   bgWash += (bgTarget() - bgWash) * (1 - Math.exp(-dt / (BG_FADE_S / 3)));
   const bgP = bgWash;
-  bgFadeMat.opacity = bgP;                                          // navy wash in / out
-  dotUniforms.uFade.value = lerp(1, CONFIG.dot.treeOpacity, bgP);   // dim the dots with it
+  cssVar('--bg-wash', bgP.toFixed(4));                              // navy wash in / out
   // vertical extent from the current camera view, with bleed past both edges
   const treeHalfH = Math.tan((camera.fov * Math.PI / 180) / 2) * Math.abs(camera.position.z);
   const treeTop = treeHalfH * CONFIG.tree.bleed;
   const treeBot = -treeTop;
-  camera.position.z = baseCamZ * (1 - CONFIG.camera.zoom * smootherstep(0, 2, t));
-  dotUniforms.uSpacing.value = P().dotSpacing;
-  dotUniforms.uRadius.value  = P().dotRadius;
+  const camZoom = 1 - CONFIG.camera.zoom * smootherstep(0, 2, t);
+  camera.position.z = baseCamZ * camZoom;
+  // The grid has no camera, so it gets its own curve rather than riding the
+  // dolly: in across the first shape step, back out across the second. t runs
+  // 0 rings -> 1 spheres -> 2 loops, so 1 - |t - 1| peaks on the spheres and
+  // returns to 1 by the loops. 1 -> 1.3 -> 1.
+  const gridZoom = 1 + CONFIG.dot.zoom * smootherstep(0, 1, 1 - Math.abs(t - 1));
+  cssVar('--zoom', gridZoom.toFixed(4));
   raycaster.setFromCamera(mouseNDC, camera);
-  if (raycaster.ray.intersectPlane(dotPlane, _dotHit)) dotMouseTarget.set(_dotHit.x, _dotHit.y);
-  const um = dotUniforms.uMouse.value;
-  if (um.x > 1e8) um.copy(dotMouseTarget);
-  else { um.x += (dotMouseTarget.x - um.x) * CONFIG.dot.hoverEase; um.y += (dotMouseTarget.y - um.y) * CONFIG.dot.hoverEase; }
-  const hoverTarget = window.innerWidth < BREAKPOINT ? 0 : hoverTargetAmt;
-  dotUniforms.uHoverAmt.value += (hoverTarget - dotUniforms.uHoverAmt.value) * CONFIG.dot.hoverEase;
   const nodeWeight = 1 - Math.min(1, Math.abs(t - 1));
   const sphereP = smootherstep(0, 0.55, nodeWeight);
   const fillOp  = smoothstep(0.55, 0.7, nodeWeight);

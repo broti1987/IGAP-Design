@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IGAP — What We Do</title>
+  <meta name="description" content="IGAP works on consequential questions where government, regulation and markets converge. Research and policy advocacy, regulatory strategy, government engagement, policy communications, market strategy and coalitions.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=Archivo+Narrow:wght@400;500;600;700&family=Space+Grotesk:wght@500&display=swap">
+
+  <link rel="stylesheet" href="css/embed-fragments.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/capabilities.css">
+
+  <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="images/webclip.png">
+</head>
+
+<body class="is-expertise" data-blue-from="scroll" data-blue-until="#who-we-work-with">
+
+<!-- ============================================================= HEADER -->
+<header class="site-header" data-menu-root>
+  <nav class="menu" aria-label="Main menu" hidden>
+    <div class="menu__bg"></div>
+    <div class="menu__inner">
+      <ul class="menu__links">
+        <li><a href="index.html">about us</a></li>
+        <li><a href="capabilities.html" aria-current="page">our work</a></li>
+        <li><a href="#">knowledge</a></li>
+        <li><a href="#">events</a></li>
+        <li><a href="#">contact</a></li>
+      </ul>
+      <ul class="menu__socials">
+        <li><a href="#">reports</a></li>
+        <li><a href="#">blogs</a></li>
+        <li><a href="#">igap primers</a></li>
+        <li><a href="#">media</a></li>
+      </ul>
+    </div>
+    <button class="menu__close" type="button" data-menu-close aria-label="Close menu">
+      <img src="images/System-Icons_2.svg" width="24" height="24" alt="">
+    </button>
+  </nav>
+
+  <div class="header-bar">
+    <div class="header-bar__slot header-bar__slot--left">
+      <button class="btn-menu" type="button" data-menu-open aria-expanded="false">
+        <img src="images/menu-icon.svg" width="24" height="24" alt="">
+        <span class="btn-label btn-label--menu">Menu</span>
+      </button>
+      <span class="hl hl--left" aria-hidden="true"></span>
+    </div>
+
+    <a class="site-logo" href="index.html">
+      <img src="images/Logo-coloured.png" alt="IGAP">
+    </a>
+
+    <div class="header-bar__slot header-bar__slot--right">
+      <a class="btn-work" href="#">
+        <span class="btn-label">Work With IGAP</span>
+        <img src="images/Arrow-Dark.svg" alt="" width="24" height="24">
+      </a>
+      <span class="hl hl--right" aria-hidden="true"></span>
+    </div>
+  </div>
+</header>
+
+<header class="site-header site-header--mobile" data-menu-root>
+  <nav class="menu" aria-label="Main menu" hidden>
+    <div class="menu__bg"></div>
+    <div class="menu__inner">
+      <ul class="menu__links">
+        <li><a href="index.html">about us</a></li>
+        <li><a href="capabilities.html" aria-current="page">our work</a></li>
+        <li><a href="#">knowledge</a></li>
+        <li><a href="#">events</a></li>
+        <li><a href="#">contact</a></li>
+      </ul>
+      <ul class="menu__socials">
+        <li><a href="#">reports</a></li>
+        <li><a href="#">blogs</a></li>
+        <li><a href="#">igap primers</a></li>
+        <li><a href="#">media</a></li>
+      </ul>
+    </div>
+    <button class="menu__close" type="button" data-menu-close aria-label="Close menu">
+      <img src="images/System-Icons_2.svg" width="24" height="24" alt="">
+    </button>
+  </nav>
+
+  <div class="header-bar header-bar--mobile">
+    <a class="site-logo site-logo--mobile" href="index.html">
+      <img src="images/Logo-coloured.png" alt="IGAP">
+    </a>
+    <button class="btn-menu" type="button" data-menu-open aria-expanded="false">
+      <img src="images/menu-icon.svg" width="24" height="24" alt="">
+      <span class="btn-label btn-label--menu">Menu</span>
+    </button>
+  </div>
+</header>
+
+<!-- ======================================================= BACKDROP -->
+<!-- Page gradient + navy wash. This page is in blue mode end to end, so the
+     wash is pinned at 1 rather than driven by a scroll clock. -->
+<div class="scene-bg" aria-hidden="true"></div>
+
+<!-- The dot field, exactly as built for the homepage: one tiled base layer
+     plus a cursor-following halo of four masked ring layers. -->
+<div class="dotfield" aria-hidden="true">
+  <div class="dotfield__layer dotfield__band"></div>
+  <div class="dotfield__halo">
+    <div class="dotfield__layer dotfield__ring dotfield__ring--3"></div>
+    <div class="dotfield__layer dotfield__ring dotfield__ring--2"></div>
+    <div class="dotfield__layer dotfield__ring dotfield__ring--1"></div>
+    <div class="dotfield__layer dotfield__ring dotfield__ring--0"></div>
+  </div>
+</div>
+
+<!-- The pegboard. Pinned for the whole run; js/pegboard.js morphs it from the
+     resting board through one icon per capability. -->
+<div class="peg-stage" aria-hidden="true">
+  <div class="peg-stage__inner">
+    <div class="pegboard">
+      <svg class="board" viewBox="0 0 264 264">
+        <g id="peg-pegs"></g>
+        <g id="peg-rings"></g>
+        <g id="peg-bands"></g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<main class="page">
+
+  <!-- The rail. Desktop: an ordinary stack of full-height sections.
+       Mobile: a horizontal scroller — the hero is one screen, each capability
+       is two, with its header pinned while the pages pass. -->
+  <div class="rail" id="rail">
+
+    <!-- ------------------------------------------------------------ HERO -->
+    <section class="xp-hero" id="xp-hero">
+      <div class="xp-hero__text">
+        <div class="xp-hero__intro-col">
+          <h1 class="xp-hero__title" data-reveal>What We do</h1>
+          <span class="xp-hero__hint" aria-hidden="true"></span>
+          <div class="xp-hero__copy">
+            <p class="xp-hero__mission" data-fade>IGAP works on consequential questions where government, regulation and markets converge</p>
+            <p class="xp-hero__approach" data-fade>We combine rigorous research, institutional insight and sector expertise to anticipate change, clarify choices and help organisations and public institutions move from judgement to action.</p>
+          </div>
+        </div>
+        <nav class="xp-index" aria-label="Capabilities" data-fade-group=".xp-index__link" data-fade-stagger="120">
+          <a class="xp-index__link" href="#cap-1">
+            <span class="xp-index__text"><span class="xp-index__num">01</span><span class="xp-index__name">Research &amp; Policy Advocacy</span></span>
+            <svg class="xp-index__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4.5v15m0 0 6-6m-6 6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="xp-index__link" href="#cap-2">
+            <span class="xp-index__text"><span class="xp-index__num">02</span><span class="xp-index__name">Policy Insight &amp; Regulatory Strategy</span></span>
+            <svg class="xp-index__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4.5v15m0 0 6-6m-6 6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="xp-index__link" href="#cap-3">
+            <span class="xp-index__text"><span class="xp-index__num">03</span><span class="xp-index__name">Government Engagement &amp; Institutional Strategy</span></span>
+            <svg class="xp-index__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4.5v15m0 0 6-6m-6 6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="xp-index__link" href="#cap-4">
+            <span class="xp-index__text"><span class="xp-index__num">04</span><span class="xp-index__name">Policy Communications, Issue Management &amp; Thought Leadership</span></span>
+            <svg class="xp-index__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4.5v15m0 0 6-6m-6 6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="xp-index__link" href="#cap-5">
+            <span class="xp-index__text"><span class="xp-index__num">05</span><span class="xp-index__name">Market, Investment &amp; Ecosystem Strategy</span></span>
+            <svg class="xp-index__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4.5v15m0 0 6-6m-6 6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="xp-index__link" href="#cap-6">
+            <span class="xp-index__text"><span class="xp-index__num">06</span><span class="xp-index__name">Coalitions, Partnerships &amp; Industry Platforms</span></span>
+            <svg class="xp-index__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4.5v15m0 0 6-6m-6 6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------- CAPABILITY 1 -->
+    <div class="cap-track">
+    <article class="cap" id="cap-1">
+        <div class="cap__copy">
+
+          <div class="cap__head">
+            <div class="cap__num" aria-hidden="true" data-fade>01</div>
+            <h2 class="cap__title" data-fade>Research &amp; Policy Advocacy</h2>
+          </div>
+
+          <div class="cap__wave" aria-hidden="true">
+            <svg class="cap__wave-svg" viewBox="0 0 954 66" focusable="false">
+              <g class="cap__wave-drift">
+                <path class="cap__wave-path" d="M0 33c79.5-42.7 159-42.7 238.5 0s159 42.7 238.5 0 159-42.7 238.5 0 159 42.7 238.5 0" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              </g>
+            </svg>
+          </div>
+          <div class="cap__acc" data-fade-group>
+            <!-- open by default: the overview -->
+            <section class="acc is-open">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="true" aria-controls="cap1-overview">
+                  <span class="acc__title">Build evidence that can withstand scrutiny</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap1-overview" role="region">
+                <div class="acc__inner cap__body">
+                <p>IGAP undertakes independent and commissioned research on policy, regulatory, economic and institutional questions.</p>
+                <p>We combine legal and policy analysis, economics, data, sectoral expertise and comparative experience to test assumptions, build evidence and develop policy options. Our work informs policy development, institutional decision-making, consultation processes and research-backed advocacy.</p>
+                <p>Independent research also allows us to pursue questions beyond immediate mandates, build long-term expertise and contribute to issues of wider public importance.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="acc">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="false" aria-controls="cap1-areas">
+                  <span class="acc__title">Selected areas of work</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap1-areas" role="region">
+                <div class="acc__inner">
+                  <ul class="tag-cloud">
+                  <li class="tag">Reports and policy briefs</li>
+                  <li class="tag">Sector studies</li>
+                  <li class="tag">Consultation responses</li>
+                  <li class="tag">Evidence building</li>
+                  <li class="tag">Policy options and design</li>
+                  <li class="tag">Regulatory impact analysis</li>
+                  <li class="tag">Economic analysis</li>
+                  <li class="tag">Research-backed advocacy</li>
+                  <li class="tag">Primers and explainers</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </article>
+    </div>
+
+    <!-- ----------------------------------------------------- CAPABILITY 2 -->
+    <div class="cap-track">
+    <article class="cap" id="cap-2">
+        <div class="cap__copy">
+
+          <div class="cap__head">
+            <div class="cap__num" aria-hidden="true" data-fade>02</div>
+            <h2 class="cap__title" data-fade>Policy Insight &amp; Regulatory Strategy</h2>
+          </div>
+
+          <div class="cap__wave" aria-hidden="true">
+            <svg class="cap__wave-svg" viewBox="0 0 954 66" focusable="false">
+              <g class="cap__wave-drift">
+                <path class="cap__wave-path" d="M0 33c79.5-42.7 159-42.7 238.5 0s159 42.7 238.5 0 159-42.7 238.5 0 159 42.7 238.5 0" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              </g>
+            </svg>
+          </div>
+          <div class="cap__acc" data-fade-group>
+            <!-- open by default: the overview -->
+            <section class="acc is-open">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="true" aria-controls="cap2-overview">
+                  <span class="acc__title">Understand change early. Respond with judgement</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap2-overview" role="region">
+                <div class="acc__inner cap__body">
+                <p>We help organisations and public institutions identify emerging policy and regulatory issues, understand how laws, regulations, standards and institutional priorities are evolving, and assess what those changes mean in practice.</p>
+                <p>Our work looks beyond formal rules to the political economy, implementation trends, enforcement priorities and institutional considerations that shape how policy and regulation develop and operate.</p>
+                <p>We help translate that understanding into regulatory approaches, policy positions and strategies grounded in evidence and institutional realities.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="acc">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="false" aria-controls="cap2-areas">
+                  <span class="acc__title">Selected areas of work</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap2-areas" role="region">
+                <div class="acc__inner">
+                  <ul class="tag-cloud">
+                  <li class="tag">Policy monitoring and early issue-spotting</li>
+                  <li class="tag">Regulatory strategy</li>
+                  <li class="tag">Legislative and policy analysis</li>
+                  <li class="tag">Consultation strategy</li>
+                  <li class="tag">Standards and regulatory positioning</li>
+                  <li class="tag">Union and state policy mapping</li>
+                  <li class="tag">Implementation and enforcement analysis</li>
+                  <li class="tag">Political economy analysis</li>
+                  <li class="tag">Policy scenario analysis</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </article>
+    </div>
+
+    <!-- ----------------------------------------------------- CAPABILITY 3 -->
+    <div class="cap-track">
+    <article class="cap" id="cap-3">
+        <div class="cap__copy">
+
+          <div class="cap__head">
+            <div class="cap__num" aria-hidden="true" data-fade>03</div>
+            <h2 class="cap__title" data-fade>Government Engagement &amp; Institutional Strategy</h2>
+          </div>
+
+          <div class="cap__wave" aria-hidden="true">
+            <svg class="cap__wave-svg" viewBox="0 0 954 66" focusable="false">
+              <g class="cap__wave-drift">
+                <path class="cap__wave-path" d="M0 33c79.5-42.7 159-42.7 238.5 0s159 42.7 238.5 0 159-42.7 238.5 0 159 42.7 238.5 0" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              </g>
+            </svg>
+          </div>
+          <div class="cap__acc" data-fade-group>
+            <!-- open by default: the overview -->
+            <section class="acc is-open">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="true" aria-controls="cap3-overview">
+                  <span class="acc__title">Understand institutions, not just stakeholders</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap3-overview" role="region">
+                <div class="acc__inner cap__body">
+                <p>IGAP works both with public institutions and with organisations engaging government, regulators and the wider policy ecosystem. For companies and industry bodies, we help identify where authority sits, how decisions are made, which institutional priorities matter and how to engage constructively around substantive policy questions.</p>
+                <p>For governments and public institutions, we support policy development, implementation, stakeholder consultation, institutional strategy and the strengthening of policy and regulatory capabilities.</p>
+                <p>Our approach reflects the reality that decision-making often spans Union and state governments, regulators, public bodies and wider policy communities rather than a single institution.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="acc">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="false" aria-controls="cap3-areas">
+                  <span class="acc__title">Selected areas of work</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap3-areas" role="region">
+                <div class="acc__inner">
+                  <ul class="tag-cloud">
+                  <li class="tag">Government engagement strategy</li>
+                  <li class="tag">Institutional and stakeholder mapping</li>
+                  <li class="tag">Policy briefings</li>
+                  <li class="tag">Regulator engagement</li>
+                  <li class="tag">Union and state government strategy</li>
+                  <li class="tag">Advisory to public institutions</li>
+                  <li class="tag">Policy design and implementation</li>
+                  <li class="tag">Stakeholder consultations</li>
+                  <li class="tag">Institutional capability building and training</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </article>
+    </div>
+
+    <!-- ----------------------------------------------------- CAPABILITY 4 -->
+    <div class="cap-track">
+    <article class="cap" id="cap-4">
+        <div class="cap__copy">
+
+          <div class="cap__head">
+            <div class="cap__num" aria-hidden="true" data-fade>04</div>
+            <h2 class="cap__title" data-fade>Policy Communications, Issue Management &amp; Thought Leadership</h2>
+          </div>
+
+          <div class="cap__wave" aria-hidden="true">
+            <svg class="cap__wave-svg" viewBox="0 0 954 66" focusable="false">
+              <g class="cap__wave-drift">
+                <path class="cap__wave-path" d="M0 33c79.5-42.7 159-42.7 238.5 0s159 42.7 238.5 0 159-42.7 238.5 0 159 42.7 238.5 0" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              </g>
+            </svg>
+          </div>
+          <div class="cap__acc" data-fade-group>
+            <!-- open by default: the overview -->
+            <section class="acc is-open">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="true" aria-controls="cap4-overview">
+                  <span class="acc__title">Shape the argument, not just the message</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap4-overview" role="region">
+                <div class="acc__inner cap__body">
+                <p>Policy outcomes can depend not only on the substance of an issue, but on how it is framed, evidenced and understood by government, industry, experts, media and public audiences.</p>
+                <p>IGAP helps organisations and institutions develop clear, credible policy arguments grounded in evidence and institutional context. We translate complex legal, regulatory and policy questions into narratives and materials suited to the audiences that matter.</p>
+                <p>We also support thought leadership and sensitive issue management where public policy, public interest, reputation and institutional trust intersect.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="acc">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="false" aria-controls="cap4-areas">
+                  <span class="acc__title">Selected areas of work</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap4-areas" role="region">
+                <div class="acc__inner">
+                  <ul class="tag-cloud">
+                  <li class="tag">Policy narratives</li>
+                  <li class="tag">Issue management</li>
+                  <li class="tag">Thought leadership</li>
+                  <li class="tag">Public-interest framing</li>
+                  <li class="tag">Briefing materials</li>
+                  <li class="tag">Speeches and op-eds</li>
+                  <li class="tag">Consultation communications</li>
+                  <li class="tag">White papers and explainers</li>
+                  <li class="tag">Convenings</li>
+                  <li class="tag">Reputation-sensitive policy matters</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </article>
+    </div>
+
+    <!-- ----------------------------------------------------- CAPABILITY 5 -->
+    <div class="cap-track">
+    <article class="cap" id="cap-5">
+        <div class="cap__copy">
+
+          <div class="cap__head">
+            <div class="cap__num" aria-hidden="true" data-fade>05</div>
+            <h2 class="cap__title" data-fade>Market, Investment &amp; Ecosystem Strategy</h2>
+          </div>
+
+          <div class="cap__wave" aria-hidden="true">
+            <svg class="cap__wave-svg" viewBox="0 0 954 66" focusable="false">
+              <g class="cap__wave-drift">
+                <path class="cap__wave-path" d="M0 33c79.5-42.7 159-42.7 238.5 0s159 42.7 238.5 0 159-42.7 238.5 0 159 42.7 238.5 0" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              </g>
+            </svg>
+          </div>
+          <div class="cap__acc" data-fade-group>
+            <!-- open by default: the overview -->
+            <section class="acc is-open">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="true" aria-controls="cap5-overview">
+                  <span class="acc__title">See the market in the context that shapes it</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap5-overview" role="region">
+                <div class="acc__inner cap__body">
+                <p>IGAP supports organisations assessing, entering, investing in and expanding across India.</p>
+                <p>We examine commercial opportunity alongside regulation, political economy, public policy, state priorities, institutional structures and wider economic and geopolitical developments. This helps identify not only where opportunities exist, but the conditions that will shape whether a market or investment strategy can work in practice.</p>
+                <p>Our work spans market access and entry, national and state-level opportunities, investment strategy, partnerships and ecosystem development, including how these should be sequenced in practice.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="acc">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="false" aria-controls="cap5-areas">
+                  <span class="acc__title">Selected areas of work</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap5-areas" role="region">
+                <div class="acc__inner">
+                  <ul class="tag-cloud">
+                  <li class="tag">Market assessment</li>
+                  <li class="tag">India entry and expansion</li>
+                  <li class="tag">Trade and market access strategy</li>
+                  <li class="tag">Investment strategy</li>
+                  <li class="tag">State-level opportunity analysis</li>
+                  <li class="tag">Partner and investor mapping</li>
+                  <li class="tag">Ecosystem strategy</li>
+                  <li class="tag">Market sequencing</li>
+                  <li class="tag">Policy and regulatory mapping</li>
+                  <li class="tag">Institutional strategy</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </article>
+    </div>
+
+    <!-- ----------------------------------------------------- CAPABILITY 6 -->
+    <div class="cap-track">
+    <article class="cap" id="cap-6">
+        <div class="cap__copy">
+
+          <div class="cap__head">
+            <div class="cap__num" aria-hidden="true" data-fade>06</div>
+            <h2 class="cap__title" data-fade>Coalitions, Partnerships &amp; Industry Platforms</h2>
+          </div>
+
+          <div class="cap__wave" aria-hidden="true">
+            <svg class="cap__wave-svg" viewBox="0 0 954 66" focusable="false">
+              <g class="cap__wave-drift">
+                <path class="cap__wave-path" d="M0 33c79.5-42.7 159-42.7 238.5 0s159 42.7 238.5 0 159-42.7 238.5 0 159 42.7 238.5 0" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              </g>
+            </svg>
+          </div>
+          <div class="cap__acc" data-fade-group>
+            <!-- open by default: the overview -->
+            <section class="acc is-open">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="true" aria-controls="cap6-overview">
+                  <span class="acc__title">Some policy questions are better advanced collectively</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap6-overview" role="region">
+                <div class="acc__inner cap__body">
+                <p>IGAP helps design, convene and support coalitions, partnerships and industry platforms around shared policy, sectoral and public-interest priorities.</p>
+                <p>This can involve bringing together companies, industry bodies, experts, academic institutions, think tanks, civil society organisations and other stakeholders around a defined agenda.</p>
+                <p>We support the research, common agenda, coordination and engagement required to build effective platforms, develop shared positions, strengthen the evidence around an issue and sustain constructive engagement over time.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="acc">
+              <h3 class="acc__head">
+                <button class="acc__btn" type="button" aria-expanded="false" aria-controls="cap6-areas">
+                  <span class="acc__title">Selected areas of work</span>
+                  <span class="acc__icon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="acc__panel" id="cap6-areas" role="region">
+                <div class="acc__inner">
+                  <ul class="tag-cloud">
+                  <li class="tag">Coalition strategy</li>
+                  <li class="tag">Industry platforms</li>
+                  <li class="tag">Association strategy and support</li>
+                  <li class="tag">Working groups</li>
+                  <li class="tag">Member coordination</li>
+                  <li class="tag">Common policy agendas</li>
+                  <li class="tag">Expert networks</li>
+                  <li class="tag">Academic, think-tank and civil society partnerships</li>
+                  <li class="tag">Convenings</li>
+                  <li class="tag">Partnership development</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </article>
+    </div>
+
+  </div><!-- /.rail -->
+
+  <!-- =============================================== WHO WE WORK WITH -->
+  <section class="xp-who" id="who-we-work-with" aria-labelledby="who-work-title">
+    <div class="xp-who__inner">
+      <div class="xp-who__head">
+        <h2 class="xp-who__title" id="who-work-title" data-fade>Who We Work With</h2>
+        <p class="xp-who__desc" data-fade>IGAP works with organisations across the public, private, research and development ecosystems.</p>
+      </div>
+      <ul class="xp-who__list" data-fade>
+        <li class="client">
+          <span class="client__tab" aria-hidden="true"></span>
+          <div class="client__body">
+            <h3 class="client__title">Companies and founders</h3>
+            <p class="client__desc">Global businesses, Indian companies and high-growth ventures navigating policy, markets, institutional change and expansion.</p>
+          </div>
+        </li>
+        <li class="client">
+          <span class="client__tab" aria-hidden="true"></span>
+          <div class="client__body">
+            <h3 class="client__title">Governments and public institutions</h3>
+            <p class="client__desc">Union and state governments, regulators, public bodies and other institutions working on policy development, implementation and institutional capability.</p>
+          </div>
+        </li>
+        <li class="client">
+          <span class="client__tab" aria-hidden="true"></span>
+          <div class="client__body">
+            <h3 class="client__title">Investors and industry platforms</h3>
+            <p class="client__desc">Investment firms, industry associations, bilateral organisations and coalitions assessing markets, developing ecosystems and advancing shared sectoral priorities.</p>
+          </div>
+        </li>
+        <li class="client">
+          <span class="client__tab" aria-hidden="true"></span>
+          <div class="client__body">
+            <h3 class="client__title">Research, academic and philanthropic institutions</h3>
+            <p class="client__desc">Universities, think tanks, foundations and research organisations working on questions of public policy, technology, governance and development.</p>
+          </div>
+        </li>
+        <li class="client">
+          <span class="client__tab" aria-hidden="true"></span>
+          <div class="client__body">
+            <h3 class="client__title">International and development organisations</h3>
+            <p class="client__desc">Multilateral institutions, development organisations and other international bodies engaging with India’s policy, institutional and economic landscape.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================ FOOTER -->
+  <!-- ==================================================== CLOSING CTA -->
+  <!-- The homepage's closing section, verbatim: .cta-section already lives
+       in style.css, and its 80svh / 60svh are exactly Figma's 720-of-900
+       and 506-of-844. -->
+  <section class="cta-section">
+    <h2 class="h1 h1--center h1--narrow" data-reveal>Have a complex policy or institutional question?</h2>
+    <p class="intro intro--center" data-fade>We can help make sense of it and shape a way forward.</p>
+    <div class="btn btn--green">
+      <a class="btn__label-wrap" href="#"><span class="btn-label">Let’s Start a Conversation</span></a>
+      <span class="hl" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+
+      <div class="footer-brand">
+        <div class="footer-brand__top">
+          <div class="footer-logo">
+            <img src="images/Footer-Logo.png" alt="IGAP — Indian Governance and Policy Project" width="150" height="48">
+          </div>
+          <p class="footer-tagline">Shaping better governance, one<br>conversation at a time.</p>
+        </div>
+        <div class="footer-brand__foot">
+          <div class="footer-field">
+            <span class="footer-label">Email Us</span>
+            <a class="footer-email" href="mailto:relations@igap.in">relations@igap.in</a>
+          </div>
+          <div class="footer-field footer-locations">
+            <span class="footer-label">Locations</span>
+            <ul class="footer-locations__list">
+              <li>New Delhi</li>
+              <li>Bengaluru</li>
+              <li>Hyderabad</li>
+              <li>Singapore</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-right">
+        <form class="footer-form" method="post" action="#">
+          <p class="footer-form__title">Receive new research, policy insights and updates from IGAP</p>
+          <div class="footer-form__field">
+            <input class="footer-form__input" type="email" name="email" autocomplete="email"
+                   placeholder="Enter your Email Address" aria-label="Email address" required>
+            <button class="footer-form__submit" type="submit" aria-label="Subscribe">
+              <img src="images/Arrow.svg" width="24" height="24" alt="">
+            </button>
+            <span class="footer-form__nugget" aria-hidden="true"></span>
+          </div>
+        </form>
+
+        <div class="footer-links">
+          <nav class="footer-nav" aria-label="Footer">
+            <a href="index.html">home</a>
+            <a href="#">about</a>
+            <a href="capabilities.html">What We do</a>
+            <a href="#">knowledge</a>
+            <a href="#">events</a>
+            <a href="#">Contact</a>
+          </nav>
+          <div class="footer-aside">
+            <nav class="footer-social" aria-label="Social media">
+              <a href="#">Linkedin</a>
+              <a href="#">Facebook</a>
+              <a href="#">Instagram</a>
+            </nav>
+            <nav class="footer-legal" aria-label="Legal">
+              <a href="#">terms of use</a>
+              <a href="#">privacy policy</a>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+</main>
+
+<script src="js/text-reveal.js"></script>
+<script src="js/scramble-hover.js"></script>
+<script src="js/fade-in.js"></script>
+<script src="js/accordion.js"></script>
+<script src="js/site.js"></script>
+<script src="js/dot-field.js"></script>
+<script src="js/pegboard.js"></script>
+
+</body>
+</html>

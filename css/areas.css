@@ -1,0 +1,836 @@
+/* ===========================================================================
+   AREAS OF FOCUS — areas.html
+   ---------------------------------------------------------------------------
+   Figma: Areas page, "Areas — Desktop" at 1440.
+     Hero    1440 x 900, padding 124/72/72, navy
+       Text  376 column, vertically centred: heading, scroll rule, mission,
+             approach -- all eight circles lit
+     Area    1440 x 900, padding 124/72/72, paper
+       Copy  400 x 704, space-between: number over title on the top edge,
+             description and the areas-include list on the bottom one
+       Ring   700 square on the right, muted, with this area's circle filled
+
+   The page reads light with one dark section rather than the other way round,
+   so there is no page-wide mode switch to run: `is-blue` is on at load (the
+   hero is the first thing you see) and js/area-ring.js drops it once the hero
+   is halfway gone. Everything that follows is paper.
+
+   The eight sections share ONE ring. It is pinned beside the copy, which runs
+   past it, and the lit circle walks around it as you scroll -- the map does
+   not get redrawn per area, it gets re-read.
+   ======================================================================== */
+
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* The scene gradient and the dot field are fixed layers at z 0 and z 1, so
+   the page content has to be positioned to sit above them -- left static it
+   paints UNDERNEATH the gradient and the copy simply vanishes. */
+.is-areas .page { position: relative; z-index: 3; }
+
+/* The navy is painted by .scene-bg::after, whose opacity rides --bg-wash.
+   style.css declares the property and paints the layer; the page it belongs
+   to owns the switch. Without this the body turns navy underneath and the
+   fixed gradient keeps covering it, which reads as white type on paper. */
+/* Where the header stops being something to look at: its 24 of margin plus
+   the 64 bar. The 24 BELOW the bar is the header's own padding -- empty
+   either way -- so it counts as part of the hero's space rather than being
+   reserved twice. The hero's copy and the ring both centre on what is left,
+   which puts them optically centred against the bar rather than sitting low
+   by half that padding. */
+:root { --header-clear: 88px; }
+:root { --bg-wash: 0; }
+html.is-blue { --bg-wash: 1; }
+.scene-bg::after { transition: opacity var(--blue-fade); }
+
+body.is-areas {
+  background-color: var(--paper);
+  transition: background-color var(--blue-fade);
+}
+html.is-blue body.is-areas { background-color: var(--navy); }
+
+/* ------------------------------------------------------------------- RING */
+/* One artwork, two placements. The hero's copy sits in the flow at the right
+   of the hero; the run's copy is sticky and holds while the copy scrolls. */
+
+/* The unlit colour, and the one timing every part of the ring shares: the
+   stroke, the disc, the name and the hero-to-section resize all run on it,
+   so a circle changing state changes as one thing. */
+:root {
+  --ring-muted: var(--light-grey);
+  --ring-fade:  .55s cubic-bezier(.215, .61, .355, 1);
+  /* the two movements that carry the ring from one area to the next: the
+     notch it turns and the size it grows out of the hero */
+  --ring-turn:  .9s cubic-bezier(.22, .61, .36, 1);
+}
+/* cobalt on navy, as the hover frame draws it -- slate was too close to
+   the ground for the lattice to read against the lit circle */
+html.is-blue { --ring-muted: var(--cobalt); }
+
+.ring__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* The artwork moves two ways, one per state of the page.
+
+   In the hero -- the default, nothing being read -- it turns continuously,
+   slowly enough to read as drift rather than motion. One revolution takes
+   two minutes, and it stops under the pointer so the circle you are pointing
+   at holds still.
+
+   In the areas it snaps instead. Once the ring hangs off the right edge
+   there is only one position on it you can read in full -- nine o'clock --
+   so the turn is what brings each area's circle into that slot: the circles
+   are drawn at 315, 0, 45 ... and the rotor carries -45deg per area, which
+   puts area n at 270 every time.
+
+   The handoff between the two is the awkward part, and js/area-ring.js does
+   it by reading the angle the spin had reached and starting --turn from
+   there, so leaving the hero continues the turn rather than jumping. */
+.ring__rotor {
+  transform-origin: 350px 350px;
+  transform: rotate(var(--turn, 0deg));
+  transition: transform var(--ring-turn);
+}
+@keyframes ring-spin {
+  from { transform: rotate(var(--turn, 0deg)); }
+  to   { transform: rotate(calc(var(--turn, 0deg) + 360deg)); }
+}
+.ar-ring.is-spin .ring__rotor {
+  animation: ring-spin 120s linear infinite;
+  transition: none;
+}
+.ar-ring.is-spin.is-pointing .ring__rotor { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .ring__rotor { transition: none; }
+  .ar-ring.is-spin .ring__rotor { animation: none; }
+}
+.ring__c {
+  fill: none;
+  stroke: var(--ring-muted);
+  /* non-scaling-stroke holds the width against the viewBox, but NOT against
+     a CSS transform on the svg itself -- at 1.111 a 1px line renders 1.11.
+     Dividing by the scale the state carries keeps it 1 device pixel at
+     every size, which is what the design file asks for. */
+  stroke-width: calc(1px / var(--ring-k));
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+  transition: stroke var(--ring-fade), stroke-width var(--ring-fade);
+}
+/* The live circle is not a disc any more: same circle, drawn in the accent
+   at 2px instead of the lattice's 1px grey, with the area's number at its
+   centre. Nothing is filled, so the circles behind it still read through. */
+/* Hit-testing is done in js/area-ring.js against the discs rather than in
+   CSS against the lines. Two reasons: a 1px line is a cruel target, and the
+   eight discs all overlap at the centre, where "topmost wins" would hand
+   every shared pixel to whichever circle happens to paint last. The script
+   picks the circle whose centre is nearest instead, which is the one the
+   pointer is actually in. */
+.ar-ring { cursor: default; }
+.ar-ring.is-pointing { cursor: pointer; }
+
+.ring__g[data-accent="sky"]    { --c: var(--sky); }
+.ring__g[data-accent="green"]  { --c: var(--green); }
+.ring__g[data-accent="violet"] { --c: var(--violet); }
+.ring__g[data-accent="teal"]   { --c: var(--teal); }
+
+/* The hero is the one place the ring shows all eight in colour: outlines
+   only, no glow, as the design file draws it. */
+.ring__svg.is-all .ring__c { stroke: var(--c); }
+
+/* Lit by scroll -- the live circle is the one that carries the wave, and it
+   is drawn at 2 against the lattice's 1. */
+.ring__g.is-lit .ring__c { stroke: var(--c); stroke-width: calc(2px / var(--ring-k)); }
+
+/* Hover takes the lighting over completely -- the circle under the pointer
+   is the only one lit, over whatever the scroll had lit and over the hero's
+   all-lit state. Specificity arbitrates: four classes beats the rules above,
+   so none of this needs !important. */
+.ring__svg.is-hovering .ring__g:not(.is-hover) .ring__c {
+  stroke: var(--ring-muted);
+  stroke-width: calc(1px / var(--ring-k));
+}
+.ring__svg.is-hovering .ring__g.is-hover .ring__c {
+  stroke: var(--c);
+  stroke-width: calc(2px / var(--ring-k));
+}
+
+/* Figma puts the area's number at the centre of the live circle, 72px in
+   the accent -- the same number that used to head the copy column, which is
+   why that one is gone from there. It is HTML rather than SVG so it stays
+   upright while the artwork turns; js/area-ring.js keeps it on its circle
+   through the turn, reading the rotor's live matrix rather than the angle. */
+.ring__num {
+  position: absolute;
+  left: calc(var(--lx, 50) * 1%);
+  top: calc(var(--ly, 50) * 1%);
+  margin: 0;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-narrow);
+  font-size: 4.5rem;               /* Desktop/H1 */
+  font-weight: 700;
+  line-height: 105%;
+  letter-spacing: .02em;
+  color: var(--c, var(--sky));
+  opacity: 0;
+  pointer-events: none;
+  transition: color var(--ring-fade), opacity var(--ring-fade);
+}
+/* the glyph reading: same slot, same accent, drawn rather than set */
+.ring__num.is-icon { font-size: 0; }
+.ring__icon {
+  display: block;
+  /* the glyph, not the 96 frame it sits in: Figma draws it ~40 inside that
+     frame, which is the same size the copy column's badge gives it */
+  width: 44px;
+  height: 44px;
+  fill: var(--c, var(--sky));
+}
+.ring__num[data-accent="sky"]    { --c: var(--sky); }
+.ring__num[data-accent="green"]  { --c: var(--green); }
+.ring__num[data-accent="violet"] { --c: var(--violet); }
+.ring__num[data-accent="teal"]   { --c: var(--teal); }
+.ring__num.is-on { opacity: 1; }
+
+/* The sprite is markup, not furniture -- it must not take up any room. */
+.ic-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* ------------------------------------------------------------------- HERO */
+/* Figma: Hero Container 1296 x 704 at 72,124, holding an 800 block of two
+   376 columns 48 apart -- copy on the left, the eight areas on the right --
+   with the ring hung beside them. The block is 512 tall, which is the
+   index's own height (eight 64s, flush), and the copy column spreads its
+   three parts down that same height.
+
+   Vertically the block centres in the band BELOW the header rather than in
+   the viewport, so it sits in the middle of what is actually left to look
+   at. The ring centres on the same band. */
+.ar-hero {
+  display: flex;
+  align-items: center;
+  min-height: 100svh;
+  padding-block: var(--header-clear) 0;
+}
+.ar-hero__inner {
+  display: flex;
+  flex: none;                      /* or it shrinks into the 400 column */
+  align-items: stretch;
+  gap: 48px;
+  width: min(800px, calc(100vw - 2 * var(--gutter)));
+}
+
+/* --- the copy column --- */
+.ar-hero__text {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 34px;
+  min-width: 0;
+}
+.ar-hero__title {
+  max-width: 310px;                /* Figma sets the heading's own measure */
+  margin: 0;
+  font-family: var(--font-narrow);
+  font-size: 3.5rem;               /* Desktop/H2 */
+  font-weight: 700;
+  line-height: 105%;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--black);
+  transition: color var(--blue-fade), var(--fade-in);
+}
+html.is-blue .ar-hero__title { color: var(--white); }
+/* the homepage's scroll rule, in this page's highlight */
+.ar-hero__hint {
+  --line-h: 72px;
+  --line-w: 1px;
+  --line-color: var(--cerulean);
+  --line-speed: 1.6s;
+  display: block;
+  flex: none;
+  width: var(--line-w);
+  height: var(--line-h);
+  background: var(--line-color);
+  animation: igap-scroll-line var(--line-speed) cubic-bezier(.7, 0, .3, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) { .ar-hero__hint { animation: none; clip-path: none; } }
+.ar-hero__copy { display: flex; flex-direction: column; gap: 24px; }
+.ar-hero__mission,
+.ar-hero__approach {
+  max-width: 300px;
+  margin: 0;
+  color: var(--black);
+  transition: color var(--blue-fade), var(--fade-in);
+}
+html.is-blue .ar-hero__mission,
+html.is-blue .ar-hero__approach { color: var(--white); }
+.ar-hero__mission {
+  font-family: var(--font);
+  font-size: 18px;                 /* Desktop/H4 */
+  font-weight: 600;
+  line-height: 140%;
+}
+.ar-hero__approach {
+  font-family: var(--font);
+  font-size: 14px;                 /* Desktop/Body */
+  font-weight: 300;
+  line-height: 160%;
+}
+
+/* --- the hero index --- */
+/* One column of eight now, 376 wide: the area's name, a rule beneath it in
+   that area's accent, and the arrow out at the right. The rows stack flush
+   -- no gap at all -- so the column reads as one ruled list rather than
+   eight separate cards, and its eight 64s are what set the block's 512.
+
+   Pointing at a row lights that area's circle out in the ring, with its
+   number in the middle; js/area-ring.js wires the two together. */
+.ar-index {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+.ar-index__link {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 64px;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--accent, var(--sky));
+  text-decoration: none;
+}
+/* number and name travel together, 12 apart, with the arrow pushed out to
+   the row's far edge -- Figma groups them the same way */
+.ar-index__text {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  transition: gap .3s var(--ease-out-quart);
+}
+/* hover opens the number away from the name */
+.ar-index__link:hover .ar-index__text,
+.ar-index__link:focus-visible .ar-index__text { gap: 24px; }
+.ar-index__num {
+  flex: none;
+  font-family: var(--font-narrow);
+  font-size: 16px;                 /* Desktop/Number */
+  font-weight: 600;
+  line-height: 100%;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+html.is-blue .ar-index__num { color: var(--white); }
+.ar-index__name {
+  min-width: 0;
+  font-family: var(--font);
+  font-size: 12px;                 /* Mobile/Large Link */
+  font-weight: 500;
+  line-height: 140%;
+  letter-spacing: 0;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+html.is-blue .ar-index__name { color: var(--white); }
+.ar-index__arrow {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  color: var(--accent, var(--sky));
+}
+/* The arrow points down the page, so on hover it rehearses the trip -- a
+   slow hover in place rather than a one-shot nudge, which reads as the link
+   being live rather than as something that already happened. */
+@keyframes ar-index-bob {
+  0%, 100% { transform: translateY(-3px); }
+  50%      { transform: translateY(3px); }
+}
+.ar-index__link:hover .ar-index__arrow,
+.ar-index__link:focus-visible .ar-index__arrow {
+  animation: ar-index-bob 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ar-index__link:hover .ar-index__arrow,
+  .ar-index__link:focus-visible .ar-index__arrow { animation: none; }
+}
+/* the ring's cycle, so a row and the circle it lights always agree */
+.ar-index__link[data-area="1"], .ar-index__link[data-area="5"] { --accent: var(--sky); }
+.ar-index__link[data-area="2"], .ar-index__link[data-area="6"] { --accent: var(--green); }
+.ar-index__link[data-area="3"], .ar-index__link[data-area="7"] { --accent: var(--violet); }
+.ar-index__link[data-area="4"], .ar-index__link[data-area="8"] { --accent: var(--teal); }
+
+/* ------------------------------------------------------------ THE STAGE */
+/* Two columns in one grid row: everything that scrolls in the first, the
+   ring in the second. Because both occupy the same row, the ring's sticky
+   box is the full height of the column beside it -- it pins through the hero
+   and the whole run and releases with the last area, with no JS measuring.
+
+   One ring, one place. Figma draws it 72 left and 98 up in the hero, but it
+   holds still here: it is the page's fixed point, and what changes is which
+   circle is lit, not where the artwork sits. */
+
+/* The artwork is 900 across in the hero and 1000 in the sections. The box
+   this is set on is the 700 viewBox, which carries 75 of margin either side
+   of the artwork, so the artwork is .7857 of it: 1146 of box draws 900.
+
+   127svh keeps the artwork to the height of the screen -- Figma draws it
+   900 in a 900 frame, so it fills the fold exactly. The last term is the
+   index's doing: its column ends 872 from the left and the artwork's left
+   edge is .39286 of the box in from its centre, so the term keeps 16
+   between them. Both are inert at the 1440 Figma draws. */
+:root {
+  --ring: min(1146px, 127svh, calc((100vw - 886px) * 2.5455));
+  /* what the artwork is currently scaled by -- the stroke divides by it */
+  --ring-k: 1;
+}
+
+.ar-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 400px) 1fr;
+  align-items: start;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.ar-col { grid-area: 1 / 1; min-width: 0; }
+.ar-ring {
+  grid-area: 1 / 2;
+  position: sticky;
+  /* The artwork is as tall as the screen now, so it can no longer be
+     centred in the band below the header -- there is less band than
+     artwork. Figma centres it on the viewport instead, at 450 of 900, and
+     the copy keeps the band to itself.
+
+     The centring is a transform rather than the sticky offset because the
+     box is TALLER than the viewport: a negative `top` never pins, and the
+     ring would simply scroll away with the hero. top 0 pins it, and the
+     transform lifts it back to centre. */
+  top: 0;
+  transform: translateY(calc((100svh - var(--ring)) / 2));
+  justify-self: end;
+  /* The hero runs the artwork off the right edge now rather than sitting it
+     inside: Figma centres it at 1442 on a 1440 board, 74 PAST the content's
+     right edge. Pulling the box out by half itself plus that 74 puts the
+     artwork's centre there. */
+  margin-right: calc(-74px - var(--ring) / 2);
+  width: var(--ring);
+  height: var(--ring);
+}
+
+/* Scrolling out of the hero, the artwork grows from 900 to 1000 and slides
+   LEFT: Figma puts its centre 74 past the content edge in the hero and 117
+   short of it in the sections, so the move is a flat 191. The live circle
+   lands at nine o'clock, which is the one position on a ring this size
+   that is still wholly on screen. */
+/* Vertically there is nothing to correct any more: the hero's padding is
+   even top and bottom, so the middle of its container IS the middle of the
+   viewport, which is where the sticky box already centres the artwork. (It
+   carried a 26 while the padding was 124 over 72 -- half that difference.)
+
+   Horizontally the sections put the artwork's centre 117 left of the
+   content edge (Figma: 1251 against 1368), where the hero has it .39286 of
+   a ring box in. The difference between those two is the shift. */
+.ring__svg {
+  transform-origin: 50% 50%;
+  transition: transform var(--ring-turn);
+}
+.ring__svg.is-wide {
+  transform: translateX(-191px) scale(1.111);
+  --ring-k: 1.111;
+}
+@media (prefers-reduced-motion: reduce) { .ring__svg { transition: none; } }
+
+/* The ring is meant to run off the page now, so the page stops it making a
+   scrollbar. `clip` rather than `hidden`: hidden would make .page a scroll
+   container and the sticky ring would stop sticking. */
+.is-areas .page { overflow-x: clip; }
+
+/* Pin and hold, as on the capabilities page: a track half a viewport taller
+   than the area, with the area sticky to the top of it. The area arrives,
+   holds still for 50svh of scrolling, then releases and the next takes over.
+   The sticky element has to be the track's only child -- siblings in one
+   container stack at top 0 instead of handing over. */
+.area-track { height: 150svh; }
+
+.area {
+  position: sticky;
+  top: 0;
+  display: flex;
+  height: 100svh;
+  min-height: 0;
+  padding-block: 124px 72px;
+}
+/* Number and title on the top edge, the reading matter on the bottom one.
+   Figma puts 172 between them, but that is aspirational rather than real:
+   its own 704 box cannot hold 168 + 172 + 455, so the design file overflows
+   its frame on the longer areas. Taken literally here it pushed sections
+   past 100svh and broke the one-screen-per-area rhythm the pinned ring
+   depends on. So space-between does the work and the gap is only a floor. */
+.area__copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+}
+/* The badge at the head of the column: a 96 ring in the area's accent with
+   that area's glyph inside, which is what replaced the 72 number. The glyph
+   takes the page's ink, not the accent -- only the ring around it is
+   coloured, as Figma draws it. */
+.area__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border: 1px solid var(--accent, var(--sky));
+  border-radius: 50%;
+  color: var(--black);
+  transition: color var(--blue-fade), border-color var(--blue-fade);
+}
+html.is-blue .area__icon { color: var(--white); }
+.area__icon svg { width: 44px; height: 44px; fill: currentColor; }
+/* everything below the badge travels together, pushed to the foot */
+.area__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.area__head { display: flex; flex-direction: column; gap: 24px; }
+.area__num {
+  font-family: var(--font-narrow);
+  font-size: 4.5rem;               /* Desktop/H1 */
+  font-weight: 700;
+  line-height: 105%;
+  letter-spacing: .02em;
+  color: var(--accent, var(--sky));
+}
+.area__title {
+  margin: 0;
+  max-width: 300px;
+  font-family: var(--font);
+  font-size: 24px;                 /* Desktop/H3 */
+  font-weight: 600;
+  line-height: 140%;
+  color: var(--black);
+  transition: color var(--blue-fade), var(--fade-in);
+}
+.area__text { display: flex; flex-direction: column; gap: 24px; }
+
+/* --- the description / areas pair -----------------------------------------
+   Figma moved the areas list behind an accordion, and the two halves trade
+   places: opening the list shuts the description. Both collapse with the
+   0fr -> 1fr grid trick, which animates a real height without measuring it
+   in JS, so the column holds its size instead of growing. */
+.area__desc,
+.ar-acc__panel {
+  display: grid;
+  transition: grid-template-rows .4s var(--ease-out-quart, cubic-bezier(.165,.84,.44,1));
+}
+.area__desc    { grid-template-rows: 1fr; }
+.ar-acc__panel { grid-template-rows: 0fr; }
+.area.is-open .area__desc    { grid-template-rows: 0fr; }
+.area.is-open .ar-acc__panel { grid-template-rows: 1fr; }
+.area__desc-inner,
+.ar-acc__inner { overflow: hidden; min-height: 0; }
+.area__desc-inner { display: flex; flex-direction: column; gap: 12px; }
+/* the Figma 24 between the header and its panel, clipped away when closed */
+.ar-acc__inner > :first-child { margin-top: 24px; }
+
+.ar-acc { display: flex; flex-direction: column; }
+.ar-acc__head { margin: 0; }
+.ar-acc__btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 24px 0;                 /* Figma: 73 tall at one line */
+  border: 0;
+  border-bottom: 1px solid var(--accent, var(--sky));
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--black);
+  transition: border-color var(--blue-fade), color var(--blue-fade);
+}
+.ar-acc__title {
+  font-family: var(--font);
+  font-size: 14px;                 /* Desktop/H6 */
+  font-weight: 600;
+  line-height: 140%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+.ar-acc__btn:hover .ar-acc__title,
+.ar-acc__btn:focus-visible .ar-acc__title { color: var(--accent, var(--sky)); }
+
+/* The areas run in light mode, but the mode does not change at the section
+   boundary -- it changes halfway down the hero, so the first area is already
+   on screen while `is-blue` is still on. Every piece of ink down here needs
+   its navy counterpart or it spends that moment black on navy. The accents
+   and the rules are the same colour in both, so only the ink is paired. */
+html.is-blue .area__title,
+html.is-blue .area__desc p,
+html.is-blue .ar-acc__btn,
+html.is-blue .ar-acc__title { color: var(--white); }
+/* a plus that loses its upright stroke to become a minus */
+.ar-acc__icon { position: relative; flex: none; width: 24px; height: 24px; }
+.ar-acc__icon::before,
+.ar-acc__icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 1.5px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+  transition: opacity .25s linear, transform .25s var(--ease-out-quart, cubic-bezier(.165,.84,.44,1));
+}
+.ar-acc__icon::after { transform: translate(-50%, -50%) rotate(90deg); }
+.area.is-open .ar-acc__icon::after { opacity: 0; transform: translate(-50%, -50%) rotate(0deg); }
+
+.area__desc p {
+  max-width: 340px;
+  margin: 0;
+  font-family: var(--font);
+  font-size: 14px;                 /* Desktop/Body */
+  font-weight: 300;
+  line-height: 160%;
+  color: var(--black);
+  transition: color var(--blue-fade), var(--fade-in);
+}
+/* one wrapping run of labels divided by slashes, as on the capabilities page */
+.ar-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ar-tag {
+  font-family: var(--font-narrow);
+  font-size: 12px;                 /* Desktop/Meta */
+  font-weight: 400;                /* Regular now, not SemiBold */
+  line-height: 160%;
+  letter-spacing: .05em;           /* was .1em */
+  text-transform: uppercase;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+html.is-blue .ar-tag { color: var(--white); }
+.ar-tag:not(:last-child)::after {
+  content: '/';
+  margin-left: 8px;
+  color: var(--accent, var(--sky));
+}
+
+/* the accent cycle: sky, green, violet, teal, twice round */
+#area-1, #area-5 { --accent: var(--sky); }
+#area-2, #area-6 { --accent: var(--green); }
+#area-3, #area-7 { --accent: var(--violet); }
+#area-4, #area-8 { --accent: var(--teal); }
+
+/* the footer is light on this page, as on expertise */
+.is-areas .footer-inner {
+  background-color: var(--paper);
+  -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+}
+
+/* ========================================================== TABLET / BELOW */
+
+/* A shorter laptop cannot hold the longest areas in one screen at the full
+   frame padding; trimming it keeps most of them to a single fold and the
+   rest to a short scroll, rather than letting the padding eat the copy. */
+@media (min-width: 768px) and (max-height: 880px) {
+  .area { padding-block: 112px 48px; }
+  .area__copy { gap: 32px; }
+}
+
+/* Below this the ring would have to shrink past the point of being the
+   page's subject to keep the index beside it, so the index goes instead --
+   the same call the capabilities page makes -- and the ring has the hero
+   to itself again. */
+@media (max-width: 1279px) {
+  .ar-index { display: none; }
+  .ar-hero__inner { width: min(376px, calc(100vw - 2 * var(--gutter))); }
+}
+
+@media (max-width: 1100px) {
+  :root { --ring: min(560px, 44vw, 70svh); }
+  .ar-stage { grid-template-columns: minmax(0, 340px) 1fr; }
+}
+
+/* ================================================================== MOBILE */
+/* A different arrangement again, not the desktop narrowed. Everything is
+   left-aligned, the index is gone, the scroll rule is off, and the ring has
+   moved BEHIND the copy rather than sitting under it.
+
+   The hero is one navy screen with the copy spread top to bottom over the
+   full 724 and 480 of artwork floating behind it. Each area is the next
+   screen: badge, heading and copy down the left, and 600 of artwork centred
+   on the screen's bottom edge, so only its top half shows and the live
+   circle -- brought round to twelve o'clock -- sits just above the fold. */
+
+@media (max-width: 767px) {
+  /* 764 of box draws the sections' 600 of artwork; the hero's 480 is .8 of
+     that, which is the scale the hero state carries. */
+  :root { --ring: 764px; }
+
+  /* minmax(0,1fr), not 1fr: a bare fr track takes its MINIMUM from the
+     content, and the ring's 764 box would blow the single column out and
+     carry the copy with it. */
+  .ar-stage { grid-template-columns: minmax(0, 1fr); padding-inline: 0; }
+  .ar-col { padding-inline: 0; }
+
+  /* The box's middle sits on the fold, which leaves the sections' artwork
+     showing its top half. The desktop centres with a transform because its
+     ring is taller than the screen; this one is not, so the sticky offset
+     does it and the transform is free for the hero state. */
+  .ar-ring {
+    grid-area: 1 / 1;
+    position: sticky;
+    top: calc(100svh - var(--ring) / 2);
+    transform: none;
+    z-index: 1;
+    justify-self: start;
+    width: var(--ring);
+    height: var(--ring);
+    margin: 0 0 0 calc((100vw - var(--ring)) / 2);
+    padding: 0;
+  }
+  /* hero: 480 of artwork, lifted to sit behind the copy at 422 of 844;
+     below the hero it drops that half-screen and comes up to full size.
+
+     That move belongs to the finger, not to a clock. It used to be a class
+     swapped at the halfway mark, so the artwork glided its 50svh on its own
+     .9s while the page sat still -- it snapped. --ring-p is the conveyor's
+     own number for how far area 01 has arrived (0 hero .. 1 in place), so
+     the ring travels exactly as far as the scroll has taken it.
+     js/area-ring.js sets --ring-p and --ring-k together. */
+  .ar-ring { --ring-p: 0; }
+  .ring__svg,
+  .ring__svg.is-wide {
+    transform: translateY(calc(-50svh * (1 - var(--ring-p)))) scale(calc(.8 + .2 * var(--ring-p)));
+    transition: none;
+  }
+  .ring__num { font-size: 2.5rem; }                 /* Mobile/H1 */
+  .ring__icon { width: 36px; height: 36px; }
+
+  /* --- hero --- */
+  /* The copy spans the whole fold and spreads: heading on the top edge,
+     intro on the bottom one, the ring showing between them. */
+  /* The hero is the conveyor's FIRST panel. It is already in place when
+     the page opens, and it leaves to the left exactly as area 01 arrives
+     from the right -- so the sideways run starts here rather than one
+     screen down. Sticky like the tracks below it, pinned inside .ar-col,
+     so it is held still while it is being pushed. js/area-ring.js owns
+     --slide; the areas come later in the markup and so pass over it. */
+  .ar-hero {
+    position: sticky;
+    top: 0;
+    align-items: stretch;
+    height: 100svh;
+    padding: 96px var(--gutter) 24px;
+    transform: translateX(var(--slide, 0px));
+  }
+  .ar-hero__inner { width: 100%; }
+  .ar-hero__text {
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  /* Figma breaks the heading over two lines at this size rather than
+     letting it run the width of the screen. */
+  .ar-hero__title { max-width: 160px; font-size: 2rem; }      /* Mobile/H2 */
+  .ar-hero__hint { display: none; }                 /* off at this size */
+  .ar-hero__copy { gap: 8px; max-width: 300px; }
+  .ar-hero__mission  { font-size: 16px; }                     /* Mobile/H3 */
+  .ar-hero__approach { font-size: 12px; }                     /* Mobile/Intro */
+
+  /* --- the areas --- */
+  /* The areas run SIDEWAYS. The finger scrolls down as normal, but what
+     that scroll moves is a conveyor: each area arrives from off the right
+     edge, rests while you read it, then carries on out to the left as the
+     next one comes in behind it.
+
+     The tracks are stacked stickies -- every one pins at the top and STAYS
+     pinned, so the whole set is held in the same place and the only thing
+     separating them is how far each has been pushed along. 150svh a piece:
+     the last half-screen of the approach is the slide, the rest is reading
+     time. js/area-ring.js owns --slide. */
+  /* The slide IS the entrance down here. Left on, every panel's copy also
+     lifts its 16px into place while the panel is travelling -- and since
+     the stack sits in one spot, the observer fires and resets them at each
+     handover, so the sections look like they are breathing. Off. */
+  .ar-hero [data-fade],
+  .ar-flow [data-fade] { opacity: 1; transform: none; transition: none; }
+
+  .ar-flow { position: relative; }
+  /* The tracks are sticky inside .ar-flow, so every one of them unpins when
+     the flow's bottom edge arrives -- and the LAST track's bottom IS that
+     edge, which left area 08 with no sticky range at all: it scrolled
+     straight past while the other seven each got a screen of reading. This
+     is that screen, given to the flow after the last track so there is
+     something for area 08 to hold against. */
+  .ar-flow::after { content: ""; display: block; height: 100svh; }
+  .area-track {
+    position: sticky;
+    top: 0;
+    height: 150svh;
+  }
+  .area {
+    position: static;
+    height: 100svh;
+    min-height: 0;
+    padding: 96px var(--gutter) 48px;
+    transform: translate(var(--slide, 0px), var(--lift, 0px));
+  }
+  /* Nothing to animate for anyone who has asked for less motion: the areas
+     simply stack and scroll, which is what the markup does on its own. */
+  @media (prefers-reduced-motion: reduce) {
+    .ar-hero { position: static; height: auto; min-height: 100svh; transform: none; }
+    .area-track { position: static; height: auto; }
+    .area { height: auto; min-height: 100svh; transform: none; }
+    /* no conveyor here, so nothing sets --ring-p: back to the two states */
+    .ring__svg { transform: translateY(-50svh) scale(.8); --ring-k: .8; }
+    .ring__svg.is-wide { transform: none; --ring-k: 1; }
+  }
+  .area__copy { justify-content: flex-start; gap: 32px; max-width: none; }
+  .area__icon { width: 72px; height: 72px; }
+  .area__icon svg { width: 36px; height: 36px; }
+  .area__bottom { gap: 24px; }
+  .area__head { gap: 8px; }
+  .area__title { max-width: 300px; font-size: 16px; }         /* Mobile/H3 */
+  .area__text { gap: 16px; }
+  .area__desc p { max-width: 340px; font-size: 12px; }        /* Mobile/Body */
+  .ar-acc__title { font-size: 14px; }                         /* Mobile/H4 */
+
+}
+
+/* ---------------------------------------------------------- CLOSING CTA */
+/* .cta-section itself is shared (style.css) and already matches: 80svh is
+   Figma's 720-of-900, 60svh its 506-of-844. Two numbers differ from the
+   homepage's and are scoped here rather than changed there -- the measure
+   is 800 on these pages, not 900, and the heading holds 40 on a phone
+   where the shared .h1 drops to 24. */
+.cta-section .h1 { max-width: 800px; }
+
+@media (max-width: 767px) {
+  .cta-section .h1 { font-size: 2.5rem; }          /* Mobile/H1 */
+}

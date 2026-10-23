@@ -1,0 +1,1022 @@
+/* ===========================================================================
+   EXPERTISE — What We Do
+   ---------------------------------------------------------------------------
+   One markup, two scroll models.
+
+   Desktop: the rail is an ordinary stack. Hero plus six capability sections,
+   each exactly one viewport tall, so the pegboard gets one viewport height per
+   capability.
+
+   Mobile: the rail is a horizontal scroller. The hero is one screen wide; each
+   capability is two, with its header pinned at the left edge while the intro
+   page and then the areas page pass behind it. Two viewport widths per
+   capability — the ruler the pegboard morph runs on.
+
+   The dot field and the backdrop are the homepage's, unchanged; this page just
+   pins the navy wash on rather than driving it from a scroll clock.
+   ========================================================================= */
+
+/* The page runs light -> blue -> light: a light hero, the six capabilities in
+   blue, then Who We Work With and the footer light again. js/site.js toggles
+   .is-blue over the capability range named on <body>; everything below just
+   follows that class, and the wash and the page colour cross-fade with it. */
+:root {
+  --bg-wash: 0;
+  /* Reserved for the pegboard. Desktop puts the board beside the copy, so it
+     costs no vertical room; mobile parks it under the content. */
+  --peg-slot: 0px;
+  --peg-opacity: 1;
+}
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+html.is-blue { --bg-wash: 1; }
+.scene-bg::after { transition: opacity var(--blue-fade); }
+
+body.is-expertise {
+  background-color: var(--paper);
+  transition: background-color var(--blue-fade);
+}
+html.is-blue body.is-expertise { background-color: var(--navy); }
+
+.is-expertise .page { position: relative; z-index: 3; }
+
+/* --------------------------------------------------------------- PEGBOARD */
+
+/* z-index has to clear .page (3): every .cap is a full-height block, so at 2
+   the capability painted over the board and swallowed the pointer -- bands
+   looked grabbable (can-drag was on, the cursor changed) but elementFromPoint
+   on a band returned the article, so the drag never started. The stage stays
+   pointer-events: none, so sitting above the copy costs nothing; only the
+   bands below opt back in. The desktop footer is z-index 10 and still wins. */
+.peg-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: var(--peg-opacity);
+  transition: opacity .3s linear;
+}
+.peg-stage__inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: var(--page-max);
+  height: 100%;
+  margin-inline: auto;
+  /* bottom aligned with the copy, on the hero's 72 line */
+  padding: 0 var(--gutter) 72px;
+}
+.pegboard {
+  /* 400 square card, 72 padding, 1px border — with border-box that leaves the
+     artwork at exactly 254, as in the design file. */
+  --pb: 400px;
+  width: var(--pb);
+  aspect-ratio: 1;
+  padding: calc(var(--pb) * 72 / 400);
+  border: 1px solid var(--header-border);
+  border-radius: 8px;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  /* it already had a blue pair, but nothing to move it on -- the card used to
+     snap between the two while the page behind it cross-faded */
+  transition: background-color var(--blue-fade), border-color var(--blue-fade),
+              box-shadow var(--blue-fade);
+}
+html.is-blue .pegboard {
+  border-color: var(--cobalt);
+  background: var(--dark-glass);
+  box-shadow: var(--dark-shadow-card);
+}
+.board {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  /* The board itself never takes the pointer -- it is a 254 square sitting
+     over the copy, and a transparent card that eats clicks is worse than no
+     drag at all. Only the band strokes opt in, and only when grabbable. */
+  pointer-events: none;
+  touch-action: pan-y;
+}
+/* The pegs used to borrow the page's dot colour, which stopped making sense
+   once that one was mixed back toward the page to calm the background field
+   down: the field is backdrop, the pegs are artwork on a glass card. In light
+   mode they still want the page's grey, so only the blue side takes its own
+   value. Bands keep their own accent colours. */
+:root     { --peg-dot: var(--dot); }
+.is-blue  { --peg-dot: #254b73; }
+.peg  { fill: var(--peg-dot); pointer-events: none; }
+.ring { fill: none; stroke: var(--peg-dot); pointer-events: none; }
+.band { fill: none; stroke-linejoin: round; pointer-events: none; }
+.band, .ring { stroke-width: 2.25px; vector-effect: non-scaling-stroke; }
+/* Bands are grabbable only while an icon is holding still. touch-action on the
+   band alone, so a finger on a band drags it and anywhere else scrolls. */
+.board.can-drag .band,
+.board.dragging .band { pointer-events: all; }
+.board.can-drag .band { cursor: grab; touch-action: none; }
+.board.dragging, .board.dragging .band { cursor: grabbing; }
+
+/* --------------------------------------------------- WHO WE WORK WITH */
+/* Light section, same 124/72/72 frame as the hero. Five cards on a common
+   baseline with rising heights, each capped by a 24px accent tab. */
+.xp-who {
+  display: flex;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  min-height: 100svh;
+  padding: 124px var(--gutter) 72px;
+}
+.xp-who__inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+}
+.xp-who__head { display: flex; flex-direction: column; gap: 4px; width: min(420px, 100%); }
+.xp-who__title {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 24px;                 /* Desktop/H3 */
+  font-weight: 600;
+  line-height: 140%;
+  color: var(--black);
+  /* carries the fade: a bare `transition: color` replaces the one
+     [data-fade] sets and the heading would snap in */
+  transition: color var(--blue-fade), var(--fade-in);
+}
+.xp-who__desc {
+  margin: 0;
+  /* Figma sets the description on its own 266 measure inside the 420 header,
+     and in black -- the grey it was drawn in here was never in the file. */
+  max-width: 266px;
+  font-family: var(--font);
+  font-size: 16px;                 /* Desktop/Intro */
+  font-weight: 300;
+  line-height: 160%;
+  color: var(--black);
+  transition: color var(--blue-fade), var(--fade-in);
+}
+
+.xp-who__list {
+  display: flex;
+  align-items: flex-end;           /* cards share a baseline, tops step up */
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* the card's own fill and shadow cross over too -- see the blue-mode block
+   below the card copy */
+.client {
+  position: relative;
+  transition: background-color var(--blue-fade), box-shadow var(--blue-fade);
+  flex: 0 0 246px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--accent, var(--sky));
+  border-radius: 8px;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;                /* rounds the tab's top corners */
+  /* Hidden until its turn. It has to be OPACITY at rest, not the clip the
+     grow itself uses: IntersectionObserver measures the clipped rect, so a
+     card clipped to nothing never reports as visible and .is-in never
+     arrives. Opacity it does not look at. */
+  opacity: 0;
+}
+/* The accent that sweeps through. It covers the card while it grows -- so
+   what you see arriving is a solid block of the card's own colour -- then
+   carries on up and off the top, leaving the finished card behind. The card's
+   own overflow: hidden is what keeps it inside the radius. */
+.client::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--accent, var(--sky));
+  pointer-events: none;
+}
+/* The LIST is what the observer watches, not the cards. The grow clips each
+   card to nothing, and IntersectionObserver measures the clipped rect -- so
+   observing the cards had them hide themselves from the very observer that
+   reveals them, and the two oscillated. The list is never clipped, so it is a
+   stable trigger for all five; the shared fade steps aside on it. */
+.xp-who__list[data-fade] { opacity: 1; transform: none; transition: none; }
+
+/* `round 8px` matches the card's own radius, so the growing block is a
+   rounded rect the whole way up rather than a rectangle with the corners
+   sliced off. Below ~16px tall the browser scales the radii down to fit,
+   which is what keeps the first sliver from reading as a pill. */
+@keyframes client-grow  { from { clip-path: inset(100% 0 0 0 round 8px); } to { clip-path: inset(0 0 0 0 round 8px); } }
+@keyframes client-swipe { from { transform: translateY(0); }     to { transform: translateY(-101%); } }
+
+.xp-who__list.is-in .client {
+  opacity: 1;
+  /* `backwards` is what holds it clipped away through its stagger delay --
+     the card is already opaque by then, so the clip is the only thing
+     keeping it off screen until its turn. */
+  animation: client-grow .5s var(--ease-out-quart) var(--in-delay, 0ms) backwards;
+}
+.xp-who__list.is-in .client::after {
+  /* starts just before the grow lands, so the two read as one motion */
+  animation: client-swipe .45s var(--ease-out-quart)
+             calc(var(--in-delay, 0ms) + .42s) forwards;
+}
+.client:nth-child(1) { --in-delay:   0ms; }
+.client:nth-child(2) { --in-delay: 140ms; }
+.client:nth-child(3) { --in-delay: 280ms; }
+.client:nth-child(4) { --in-delay: 420ms; }
+.client:nth-child(5) { --in-delay: 560ms; }
+
+/* fade-in.js bails out entirely under reduced motion, so .is-in never
+   arrives -- without this the cards would stay clipped away for good. */
+@media (prefers-reduced-motion: reduce) {
+  .client { opacity: 1; animation: none; }
+  .client::after { display: none; }
+}
+.client__tab {
+  display: block;
+  height: 24px;
+  background: var(--accent, var(--sky));
+  transition: height .35s var(--ease-out-quart);
+}
+/* Hover grows the accent band and deepens the blur; the card keeps its height,
+   so the copy is pushed down rather than the card growing. */
+@media (hover: hover) {
+  /* carries the mode pair along: a bare backdrop-filter transition here
+     would replace it and the card would snap between light and blue */
+  .client {
+    transition: background-color var(--blue-fade), box-shadow var(--blue-fade),
+                -webkit-backdrop-filter .35s linear, backdrop-filter .35s linear;
+  }
+  .client:hover .client__tab { height: 140px; }
+  .client:hover {
+    -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+  }
+}
+.client__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;  /* title top, description on the floor */
+  flex: 1;
+  padding: 24px;
+}
+.client__title {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 18px;                 /* Desktop/H4 */
+  font-weight: 600;
+  line-height: 140%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+.client__desc {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 14px;                 /* Desktop/Body */
+  font-weight: 300;
+  line-height: 160%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+
+/* --- blue mode -----------------------------------------------------------
+   The page hands back to light exactly as this section arrives, so it is only
+   ever READ on paper -- but it is on screen for the length of that hand-off,
+   and anything authored light-only sits black on a still-navy background for
+   those frames. Everything here crosses over on the same clock as the
+   background, like the capability copy above it. */
+html.is-blue .xp-who__title,
+html.is-blue .xp-who__desc,
+html.is-blue .client__title,
+html.is-blue .client__desc { color: var(--white); }
+html.is-blue .client {
+  background: var(--dark-glass);
+  box-shadow: var(--dark-shadow-card);
+}
+/* The cascade: five fixed heights and five accents, straight from Figma. */
+.client:nth-child(1) { height: 400px; --accent: var(--sky); }
+.client:nth-child(2) { height: 440px; --accent: var(--green); }
+.client:nth-child(3) { height: 480px; --accent: var(--teal); }
+.client:nth-child(4) { height: 520px; --accent: var(--violet); }
+.client:nth-child(5) { height: 560px; --accent: var(--cerulean); }
+
+/* ------------------------------------------------------------------- RAIL */
+
+.rail { position: relative; }
+
+/* ------------------------------------------------------------------- HERO */
+/* Figma 177:12280, at 1440.
+     Hero            1440 x 900, padding 124 / 72 / 72 / 72
+     Hero Container  1296 x 704, space-between, cross MAX, gap 24
+       Text          800, two 376 columns, gap 48, cross MAX
+         Intro col   376 x 408, space-between   (heading / hint / copy)
+         Capabilities 376, bottom aligned, two groups of three, gap 24
+       Pegboards     400 x 400 card, 72 padding, 254 artwork           */
+
+/* Figma hero: 124 top padding over a 704 content box -- the same top padding
+   the capability sections use, so the first line of the page starts where
+   every section after it does. The capability index and the pegboard sit on
+   the content box's bottom edge, and the intro column spans the full height
+   and spaces itself: title at the top, scroll hint between, mission and
+   approach on the baseline. */
+.xp-hero {
+  display: flex;
+  /* flex-end, as Figma's MAX constraint: the block is 552 -- the index's own
+     height -- and sits on the bottom edge of the 704, not spread across it.
+     Inside, .xp-hero__text still stretches, so the intro column gets that
+     same 552 for its space-between to work against. */
+  align-items: flex-end;
+  min-height: 100svh;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: 124px var(--gutter) 72px;
+}
+.xp-hero__text {
+  display: flex;
+  align-items: stretch;
+  gap: 48px;
+  width: min(800px, 100%);
+}
+.xp-hero__intro-col,
+.xp-index { flex: 1 1 0; min-width: 0; }
+.xp-hero__intro-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.xp-index { align-self: flex-end; }
+
+/* No floor: the six 72s and five 24s of the index next door come to 552,
+   and stretch gives this column the same, which is what Figma has. */
+/* The hero is authored light, but blue now starts on the first pixel of
+   scroll, so the hero is still on screen when the page turns. Every piece of
+   hero type crosses over on the same clock as the background. */
+.xp-hero__title {
+  margin: 0;
+  font-family: var(--font-narrow);
+  font-size: 3.5rem;               /* Desktop/H2 = 56 */
+  font-weight: 700;
+  line-height: 105%;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+/* One line on both breakpoints. It needs saying explicitly because the
+   scramble wraps every letter in its own inline-block, which measures wider
+   than the same string as plain text and tipped "WHAT WE DO" onto a second
+   line inside the 376 column. The few pixels it runs over land in the 48 gap
+   before the index. */
+.xp-hero__title { white-space: nowrap; }
+html.is-blue .xp-hero__title { color: var(--white); }
+/* The scroll hint: a vertical 72px cerulean rule that draws itself downward,
+   on a loop. The animation is the homepage's `.igap-scroll-line` verbatim --
+   same keyframes, same 1.6s, same curve -- so the two cues read as one idea;
+   only the length and colour are this page's. Keyframes are repeated here
+   the keyframes themselves come from css/embed-fragments.css, which this page
+   now loads for the two scramble animations. */
+.xp-hero__hint {
+  --line-h: 72px;
+  --line-w: 1px;
+  /* Figma binds this stroke to the `border/highlight` variable, which aliases
+     accent/teal -- not the cerulean it was drawn in here. */
+  --line-color: var(--teal);
+  --line-speed: 1.6s;
+  display: block;
+  width: var(--line-w);
+  height: var(--line-h);
+  background: var(--line-color);
+  animation: igap-scroll-line var(--line-speed) cubic-bezier(.7, 0, .3, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .xp-hero__hint { animation: none; clip-path: none; }
+}
+.xp-hero__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 300px;
+}
+/* The measure is on .xp-hero__copy, so the two share one. */
+.xp-hero__mission,
+.xp-hero__approach {
+  margin: 0;
+  color: var(--black);
+  transition: color var(--blue-fade), var(--fade-in);
+}
+html.is-blue .xp-hero__mission,
+html.is-blue .xp-hero__approach { color: var(--white); }
+.xp-hero__mission {
+  font-family: var(--font);
+  font-size: 18px;                 /* Desktop/H4 */
+  font-weight: 600;
+  line-height: 140%;
+  text-transform: capitalize;
+}
+.xp-hero__approach {
+  font-family: var(--font);
+  font-size: 14px;                 /* Desktop/Body */
+  font-weight: 300;
+  line-height: 160%;
+}
+
+/* --- capabilities index: one column of six, bottom aligned ---------------
+   Each row is a 72 link with the number and title on the left, a scroll arrow
+   on the right, and a rule underneath. The accent moved off the number: it is
+   now the rule and the arrow, with the type reading plain. */
+.xp-index {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 24px;
+}
+.xp-index__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 72px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--accent, var(--sky));
+  text-decoration: none;
+}
+.xp-index__text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  transition: gap .3s var(--ease-out-quart);
+}
+/* Hover opens the number away from the title. The row keeps its 72, so the
+   only constraint is that the longest name must not pick up a third line on
+   the narrower measure that leaves it. */
+.xp-index__link:hover .xp-index__text,
+.xp-index__link:focus-visible .xp-index__text { gap: 20px; }
+.xp-index__num {
+  flex: none;
+  font-family: var(--font-narrow);
+  font-size: 16px;                 /* Desktop/Number */
+  font-weight: 600;
+  line-height: 100%;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+.xp-index__name {
+  font-family: var(--font);
+  font-size: 12px;                 /* Mobile/Large Link */
+  font-weight: 500;
+  line-height: 140%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+.xp-index__icon {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  color: var(--accent, var(--sky));
+}
+/* The arrow points down the page, so on hover it rehearses the trip -- a slow
+   hover in place rather than a one-shot nudge, which reads as the link being
+   live rather than as something that already happened. */
+@keyframes xp-index-bob {
+  0%, 100% { transform: translateY(-3px); }
+  50%      { transform: translateY(3px); }
+}
+.xp-index__link:hover .xp-index__icon,
+.xp-index__link:focus-visible .xp-index__icon {
+  animation: xp-index-bob 1.4s ease-in-out infinite;
+}
+html.is-blue .xp-index__num,
+html.is-blue .xp-index__name { color: var(--white); }
+
+/* ------------------------------------------------------------- CAPABILITY */
+/* Figma: 1440 x 900, padding 196/72/72/72.
+     Capability Copy  800 x 632, two 376 columns, space-between, both sitting
+                      on the bottom edge
+       Header         376, a 72 number over a title on a 300 measure, gap 24
+       Text Container 376, two accordions at gap 16
+         Accordion      64 header with a rule under it, panel below at gap 24
+         Description    376 column, paragraphs 340 wide at gap 12
+         Areas Of Work  tag cloud, wrapping, gap 10
+
+   Colour is mode-aware throughout. The page cross-fades light -> blue as you
+   scroll, and anything that was authored white-on-navy has to cross-fade with
+   it, or the copy sits white on a half-faded grey for the length of the
+   transition. Every colour here moves on --blue-fade, the same clock the
+   background uses. */
+
+/* --- stickiness -----------------------------------------------------------
+   Each capability gets a track half a viewport taller than itself, and pins
+   to the top of that track. The effect: the capability arrives, holds still
+   for 50svh of scrolling, then releases and the next one takes over on the
+   usual 100svh pass. The sticky element has to be the only child of the
+   track, because sticky is bounded by its containing block -- leave them all
+   as children of .rail and they would stack on top of each other instead of
+   handing over one at a time. */
+.cap-track { height: 150svh; }
+
+.cap {
+  position: sticky;
+  top: 0;
+  display: flex;
+  height: 100svh;
+  min-height: 0;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: 124px var(--gutter) 72px;
+}
+/* A 2x2: both columns span the full 632 and space-between their own pair, so
+   the number and the open accordion sit on the top edge and the title and the
+   collapsed accordion on the bottom one. */
+.cap__copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  width: min(800px, 100%);
+}
+
+/* --- header: a display-sized number over the title (the old description is
+       now the first accordion's own header) --- */
+/* Figma dropped the wrapper frame around the pair and set the header back to
+   space-between, so the number sits on the top edge and the title on the
+   bottom one -- the gap is the floor they close to, not their spacing. */
+.cap__head {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  width: min(376px, 100%);
+}
+.cap__num {
+  font-family: var(--font-narrow);
+  font-size: 4.5rem;               /* Desktop/H1 -- 72, Bold */
+  font-weight: 700;
+  line-height: 105%;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--accent, var(--sky));
+}
+.cap__title {
+  margin: 0;
+  font-family: var(--font);
+  max-width: 300px;                /* Figma sets the title on a 300 measure */
+  font-size: 24px;                 /* Desktop/H3 */
+  font-weight: 600;
+  line-height: 140%;
+  color: var(--black);
+  /* the fade has to be carried along: a bare `transition: color` here would
+     replace the one [data-fade] sets, and the title would snap in */
+  transition: color var(--blue-fade), var(--fade-in);
+}
+
+/* --- the accent wave ------------------------------------------------------
+   Figma draws a single 1px curve in the capability's accent, crossing the
+   section between the header and the accordions and bleeding off both edges.
+   Rather than transcribe that one asymmetric S, this is a periodic wave of
+   the same amplitude drawn over two full periods: translating it by exactly
+   one period loops with no seam, so it reads as a wave travelling through the
+   section rather than a loop restarting. The path breathes on a slower clock
+   than it drifts, so the two never line up and the motion stays unpredictable
+   -- that is the warp. Mobile only, which is where the design has it. */
+/* It sits IN the copy column, as the middle of three children, so the
+   column's space-between places it in whatever room is actually left between
+   the header and the panels. Absolutely positioning it at a percentage of the
+   section looked right at 844 and ran straight through the accordions on a
+   shorter screen, where the panels are the same height but the section is
+   not. The negative margins give back the gutter so it still bleeds off both
+   edges. */
+.cap__wave {
+  display: none;
+  flex: 0 0 66px;
+  width: calc(100% + 2 * var(--gutter));
+  margin-inline: calc(-1 * var(--gutter));
+  height: 66px;
+  overflow: hidden;              /* clips the second period out of view */
+  /* Figma's border/default, not the capability accent: light grey on paper,
+     cobalt on navy. The stroke is currentColor, so the mode rides in on the
+     same clock as everything else. */
+  color: var(--border-default);
+  transition: color var(--blue-fade);
+  pointer-events: none;
+}
+.cap__wave-svg { display: block; width: 954px; height: 66px; overflow: visible; }
+@keyframes cap-wave-drift  { to   { transform: translateX(-477px); } }
+@keyframes cap-wave-breathe {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(.55); }
+}
+.cap__wave-drift { animation: cap-wave-drift 18s linear infinite; }
+.cap__wave-path {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cap-wave-breathe 11s ease-in-out infinite;
+}
+
+/* --- accordions --- */
+.cap__acc {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;  /* open accordion top, collapsed bottom */
+  gap: 16px;
+  width: min(376px, 100%);
+}
+.acc { display: flex; flex-direction: column; }
+.acc__head { margin: 0; }
+.acc__btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  /* padding rather than a fixed height, so a title that wraps to two lines
+     gets the room instead of being squeezed. Figma moved this to 24 on both
+     breakpoints -- the row is 73 tall at one line. */
+  padding: 24px 0;
+  border: 0;
+  border-bottom: 1px solid var(--accent, var(--sky));
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  /* the icon is drawn in currentColor, so the button carries the mode too --
+     inheriting left a near-black plus sitting on navy */
+  color: var(--black);
+  transition: border-color var(--blue-fade), color var(--blue-fade);
+}
+/* Hover takes the title to the capability's accent -- the same colour its own
+   rule is already drawn in, so the row reads as one object lighting up. It
+   rides the mode clock, which at 120ms is hover speed anyway. */
+.acc__btn:hover .acc__title,
+.acc__btn:focus-visible .acc__title { color: var(--accent, var(--sky)); }
+.acc__title {
+  font-family: var(--font);
+  font-size: 14px;                 /* Desktop/H6 */
+  font-weight: 600;
+  line-height: 140%;
+  text-transform: capitalize;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+/* Plus that loses its upright stroke to become a minus. */
+.acc__icon { position: relative; flex: none; width: 24px; height: 24px; }
+.acc__icon::before,
+.acc__icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 1.5px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+  transition: opacity .25s linear, transform .25s var(--ease-out-quart);
+}
+.acc__icon::after { transform: translate(-50%, -50%) rotate(90deg); }
+.acc.is-open .acc__icon::after { opacity: 0; transform: translate(-50%, -50%) rotate(0deg); }
+
+/* 0fr -> 1fr animates the panel's real height without measuring it in JS. */
+.acc__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .4s var(--ease-out-quart);
+}
+.acc.is-open .acc__panel { grid-template-rows: 1fr; }
+.acc__inner { overflow: hidden; min-height: 0; }
+/* the Figma 24 between a header and its panel, clipped away when closed */
+.acc__inner > :first-child { margin-top: 24px; }
+
+.cap__body { width: min(376px, 100%); }
+.cap__body > p {
+  max-width: 340px;
+  margin: 0 0 12px;                /* Figma: Description stack gap */
+  font-family: var(--font);
+  font-size: 14px;                 /* Desktop/Body */
+  font-weight: 300;
+  line-height: 160%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+.cap__body > p:last-child { margin-bottom: 0; }
+
+/* No longer pills: one wrapping run of uppercase labels in the capability's
+   accent, divided by slashes. The separator is generated rather than marked
+   up, so the list stays a list for anything reading the page. */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tag {
+  font-family: var(--font-narrow);
+  font-size: 12px;                 /* Desktop/Meta */
+  font-weight: 400;                /* Regular now, not SemiBold */
+  line-height: 160%;
+  letter-spacing: .05em;           /* was .1em */
+  text-transform: uppercase;
+  /* The label reads plain and the divider carries the accent -- Figma sets the
+     label flat white, but the page cross-fades, so it takes the mode pair the
+     rest of the capability copy uses rather than a hardcoded white. */
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+html.is-blue .tag { color: var(--white); }
+.tag:not(:last-child)::after {
+  content: '/';
+  margin-left: 8px;
+  color: var(--accent, var(--sky));
+}
+
+/* --- blue mode: the capability copy is only ever read over navy, but it has
+       to ARRIVE there in step with the background --- */
+html.is-blue .cap__title,
+html.is-blue .acc__title,
+html.is-blue .cap__body > p { color: var(--white); }
+html.is-blue .acc__btn { color: var(--white); }
+/* The three-bar mark above each capability title. */
+.nugget--h { display: flex; }
+
+/* --- the accent cycle -----------------------------------------------------
+   Each capability owns one of three accents, cycling sky -> green -> teal and
+   repeating at 04. One custom property per capability feeds both the things
+   Figma tints: the large number and the "selected areas of work" label. The
+   hero index links carry the same cycle, so a link and the capability it
+   points at agree. */
+#cap-1, #cap-4 { --accent: var(--sky); }
+#cap-2, #cap-5 { --accent: var(--green); }
+#cap-3, #cap-6 { --accent: var(--teal); }
+
+/* one column of six, so the cycle repeats every three rows */
+.xp-index__link:nth-child(3n + 1) { --accent: var(--sky); }
+.xp-index__link:nth-child(3n + 2) { --accent: var(--green); }
+.xp-index__link:nth-child(3n + 3) { --accent: var(--teal); }
+
+/* --- footer -------------------------------------------------------------
+   The footer is light on this page. Its type is already authored light-mode
+   (black, grey, teal); the only thing that read dark was the card fill --
+   `--glass` is a 60% paper, which over navy comes out murky blue. Figma has it
+   flat #f7fbfd, so it goes opaque here and the blur stops earning its cost. */
+.is-expertise .footer-inner {
+  background-color: var(--paper);
+  -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+}
+
+/* The three-bar mark above each capability title. */
+.nugget--h { display: flex; }
+
+/* ========================================================== TABLET / BELOW */
+
+@media (max-width: 991px) {
+  .xp-hero__title { font-size: 3.25rem; }
+  .pegboard { --pb: min(340px, 30vw, 46svh); }
+}
+
+/* ================================================================== MOBILE */
+/* Figma mobile is a plain vertical scroll: 390 wide, one screen per section,
+   hero then six capabilities then the footer. The horizontal swipe rail this
+   file used to carry is gone, and so is the markup it was written against --
+   .cap__pages, .cap__page, .cap__head-inner, .cap__desc and .cap__areas-label
+   were all removed by the desktop rebuild, so those rules had been styling
+   nothing for a while. What is left is the desktop structure reflowed into a
+   single column; the desktop stickiness carries over untouched, because the
+   track and the sticky capability are never overridden here.
+
+   Figma frame 390 x 844, padding 96 / 24 / 24:
+     Hero          content on the bottom edge -- copy, gap 32, a 342 pegboard
+       Hero Copy   heading, then a 2px rule standing beside mission/approach
+     Capability    copy 342 x 724, header over the accordions at gap 72
+       Header      a 40 number over a 16 title, gap 24
+       Text        two accordions at gap 24, stacked from the top            */
+
+@media (max-width: 767px) {
+  /* The board is hero furniture at this width, and it spans the gutters:
+     24 clear on the left, the right and the bottom at any screen size --
+     342 square on the 390 Figma draws it at. Its size is what the hero
+     above it has to leave room for, so --peg-slot carries it up there. */
+  :root {
+    --pb-size:  calc(100vw - 2 * var(--gutter));
+    --peg-slot: calc(var(--pb-size) + 24px);
+  }
+
+  /* --- hero -------------------------------------------------------------- */
+  .xp-hero {
+    align-items: flex-end;
+    padding: 96px var(--gutter) calc(var(--peg-slot) + 32px);
+  }
+  .xp-hero__text { width: 100%; }
+  /* no room for it at this width, and deliberately so */
+  .xp-index { display: none; }
+  /* Figma has put the scroll hint back between the heading and the copy --
+     a short rule of its own on the left edge rather than the full-height
+     one that stood beside the copy. One column again, 32 throughout. */
+  .xp-hero__intro-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+    min-height: 0;
+  }
+  .xp-hero__title { font-size: 2rem; }                        /* Mobile/H2 */
+  .xp-hero__hint { --line-w: 2px; --line-h: 48px; }
+  /* Figma's intro column is 300 inside the 342 frame. */
+  .xp-hero__copy { gap: 12px; max-width: 300px; }
+  .xp-hero__mission {
+    max-width: none;
+    font-size: 16px;           /* Mobile/H3 -- and it loses the title case */
+    text-transform: none;
+  }
+  .xp-hero__approach { max-width: none; font-size: 12px; }    /* Mobile/Intro */
+
+  /* --- capability -------------------------------------------------------- */
+  /* No per-element fades inside the rail. The capabilities are stacked
+     stickies: one is pinned while the next rises behind it, so on every
+     handover the observer fires on the pair of them and each number, title
+     and accordion lifts its 16px again -- the copy rides up and down for
+     the whole swipe. The handover IS the entrance here. */
+  .cap-track [data-fade] { opacity: 1; transform: none; transition: none; }
+
+  .cap { padding: 96px var(--gutter) 24px; }
+  .cap__wave { display: block; }
+  .cap__copy {
+    flex-direction: column;
+    /* The header sits on the top edge and the accordions on the bottom one,
+       with the 72 as the floor they close to rather than their spacing --
+       the same arrangement the desktop column uses, one axis down. */
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+    max-width: none;
+  }
+  /* Both columns become stacks from the top -- the desktop space-between had
+     a 632 box to spread into, and here there is only what the copy needs. */
+  .cap__head,
+  .cap__acc {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  .cap__head { gap: 8px; }    /* Figma pulled the number and title together */
+  .cap__acc  { gap: 24px; }
+  /* The accordion column can shrink, but it is NOT a scroll container: an
+     `overflow-y: auto` panel becomes one the moment it exists, and with
+     `overscroll-behavior: contain` a finger landing on the copy stopped the
+     page dead -- iOS blocks the chaining even when the panel has nothing of
+     its own to scroll. A few pixels of copy reaching into the bottom padding
+     on a very short screen is the better trade. */
+  .cap__acc { flex: 0 1 auto; min-height: 0; }
+  .acc, .acc__panel { min-height: 0; }
+
+  .cap__num   { font-size: 2.5rem; }                 /* Mobile/H1 */
+  .cap__title { font-size: 16px; }   /* Mobile/H3, on the same 300 measure */
+  .acc__title { font-size: 14px; }                   /* Mobile/H4 */
+  .cap__body  { width: 100%; }
+  .cap__body > p { max-width: none; font-size: 12px; }  /* Mobile/Body */
+  .tag-cloud { width: 100%; }
+
+  /* --- pegboard: hero furniture, not a fixed companion --------------------
+     Absolute rather than fixed, and anchored to the top of the document, so
+     it plays out in the first fold and then scrolls away with the hero
+     instead of riding along over the capabilities. js/pegboard.js drives it
+     on a timer at this width rather than off the scroll position. */
+  .peg-stage {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 100svh;
+  }
+  .peg-stage__inner {
+    align-items: flex-end;
+    justify-content: center;
+    max-width: none;
+    padding: 0 var(--gutter) 24px;
+  }
+  .pegboard {
+    --pb: var(--pb-size);
+    padding: calc(var(--pb) * 48 / 342);   /* Figma: 48 on a 342 board */
+  }
+
+  /* --- who we work with ---------------------------------------------------
+     Figma has no mobile design for this section. The desktop cascade of five
+     rising cards has nowhere to go at 342 wide, so they stack instead, each
+     keeping its tab, border and accent. The grow-and-swipe entrance still
+     plays down the column, which is what the stagger always described. */
+  .xp-who {
+    min-height: 0;
+    padding: 48px var(--gutter) 24px;   /* Figma mobile frame */
+  }
+  .xp-who__inner { gap: 24px; }
+  .xp-who__head  { width: 100%; max-width: 300px; }
+  .xp-who__title { font-size: 16px; }                  /* Mobile/H3 */
+  .xp-who__desc  { max-width: 266px; font-size: 12px; } /* Mobile/Intro */
+  /* The cascade of five rising cards turns into a stack, and the accent tab
+     turns on its side with it: a 12 bar down the right edge rather than a 24
+     band across the top. The markup puts the tab first because that is where
+     it sits on desktop, so order swaps it rather than moving it. */
+  .xp-who__list {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  /* beats the five nth-child heights from the cascade */
+  .xp-who__list .client {
+    flex: 0 0 auto;
+    flex-direction: row;
+    /* Figma fixes every card at 180. A min rather than a height, because the
+       longest of the five needs ~184 once its title wraps to three lines, and
+       clipping the copy is a worse outcome than a card that is 4 taller. */
+    height: auto;
+    min-height: 180px;
+  }
+  .client__tab {
+    order: 2;
+    flex: 0 0 12px;
+    width: 12px;
+    height: auto;
+    align-self: stretch;
+  }
+  /* the desktop hover grows the band downward, which has no meaning once the
+     tab is vertical -- and a 140px height would break the row outright */
+  .xp-who__list .client:hover .client__tab { height: auto; }
+  .client__body {
+    order: 1;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 24px;
+  }
+  .client__title { font-size: 14px; }   /* Mobile/H4 */
+  .client__desc  { font-size: 12px; }   /* Mobile/Body */
+
+  /* The entrance turns with the tab. On desktop the card grows upward and the
+     accent leaves through the top, because that is where the band sits; here
+     the tab is a bar down the right edge, so the card grows left to right and
+     the accent carries on out the right side. Same timings, same stagger --
+     only the axis changes. */
+  @keyframes client-grow-x  { from { clip-path: inset(0 100% 0 0 round 8px); } to { clip-path: inset(0 0 0 0 round 8px); } }
+  @keyframes client-swipe-x { from { transform: translateX(0); }               to { transform: translateX(101%); } }
+
+  .xp-who__list.is-in .client {
+    animation-name: client-grow-x;
+  }
+  .xp-who__list.is-in .client::after {
+    animation-name: client-swipe-x;
+  }
+
+  /* the footer sits below the rail, in ordinary vertical flow */
+  .is-expertise .site-footer { position: relative; z-index: 5; }
+}
+
+/* ---------------------------------------------------- MOBILE, SHORT SCREEN */
+/* An SE-class viewport is ~180px shorter than the 844 the frame is drawn at.
+   The capability needs 88 + 72 + 376 of copy plus its padding, which is the
+   first thing to run out of room, so the top padding and the gap between the
+   header and the accordions give some of it back. */
+
+@media (max-width: 767px) and (max-height: 700px) {
+  /* The board is the full width between the gutters now, so on a short
+     screen it takes more of the fold than the old svh valve let it. The
+     copy gives the difference back: a shorter rule and tighter steps. */
+  .xp-hero { padding-top: 48px; }
+  .xp-hero__intro-col { gap: 16px; }
+  .xp-hero__hint { --line-h: 32px; }
+  /* Capability 03 is the tall one -- a title that wraps to two lines over the
+     longest overview -- and it is what these numbers are sized against. It
+     clears a 667 screen by a few pixels; everything else has more room. */
+  .cap { padding: 64px var(--gutter) 16px; }
+  .cap__acc { gap: 16px; }
+  .cap__num { font-size: 2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peg-stage { transition: none; }
+  .cap__wave-drift, .cap__wave-path { animation: none; }
+  .xp-index__link:hover .xp-index__icon,
+  .xp-index__link:focus-visible .xp-index__icon { animation: none; }
+}
+
+/* ---------------------------------------------------------- CLOSING CTA */
+/* .cta-section itself is shared (style.css) and already matches: 80svh is
+   Figma's 720-of-900, 60svh its 506-of-844. Two numbers differ from the
+   homepage's and are scoped here rather than changed there -- the measure
+   is 800 on these pages, not 900, and the heading holds 40 on a phone
+   where the shared .h1 drops to 24. */
+.cta-section .h1 { max-width: 800px; }
+
+@media (max-width: 767px) {
+  .cta-section .h1 { font-size: 2.5rem; }          /* Mobile/H1 */
+}
