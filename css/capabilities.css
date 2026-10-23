@@ -475,7 +475,15 @@ html.is-blue .xp-hero__approach { color: var(--white); }
   color: var(--black);
   transition: color var(--blue-fade);
 }
+/* 04 is the one name that will not sit on a line. Figma breaks it before
+   the ampersand, which a width alone cannot promise -- where it falls
+   depends on the font that happens to load. Holding the tail together does
+   promise it: if "& Thought Leadership" will not fit after the rest, it
+   goes down whole. The measure is Figma's own: 376 of link less the arrow,
+   the number and their gaps. */
+.xp-index__keep { white-space: nowrap; }
 .xp-index__name {
+  max-width: 307px;
   font-family: var(--font);
   font-size: 12px;                 /* Mobile/Large Link */
   font-weight: 500;
@@ -817,11 +825,23 @@ html.is-blue .acc__btn { color: var(--white); }
   }
 
   /* --- hero -------------------------------------------------------------- */
+  /* A definite height, not a floor, and the text block fills it. The board
+     below takes a fixed share of the fold now, so on anything shorter than
+     the 844 the frame is drawn at, the hero used to simply grow -- and the
+     copy ran straight over the board. With a budget, the rule inside gives
+     its height back instead. */
   .xp-hero {
-    align-items: flex-end;
+    align-items: stretch;
+    height: 100svh;
     padding: 96px var(--gutter) calc(var(--peg-slot) + 32px);
   }
-  .xp-hero__text { width: 100%; }
+  .xp-hero__text {
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0;
+    width: 100%;
+    min-height: 0;
+  }
   /* no room for it at this width, and deliberately so */
   .xp-index { display: none; }
   /* Figma has put the scroll hint back between the heading and the copy --
@@ -829,15 +849,25 @@ html.is-blue .acc__btn { color: var(--white); }
      one that stood beside the copy. One column again, 32 throughout. */
   .xp-hero__intro-col {
     display: flex;
+    flex: 0 1 auto;
     flex-direction: column;
     align-items: flex-start;
+    justify-content: flex-end;
     gap: 32px;
     min-height: 0;
   }
-  .xp-hero__title { font-size: 2rem; }                        /* Mobile/H2 */
-  .xp-hero__hint { --line-w: 2px; --line-h: 48px; }
+  .xp-hero__title { flex: none; font-size: 2rem; }            /* Mobile/H2 */
+  /* The rule is the slack in the fold: it stands at its 48 wherever there
+     is room, and on a shorter screen it is the first thing to give, down
+     to 12, so the words never reach the board. Type never shrinks. */
+  .xp-hero__hint {
+    --line-w: 2px;
+    --line-h: 48px;
+    flex: 0 1 auto;
+    min-height: 12px;
+  }
   /* Figma's intro column is 300 inside the 342 frame. */
-  .xp-hero__copy { gap: 12px; max-width: 300px; }
+  .xp-hero__copy { flex: none; gap: 12px; max-width: 300px; }
   .xp-hero__mission {
     max-width: none;
     font-size: 16px;           /* Mobile/H3 -- and it loses the title case */
@@ -987,13 +1017,25 @@ html.is-blue .acc__btn { color: var(--white); }
    first thing to run out of room, so the top padding and the gap between the
    header and the accordions give some of it back. */
 
+/* Most phones are shorter than the 844 the frame is drawn at, and the
+   full-width board leaves the copy a tighter fold than it had. One step in
+   before the SE numbers below: the steps close up, the rule keeps most of
+   its height rather than spending it all. */
+@media (max-width: 767px) and (max-height: 820px) {
+  /* the 96 above the heading stays: the rule pays, not the clearance
+     under the header */
+  .xp-hero__intro-col { gap: 24px; }
+}
+
 @media (max-width: 767px) and (max-height: 700px) {
   /* The board is the full width between the gutters now, so on a short
      screen it takes more of the fold than the old svh valve let it. The
      copy gives the difference back: a shorter rule and tighter steps. */
   .xp-hero { padding-top: 48px; }
   .xp-hero__intro-col { gap: 16px; }
-  .xp-hero__hint { --line-h: 32px; }
+  /* below this the rule is allowed to go entirely, rather than let the
+     heading climb under the header */
+  .xp-hero__hint { --line-h: 32px; min-height: 0; }
   /* Capability 03 is the tall one -- a title that wraps to two lines over the
      longest overview -- and it is what these numbers are sized against. It
      clears a 667 screen by a few pixels; everything else has more room. */

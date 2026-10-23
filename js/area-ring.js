@@ -35,14 +35,9 @@
     var queued = false;
     function applyMode() {
       queued = false;
-      conveyor();
-      /* On a phone the hero is pinned and slides sideways, so where its
-         box sits says nothing about whether we are still on it -- it is
-         always across the top. The conveyor already works out which panel
-         holds the screen; ask it. */
-      var inHero = (wide.matches || reduce)
-        ? hero.getBoundingClientRect().bottom > window.innerHeight * 0.5
-        : heroHolds;
+      var r = hero.getBoundingClientRect();
+      var inHero = r.bottom > window.innerHeight * 0.5;
+      ringTravel(r);
       root.classList.toggle('is-blue', inHero);
       /* Two things change with the hero: the ring shows all eight in
          colour up there and one at a time below (`is-all`), and it is drawn
@@ -56,10 +51,7 @@
       /* Back at the top the hero shows all eight as outlines, so whatever
          the scroll had lit has to be put out -- leaving `is-lit` on meant a
          stray filled disc sitting over the hero. */
-      /* current is reset too: the conveyor only calls light() when its
-         winner CHANGES, so without this the first area -- lit and then
-         cleared on the way through the hero -- would never light again. */
-      if (inHero) { hideNum(); clearLit(); current = 0; }
+      if (inHero) { hideNum(); clearLit(); }
       /* The ring is sticky, so scrolling moves it under the label. The wave
          re-places the label every frame, but it does not run under reduced
          motion -- so the scroll pass keeps it honest too. */
@@ -215,10 +207,6 @@
     /* -50% top and bottom leaves a one-pixel band across the middle of the
        viewport: whichever section is crossing it is the one being read. */
     var io = new IntersectionObserver(function (entries) {
-      /* desktop only: on a phone the areas are stacked one on top of another
-         by the conveyor, so "whichever crosses the middle" is several at
-         once -- conveyor() picks the live one there instead. */
-      if (!wide.matches && !reduce) return;
       entries.forEach(function (e) {
         if (e.isIntersecting) light(+e.target.dataset.area);
       });
@@ -226,102 +214,29 @@
     sections.forEach(function (s) { io.observe(s); });
   }
 
-  /* ------------------------------------------------- 3. the conveyor */
-  /* Phones only. The scroll runs down; the areas run sideways. Each one
-     arrives from off the right edge, rests, then carries on out to the left
-     as the next arrives behind it -- so at a handover two are moving at
-     once, in opposite directions, and the whole thing tracks the finger
-     rather than playing as a timed animation.
-
-     The tracks are stacked stickies (see css/areas.css), so every area is
-     held in the same place and all that distinguishes them is how far along
-     the conveyor each has been pushed. One number does that:
-
-       in   = how far THIS area has arrived      (0 off right .. 1 in place)
-       out  = how far the NEXT one has arrived   (0 .. 1), which is exactly
-              how far this one should have left
-
-       x    = (1 - in) * 100vw  -  out * 100vw
-
-     At rest in is 1 and out is 0, so x is 0. Mid-handover both are part
-     way and the pair slide together. The last area has nothing behind it,
-     so it never leaves. */
-  var tracks = Array.prototype.slice.call(document.querySelectorAll('.area-track'));
-  var current = 0;
-  /* the conveyor's own answer to "are we still on the hero": true while the
-     hero is the panel holding the screen. Section 1 reads it. */
-  var heroHolds = true;
-
-  function conveyor() {
-    if (wide.matches || reduce) return;
-    /* The panels are 100svh, which is fixed. window.innerHeight is not: it
-       grows by the height of the URL bar partway down the first screen, and
-       every number below would step with it -- the panels jumping as the
-       bar goes. Measure a panel instead. */
-    var first = tracks[0] && tracks[0].firstElementChild;
-    var vh = (first && first.offsetHeight) || window.innerHeight;
-    /* the slide happens over the last half-screen of each approach; the
-       rest of the track is reading time */
-    var win = vh * 0.5, i, p = [], tops = [], best = 0, bestHold;
-    for (i = 0; i < tracks.length; i++) {
-      var top = tracks[i].getBoundingClientRect().top;
-      tops.push(top);
-      p.push(Math.max(0, Math.min(1, 1 - top / win)));
+  /* ------------------------------------------- 3. the ring's travel */
+  /* The artwork sits 141 higher in the hero than in the sections and at .8
+     of its size -- Figma's 480 of flower against 600 -- and it makes that
+     crossing with the finger rather than on a class change at a threshold.
+     --ring-p is how far through the crossing we are: 0 while the hero is
+     whole, 1 by the time its bottom edge reaches the middle of the screen,
+     which is the same line the light/navy switch turns on. --ring-k is the
+     stroke's scale compensation and has to follow the same number, as a
+     plain one so the 1px divide stays a divide. */
+  function ringTravel(r) {
+    if (!svg) return;
+    if (wide.matches) {
+      svg.style.removeProperty('--ring-p');
+      svg.style.removeProperty('--ring-k');
+      return;
     }
-    /* Panel 0 is the hero: nothing arrives before it, so it is simply in
-       place, and how far it has left is how far area 01 has come in. */
-    var lead = p.length ? p[0] : 0;
-    if (hero) hero.style.setProperty('--slide', (-lead * 100).toFixed(2) + 'vw');
-    bestHold = 1 - lead;
-    /* The ring makes the same crossing: it drops its half-screen and comes
-       up to full size over exactly the stretch area 01 takes to arrive, so
-       the artwork moves with the finger rather than gliding on its own once
-       a threshold is passed. --ring-k is the stroke's scale compensation
-       and has to follow the same number, as a plain one for the divide. */
-    /* on the svg itself, not the wrapper: the desktop's .is-wide rule
-       declares its own --ring-k there and would win over an inherited one */
-    if (svg) {
-      svg.style.setProperty('--ring-p', lead.toFixed(4));
-      svg.style.setProperty('--ring-k', (0.8 + 0.2 * lead).toFixed(4));
-    }
-
-    for (i = 0; i < tracks.length; i++) {
-      var area = tracks[i].firstElementChild;
-      if (!area) continue;
-      var out = (i + 1 < p.length) ? p[i + 1] : 0;
-      /* A track only pins once the scroll reaches it, so an area arriving
-         from the right is still RISING while it comes across -- it would
-         travel diagonally. Holding it up by however far its track still has
-         to fall keeps the move flat: it crosses at the height it will rest
-         at. Clamped to a screen so the ones still far down the page are not
-         flung miles up. */
-      var lift = Math.max(0, Math.min(tops[i], vh));
-      area.style.setProperty('--slide', (((1 - p[i]) - out) * 100).toFixed(2) + 'vw');
-      area.style.setProperty('--lift', (-lift).toFixed(1) + 'px');
-
-      /* how much of the screen this area actually holds: fully arrived and
-         not yet leaving is 1. The ring follows the winner -- the centre-line
-         observer cannot tell these apart now that they are all stacked in
-         the same place. */
-      var hold = p[i] - out;
-      if (hold > bestHold) { bestHold = hold; best = i + 1; }
-    }
-    heroHolds = best === 0;
-    if (best && best !== current) { current = best; light(best); }
-  }
-  /* leaving the breakpoint has to hand the areas back untouched */
-  function clearConveyor() {
-    tracks.forEach(function (t) {
-      var a = t.firstElementChild;
-      if (a) { a.style.removeProperty('--slide'); a.style.removeProperty('--lift'); }
-    });
-    if (hero) hero.style.removeProperty('--slide');
-    if (svg) { svg.style.removeProperty('--ring-p'); svg.style.removeProperty('--ring-k'); }
-    heroHolds = true;
+    var vh = window.innerHeight;
+    var p = Math.max(0, Math.min(1, (vh - r.bottom) / (vh * 0.5)));
+    svg.style.setProperty('--ring-p', p.toFixed(4));
+    svg.style.setProperty('--ring-k', (0.8 + 0.2 * p).toFixed(4));
   }
   wide.addEventListener('change', function () {
-    clearConveyor();
-    conveyor();
+    if (hero) ringTravel(hero.getBoundingClientRect());
   });
 
   /* ---------------------------------------------- 4. the areas accordion */

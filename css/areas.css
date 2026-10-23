@@ -678,14 +678,14 @@ html.is-blue .ar-tag { color: var(--white); }
 
 /* ================================================================== MOBILE */
 /* A different arrangement again, not the desktop narrowed. Everything is
-   left-aligned, the index is gone, the scroll rule is off, and the ring has
-   moved BEHIND the copy rather than sitting under it.
+   left-aligned, the index is gone, and the ring has moved BEHIND the copy
+   rather than sitting under it.
 
-   The hero is one navy screen with the copy spread top to bottom over the
-   full 724 and 480 of artwork floating behind it. Each area is the next
-   screen: badge, heading and copy down the left, and 600 of artwork centred
-   on the screen's bottom edge, so only its top half shows and the live
-   circle -- brought round to twelve o'clock -- sits just above the fold. */
+   The hero is one navy screen with the copy stacked at the top and 480 of
+   artwork floating behind it. Each area is the next screen: a glass card
+   carrying badge, heading and copy, and 600 of artwork centred on the
+   screen's bottom edge, so only its top half shows and the live circle --
+   brought round to twelve o'clock -- sits just above the fold. */
 
 @media (max-width: 767px) {
   /* 764 of box draws the sections' 600 of artwork; the hero's 480 is .8 of
@@ -707,118 +707,81 @@ html.is-blue .ar-tag { color: var(--white); }
     position: sticky;
     top: calc(100svh - var(--ring) / 2);
     transform: none;
-    z-index: 1;
+    /* Behind the copy, not over it. The ring comes first in the markup and
+       the areas are positioned too, so plain source order puts the card on
+       top -- which is what the card's glass is for: on a screen short
+       enough for the two to meet, the artwork reads THROUGH it. */
+    z-index: 0;
     justify-self: start;
     width: var(--ring);
     height: var(--ring);
     margin: 0 0 0 calc((100vw - var(--ring)) / 2);
     padding: 0;
   }
-  /* hero: 480 of artwork, lifted to sit behind the copy at 422 of 844;
-     below the hero it drops that half-screen and comes up to full size.
-
-     That move belongs to the finger, not to a clock. It used to be a class
-     swapped at the halfway mark, so the artwork glided its 50svh on its own
-     .9s while the page sat still -- it snapped. --ring-p is the conveyor's
-     own number for how far area 01 has arrived (0 hero .. 1 in place), so
-     the ring travels exactly as far as the scroll has taken it.
-     js/area-ring.js sets --ring-p and --ring-k together. */
+  /* The hero holds the artwork 141 higher than the sections do and at .8
+     of its size -- Figma's 480 of flower against their 600, centred on the
+     fold's bottom edge. That move belongs to the finger: --ring-p runs 0
+     (hero whole) to 1 (its bottom edge on the middle of the screen, which
+     is where the navy gives way), so the ring travels exactly as far as
+     the page has. js/area-ring.js sets --ring-p and --ring-k. */
   .ar-ring { --ring-p: 0; }
   .ring__svg,
   .ring__svg.is-wide {
-    transform: translateY(calc(-50svh * (1 - var(--ring-p)))) scale(calc(.8 + .2 * var(--ring-p)));
+    transform: translateY(calc(-141px * (1 - var(--ring-p)))) scale(calc(.8 + .2 * var(--ring-p)));
     transition: none;
   }
   .ring__num { font-size: 2.5rem; }                 /* Mobile/H1 */
   .ring__icon { width: 36px; height: 36px; }
 
   /* --- hero --- */
-  /* The copy spans the whole fold and spreads: heading on the top edge,
-     intro on the bottom one, the ring showing between them. */
-  /* The hero is the conveyor's FIRST panel. It is already in place when
-     the page opens, and it leaves to the left exactly as area 01 arrives
-     from the right -- so the sideways run starts here rather than one
-     screen down. Sticky like the tracks below it, pinned inside .ar-col,
-     so it is held still while it is being pushed. js/area-ring.js owns
-     --slide; the areas come later in the markup and so pass over it. */
+  /* One navy screen. The copy sits at the TOP on a 32 rhythm -- heading,
+     the scroll rule, then the intro on its 300 measure -- with the 480 of
+     artwork floating behind and below it. */
   .ar-hero {
-    position: sticky;
-    top: 0;
-    align-items: stretch;
-    height: 100svh;
+    align-items: flex-start;
     padding: 96px var(--gutter) 24px;
-    transform: translateX(var(--slide, 0px));
   }
   .ar-hero__inner { width: 100%; }
   .ar-hero__text {
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: flex-start;
-    gap: 16px;
+    gap: 32px;
   }
-  /* Figma breaks the heading over two lines at this size rather than
-     letting it run the width of the screen. */
-  .ar-hero__title { max-width: 160px; font-size: 2rem; }      /* Mobile/H2 */
-  .ar-hero__hint { display: none; }                 /* off at this size */
+  .ar-hero__title { max-width: none; font-size: 2rem; }       /* Mobile/H2 */
+  .ar-hero__hint { display: block; --line-w: 2px; --line-h: 48px; }
   .ar-hero__copy { gap: 8px; max-width: 300px; }
   .ar-hero__mission  { font-size: 16px; }                     /* Mobile/H3 */
   .ar-hero__approach { font-size: 12px; }                     /* Mobile/Intro */
 
   /* --- the areas --- */
-  /* The areas run SIDEWAYS. The finger scrolls down as normal, but what
-     that scroll moves is a conveyor: each area arrives from off the right
-     edge, rests while you read it, then carries on out to the left as the
-     next one comes in behind it.
-
-     The tracks are stacked stickies -- every one pins at the top and STAYS
-     pinned, so the whole set is held in the same place and the only thing
-     separating them is how far each has been pushed along. 150svh a piece:
-     the last half-screen of the approach is the slide, the rest is reading
-     time. js/area-ring.js owns --slide. */
-  /* The slide IS the entrance down here. Left on, every panel's copy also
-     lifts its 16px into place while the panel is travelling -- and since
-     the stack sits in one spot, the observer fires and resets them at each
-     handover, so the sections look like they are breathing. Off. */
-  .ar-hero [data-fade],
-  .ar-flow [data-fade] { opacity: 1; transform: none; transition: none; }
-
-  .ar-flow { position: relative; }
-  /* The tracks are sticky inside .ar-flow, so every one of them unpins when
-     the flow's bottom edge arrives -- and the LAST track's bottom IS that
-     edge, which left area 08 with no sticky range at all: it scrolled
-     straight past while the other seven each got a screen of reading. This
-     is that screen, given to the flow after the last track so there is
-     something for area 08 to hold against. */
-  .ar-flow::after { content: ""; display: block; height: 100svh; }
-  .area-track {
-    position: sticky;
-    top: 0;
-    height: 150svh;
-  }
+  /* The sideways run is gone. Each area is a screen of its own again,
+     sticky in its own track exactly as on the desktop, and the copy has
+     become a card: Figma's glass panel on the 8 radius, hugging its
+     content at the top of the fold with the artwork on the bottom edge
+     below it. The same surface the header and the pegboard use. */
   .area {
-    position: static;
-    height: 100svh;
-    min-height: 0;
+    align-items: flex-start;
     padding: 96px var(--gutter) 48px;
-    transform: translate(var(--slide, 0px), var(--lift, 0px));
   }
-  /* Nothing to animate for anyone who has asked for less motion: the areas
-     simply stack and scroll, which is what the markup does on its own. */
-  @media (prefers-reduced-motion: reduce) {
-    .ar-hero { position: static; height: auto; min-height: 100svh; transform: none; }
-    .area-track { position: static; height: auto; }
-    .area { height: auto; min-height: 100svh; transform: none; }
-    /* no conveyor here, so nothing sets --ring-p: back to the two states */
-    .ring__svg { transform: translateY(-50svh) scale(.8); --ring-k: .8; }
-    .ring__svg.is-wide { transform: none; --ring-k: 1; }
+  .area__copy {
+    justify-content: flex-start;
+    gap: 16px;
+    max-width: none;
+    padding: 24px;
+    border: 1px solid var(--header-border);
+    border-radius: 8px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
   }
-  .area__copy { justify-content: flex-start; gap: 32px; max-width: none; }
   .area__icon { width: 72px; height: 72px; }
   .area__icon svg { width: 36px; height: 36px; }
-  .area__bottom { gap: 24px; }
+  .area__bottom { gap: 12px; }
   .area__head { gap: 8px; }
-  .area__title { max-width: 300px; font-size: 16px; }         /* Mobile/H3 */
-  .area__text { gap: 16px; }
-  .area__desc p { max-width: 340px; font-size: 12px; }        /* Mobile/Body */
+  .area__title { max-width: none; font-size: 16px; }          /* Mobile/H3 */
+  .area__text { gap: 12px; }
+  .area__desc p { max-width: none; font-size: 12px; }         /* Mobile/Body */
+  .ar-acc__btn { padding: 16px 0; }      /* Figma: 57 on the 24 icon */
   .ar-acc__title { font-size: 14px; }                         /* Mobile/H4 */
 
 }
