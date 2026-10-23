@@ -37,7 +37,6 @@
       queued = false;
       var r = hero.getBoundingClientRect();
       var inHero = r.bottom > window.innerHeight * 0.5;
-      ringTravel(r);
       root.classList.toggle('is-blue', inHero);
       /* Two things change with the hero: the ring shows all eight in
          colour up there and one at a time below (`is-all`), and it is drawn
@@ -213,31 +212,6 @@
     }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
     sections.forEach(function (s) { io.observe(s); });
   }
-
-  /* ------------------------------------------- 3. the ring's travel */
-  /* The artwork sits 141 higher in the hero than in the sections and at .8
-     of its size -- Figma's 480 of flower against 600 -- and it makes that
-     crossing with the finger rather than on a class change at a threshold.
-     --ring-p is how far through the crossing we are: 0 while the hero is
-     whole, 1 by the time its bottom edge reaches the middle of the screen,
-     which is the same line the light/navy switch turns on. --ring-k is the
-     stroke's scale compensation and has to follow the same number, as a
-     plain one so the 1px divide stays a divide. */
-  function ringTravel(r) {
-    if (!svg) return;
-    if (wide.matches) {
-      svg.style.removeProperty('--ring-p');
-      svg.style.removeProperty('--ring-k');
-      return;
-    }
-    var vh = window.innerHeight;
-    var p = Math.max(0, Math.min(1, (vh - r.bottom) / (vh * 0.5)));
-    svg.style.setProperty('--ring-p', p.toFixed(4));
-    svg.style.setProperty('--ring-k', (0.8 + 0.2 * p).toFixed(4));
-  }
-  wide.addEventListener('change', function () {
-    if (hero) ringTravel(hero.getBoundingClientRect());
-  });
 
   /* ---------------------------------------------- 4. the areas accordion */
   /* One toggle per area, and it is a trade rather than an expansion: the

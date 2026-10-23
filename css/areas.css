@@ -705,7 +705,13 @@ html.is-blue .ar-tag { color: var(--white); }
   .ar-ring {
     grid-area: 1 / 1;
     position: sticky;
-    top: calc(100svh - var(--ring) / 2);
+    /* dvh, not svh. The eight circles all pass through one point -- the
+       middle of the box -- and Figma puts that point on the bottom edge of
+       the screen. svh is the viewport with the address bar SHOWN, so the
+       moment a phone hides the bar the screen grows and the convergence
+       floats a bar's height above the bottom. dvh is the live viewport, so
+       the point stays welded to the bottom edge wherever the bar is. */
+    top: calc(100dvh - var(--ring) / 2);
     transform: none;
     /* Behind the copy, not over it. The ring comes first in the markup and
        the areas are positioned too, so plain source order puts the card on
@@ -718,18 +724,13 @@ html.is-blue .ar-tag { color: var(--white); }
     margin: 0 0 0 calc((100vw - var(--ring)) / 2);
     padding: 0;
   }
-  /* The hero holds the artwork 141 higher than the sections do and at .8
-     of its size -- Figma's 480 of flower against their 600, centred on the
-     fold's bottom edge. That move belongs to the finger: --ring-p runs 0
-     (hero whole) to 1 (its bottom edge on the middle of the screen, which
-     is where the navy gives way), so the ring travels exactly as far as
-     the page has. js/area-ring.js sets --ring-p and --ring-k. */
-  .ar-ring { --ring-p: 0; }
+  /* The hero's artwork IS the sections' artwork now: the same 600 of
+     flower with the same convergence point on the bottom edge of the
+     screen. Nothing moves between the two states at this width -- only
+     which circles are lit changes -- so the desktop's wide-state shift and
+     its stroke compensation are both held off here. */
   .ring__svg,
-  .ring__svg.is-wide {
-    transform: translateY(calc(-141px * (1 - var(--ring-p)))) scale(calc(.8 + .2 * var(--ring-p)));
-    transition: none;
-  }
+  .ring__svg.is-wide { transform: none; --ring-k: 1; }
   .ring__num { font-size: 2.5rem; }                 /* Mobile/H1 */
   .ring__icon { width: 36px; height: 36px; }
 
@@ -773,6 +774,15 @@ html.is-blue .ar-tag { color: var(--white); }
     background: var(--glass);
     -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
+    /* the same clock the page's background cross-fades on, so the panel
+       crosses with it rather than snapping once it has gone */
+    transition: background-color var(--blue-fade), border-color var(--blue-fade);
+  }
+  /* The surface has a navy pair, exactly as the capabilities board does:
+     --dark-glass behind cobalt rather than white-grey behind light-grey. */
+  html.is-blue .area__copy {
+    border-color: var(--header-border-dk);
+    background: var(--dark-glass);
   }
   .area__icon { width: 72px; height: 72px; }
   .area__icon svg { width: 36px; height: 36px; }
