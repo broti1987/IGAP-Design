@@ -26,12 +26,22 @@
      WebGL — it was a hex inside hero-scene.js, and the two glass values below
      are the same colour at .6 and .9. */
   --navy:       #001d3c;
+  /* The navy wash is a gradient like the paper one, not a flat fill: the
+     same circle at 50% 42%, a touch lighter at the middle and a touch
+     deeper at the edges, bracketing --navy so the ground itself is
+     unchanged on average. */
+  --navy-hi:    #002145;
+  --navy-lo:    #001935;
   /* One translucent surface per mode. Every frosted panel on the site — header
      bar, cards, footer card — uses these two and nothing else. */
   --glass:      rgba(247, 251, 253, .6);
   --dark-glass: rgba(0, 29, 60, .6);
   --light-grey:       #aebacd;
-  --grey:      #8695a5;
+  /* Figma base/grey, which text/muted and accent/muted both alias. It moved
+     from #8695a5 with the light-mode variable pass. */
+  --grey:       #798fa7;
+  /* Figma base/dark grey, light mode's border/muted */
+  --dark-grey:  #4a535e;
   --cobalt:       #276bc0;
 
   --teal:       #22adad;
@@ -100,6 +110,12 @@ body {
   font-family: var(--font);
   color: var(--black);
   overflow-x: hidden;
+  /* Figma draws type with grayscale antialiasing; macOS browsers default to
+     subpixel, which fattens every stem -- worst on the light-on-navy screens,
+     where a SemiBold reads a weight heavier than the one it is. These two put
+     the page on the same rendering Figma previews it in, so 600 is 600. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 img { display: block; max-width: 100%; }
@@ -320,6 +336,7 @@ p, h1, h2, h3, h4 { margin: 0; }
 .btn__icon img { width: 24px; height: 24px; }
 
 .btn--green  .hl { background: var(--green); }
+.btn--sky    .hl { background: var(--sky); }
 .btn--violet .hl { background: var(--violet); }
 /* Icon-only variant: the label is there for screen readers and scramble text */
 .btn--icon .btn__label-wrap { display: none; }
@@ -328,6 +345,17 @@ p, h1, h2, h3, h4 { margin: 0; }
 /* Hover: Webflow scaled the bar 10× from its centre, clipped by the overflow */
 .btn:hover .hl,
 .header-bar__slot:hover .hl { transform: scaleX(10); transition-duration: .3s; }
+
+/* The header's two bars take their time over it. Webflow opened them in .3
+   and shut them in .1, which lands like a switch; here the accent eases out
+   over two thirds of a second and draws back in half of one, both on the
+   page's own curve, so it arrives and leaves rather than appearing. */
+.header-bar .hl {
+  transition: transform .5s var(--ease-out-quart);
+}
+.header-bar__slot:hover .hl {
+  transition-duration: .68s;
+}
 
 .cta-stack {
   display: flex;
@@ -1192,8 +1220,11 @@ html.is-blue { --border-default: var(--header-border-dk); }
   border-color: var(--header-border-dk);
 }
 .is-blue .site-header .btn-label     { color: var(--header-ink-dk); }
-/* white on navy, not the tinted mark */
-.is-blue .site-header .site-logo img { filter: brightness(0) invert(1); }
+/* The mark keeps its own green and cyan on navy. Light mode knocks it back
+   to black (.site-logo img); on the dark it simply carries no filter at all
+   -- both colours read clean against the navy, and flattening it to white
+   threw away the one piece of brand colour the header has. */
+.is-blue .site-header .site-logo img { filter: none; }
 .is-blue .site-header .btn-menu img,
 .is-blue .site-header .btn-work img  { filter: invert(1); }
 
@@ -1570,7 +1601,7 @@ html.is-blue { --border-default: var(--header-border-dk); }
   content: '';
   position: absolute;
   inset: 0;
-  background-color: var(--navy);
+  background: radial-gradient(circle at 50% 42%, var(--navy-hi), var(--navy-lo));
   opacity: var(--bg-wash);
 }
 
@@ -1662,4 +1693,53 @@ html.is-blue { --border-default: var(--header-border-dk); }
 }
 @media (prefers-reduced-motion: reduce) {
   .dotfield__halo { display: none; }
+}
+
+/* ------------------------------------------------------------ 16. POINTER */
+/* Figma's cursor: a 32 ring on the glass surface with the border-default
+   stroke, and a 4 dot in text-muted at the centre. The dot is the pointer and
+   sits where the mouse is; the ring trails a frame behind it (js/cursor.js)
+   and opens to 48 over anything interactive, the boards included. Both colours are the mode's, so
+   the pair crosses with the page. */
+.cursor {
+  position: fixed;
+  inset: 0;
+  /* above everything, the open menu included: it is the pointer, so nothing
+     should ever be drawn over it. The native cursor stays where it is --
+     this rides with it rather than replacing it. */
+  z-index: 10000000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s linear;
+}
+.cursor.is-on { opacity: 1; }
+.cursor__ring,
+.cursor__dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  will-change: transform;
+}
+.cursor__ring {
+  width: var(--cursor-size, 32px);
+  height: var(--cursor-size, 32px);
+  border: 1px solid var(--header-border);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+  transition: width .28s var(--ease-out-quart), height .28s var(--ease-out-quart),
+              background-color var(--blue-fade), border-color var(--blue-fade);
+}
+.cursor.is-live .cursor__ring { --cursor-size: 48px; }
+.cursor__dot {
+  width: 4px;
+  height: 4px;
+  background: var(--grey);
+  transition: background-color var(--blue-fade);
+}
+html.is-blue .cursor__ring { border-color: var(--header-border-dk); background: var(--dark-glass); }
+html.is-blue .cursor__dot  { background: var(--header-border-dk); }
+@media (prefers-reduced-motion: reduce) {
+  .cursor__ring { transition: background-color var(--blue-fade), border-color var(--blue-fade); }
 }

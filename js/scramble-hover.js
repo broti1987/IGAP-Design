@@ -18,21 +18,36 @@ document.addEventListener("DOMContentLoaded", function () {
     el._scrambleIntervals = [];
     el._scrambleTimeouts = [];
   }
+  function makeLetter(char) {
+    const letter = document.createElement("span");
+    letter.className = "scramble-hover-letter";
+    letter.dataset.finalChar = char;
+    letter.dataset.layoutChar = char === " " ? "\u00A0" : char;
+    const glyph = document.createElement("span");
+    glyph.className = "scramble-hover-glyph";
+    glyph.textContent = char === " " ? "\u00A0" : char;
+    letter.appendChild(glyph);
+    return letter;
+  }
   function buildText(el) {
     clearExistingTimers(el);
     const originalText = el.dataset.originalText || el.textContent;
     el.dataset.originalText = originalText;
     el.innerHTML = "";
-    [...originalText].forEach((char) => {
-      const letter = document.createElement("span");
-      letter.className = "scramble-hover-letter";
-      letter.dataset.finalChar = char;
-      letter.dataset.layoutChar = char === " " ? "\u00A0" : char;
-      const glyph = document.createElement("span");
-      glyph.className = "scramble-hover-glyph";
-      glyph.textContent = char === " " ? "\u00A0" : char;
-      letter.appendChild(glyph);
-      el.appendChild(letter);
+    // Every letter is its own inline-block, so without this a line could
+    // break between any two of them and a heading comes out as "WHAT SH /
+    // APES OU / R WORK". Words are kept in a box of their own; the spaces
+    // stay loose, so the only break opportunities are where they should be.
+    originalText.split(/(\s)/).forEach((chunk) => {
+      if (chunk === "") return;
+      // a newline in the source text is a line the design asks for, so it
+      // survives the split as a real break rather than becoming a space
+      if (chunk === "\n") { el.appendChild(document.createElement("br")); return; }
+      if (/^\s$/.test(chunk)) { el.appendChild(makeLetter(chunk)); return; }
+      const word = document.createElement("span");
+      word.className = "scramble-hover-word";
+      [...chunk].forEach((char) => word.appendChild(makeLetter(char)));
+      el.appendChild(word);
     });
     el.dataset.animating = "false";
   }
@@ -72,4 +87,33 @@ document.addEventListener("DOMContentLoaded", function () {
       scrambleText(el);
     });
   });
+
+  /* [data-scramble] — the same scramble, but played once when the element
+     first comes into view rather than on hover. Add data-scramble="repeat"
+     for one every time it comes back. Nothing on the site uses it unless it
+     asks for it by that attribute. */
+  const onView = document.querySelectorAll("[data-scramble]");
+  if (onView.length && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    onView.forEach((el) => {
+      buildText(el);
+      // anything holding the scroll clock can ask for a scramble by hand:
+      //   el.dispatchEvent(new Event("scramble"))
+      el.addEventListener("scramble", () => scrambleText(el));
+    });
+    // data-scramble="manual" is driven by something else and is not watched
+    const watched = [...onView].filter((el) => el.dataset.scramble !== "manual");
+    if (watched.length) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            scrambleText(entry.target);
+            if (entry.target.dataset.scramble !== "repeat") io.unobserve(entry.target);
+          });
+        },
+        { threshold: 0.4 }
+      );
+      watched.forEach((el) => io.observe(el));
+    }
+  }
 });

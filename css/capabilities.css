@@ -70,12 +70,15 @@ html.is-blue body.is-expertise { background-color: var(--navy); }
   padding: 0 var(--gutter) 72px;
 }
 .pegboard {
-  /* 400 square card, 72 padding, 1px border — with border-box that leaves the
-     artwork at exactly 254, as in the design file. */
-  --pb: 400px;
+  /* 500 square card with the artwork at 264 -- Figma's numbers -- so the
+     padding is what is left over on each side. */
+  --pb: 500px;
   width: var(--pb);
   aspect-ratio: 1;
-  padding: calc(var(--pb) * 72 / 400);
+  /* 71, not Figma's 118: the field carries 16 pegs instead of 12 at the same
+     pitch, so it reaches closer to the card's edge without the dots or the
+     icon changing size. */
+  padding: calc(var(--pb) * 71 / 500);
   border: 1px solid var(--header-border);
   border-radius: 8px;
   background: var(--glass);
@@ -305,11 +308,13 @@ html.is-blue .client {
   box-shadow: var(--dark-shadow-card);
 }
 /* The cascade: five fixed heights and five accents, straight from Figma. */
+/* The cascade keeps its five heights, but the colour no longer runs
+   through five accents: Figma alternates two down the row. */
 .client:nth-child(1) { height: 400px; --accent: var(--sky); }
 .client:nth-child(2) { height: 440px; --accent: var(--green); }
-.client:nth-child(3) { height: 480px; --accent: var(--teal); }
-.client:nth-child(4) { height: 520px; --accent: var(--violet); }
-.client:nth-child(5) { height: 560px; --accent: var(--cerulean); }
+.client:nth-child(3) { height: 480px; --accent: var(--sky); }
+.client:nth-child(4) { height: 520px; --accent: var(--green); }
+.client:nth-child(5) { height: 560px; --accent: var(--sky); }
 
 /* ------------------------------------------------------------------- RAIL */
 
@@ -347,16 +352,30 @@ html.is-blue .client {
   display: flex;
   align-items: stretch;
   gap: 48px;
-  width: min(800px, 100%);
+  /* Figma: 700 x 500, sitting on the bottom edge of the 704. The index used
+     to share this block; it has a screen of its own now, so the measure is
+     the copy's alone and the height is stated rather than borrowed from the
+     six rows next door. */
+  width: min(700px, 100%);
+  height: 500px;
 }
-.xp-hero__intro-col,
-.xp-index { flex: 1 1 0; min-width: 0; }
+.xp-hero__intro-col { flex: 1 1 0; min-width: 0; }
 .xp-hero__intro-col {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 .xp-index { align-self: flex-end; }
+/* The second hero screen. Same frame as the first -- same padding, same
+   bottom edge, the board unmoved beside it -- carrying the index instead
+   of the copy. It pins in a track of its own, the same 150svh dwell the
+   capabilities take, so the six rows hold while you read them. */
+.xp-hero--index {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+}
+.xp-hero--index .xp-index { flex: none; width: min(600px, 100%); }
 
 /* No floor: the six 72s and five 24s of the index next door come to 552,
    and stretch gives this column the same, which is what Figma has. */
@@ -366,7 +385,7 @@ html.is-blue .client {
 .xp-hero__title {
   margin: 0;
   font-family: var(--font-narrow);
-  font-size: 3.5rem;               /* Desktop/H2 = 56 */
+  font-size: 4.5rem;               /* Desktop/H1 = 72 */
   font-weight: 700;
   line-height: 105%;
   letter-spacing: .02em;
@@ -388,11 +407,12 @@ html.is-blue .xp-hero__title { color: var(--white); }
    the keyframes themselves come from css/embed-fragments.css, which this page
    now loads for the two scramble animations. */
 .xp-hero__hint {
-  --line-h: 72px;
+  --line-h: 120px;
   --line-w: 1px;
-  /* Figma binds this stroke to the `border/highlight` variable, which aliases
-     accent/teal -- not the cerulean it was drawn in here. */
-  --line-color: var(--teal);
+  /* Figma binds this stroke to `border/highlight`. That variable's light
+     value moved from accent/teal to accent/sky in the variable pass; the
+     blue value is cerulean, which the areas hero uses on its navy. */
+  --line-color: var(--sky);
   --line-speed: 1.6s;
   display: block;
   width: var(--line-w);
@@ -403,13 +423,19 @@ html.is-blue .xp-hero__title { color: var(--white); }
 @media (prefers-reduced-motion: reduce) {
   .xp-hero__hint { animation: none; clip-path: none; }
 }
+/* Figma sets the two statements side by side on the baseline: two 338
+   columns in the 700, each holding a 300 measure. */
 .xp-hero__copy {
   display: flex;
-  flex-direction: column;
+  align-items: flex-end;
   gap: 24px;
-  max-width: 300px;
+  width: 100%;
 }
-/* The measure is on .xp-hero__copy, so the two share one. */
+/* Each column is 338 of the 700 with its text set on a 300 measure, so the
+   second statement starts at 362 -- the padding is the difference, not a
+   gap, which keeps the columns even when the pair has to narrow. */
+.xp-hero__mission,
+.xp-hero__approach { flex: 1 1 0; min-width: 0; padding-right: 38px; }
 .xp-hero__mission,
 .xp-hero__approach {
   margin: 0;
@@ -440,22 +466,30 @@ html.is-blue .xp-hero__approach { color: var(--white); }
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: 24px;
+  gap: 0;
 }
+/* Figma: 96 rows, 12 of padding, and the rule under each one is the plain
+   border grey rather than the row's accent -- the colour has come off the
+   index entirely and the type reads as a list. */
 .xp-index__link {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  height: 72px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--accent, var(--sky));
+  height: 82px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--header-border);
   text-decoration: none;
+  /* the fade has to be carried along: a bare `transition: border-color`
+     replaces the one [data-fade] sets, and the six rows snap in together
+     instead of arriving one by one */
+  transition: border-color var(--blue-fade), var(--fade-in);
 }
+html.is-blue .xp-index__link { border-bottom-color: var(--header-border-dk); }
 .xp-index__text {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   min-width: 0;
   transition: gap .3s var(--ease-out-quart);
 }
@@ -463,16 +497,19 @@ html.is-blue .xp-hero__approach { color: var(--white); }
    only constraint is that the longest name must not pick up a third line on
    the narrower measure that leaves it. */
 .xp-index__link:hover .xp-index__text,
-.xp-index__link:focus-visible .xp-index__text { gap: 20px; }
+.xp-index__link:focus-visible .xp-index__text { gap: 28px; }
+/* the number is furniture at rest and takes the row's own accent on hover */
+.xp-index__link:hover .xp-index__num,
+.xp-index__link:focus-visible .xp-index__num { color: var(--accent, var(--sky)); }
 .xp-index__num {
   flex: none;
   font-family: var(--font-narrow);
-  font-size: 16px;                 /* Desktop/Number */
-  font-weight: 600;
+  font-size: 24px;                 /* Desktop/Number */
+  font-weight: 700;
   line-height: 100%;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: var(--black);
+  color: var(--grey);               /* Figma text/muted -> base/grey */
   transition: color var(--blue-fade);
 }
 /* 04 is the one name that will not sit on a line. Figma breaks it before
@@ -483,10 +520,10 @@ html.is-blue .xp-hero__approach { color: var(--white); }
    the number and their gaps. */
 .xp-index__keep { white-space: nowrap; }
 .xp-index__name {
-  max-width: 307px;
+  max-width: 519px;                /* Figma: 600 less the arrow, number, gaps */
   font-family: var(--font);
-  font-size: 12px;                 /* Mobile/Large Link */
-  font-weight: 500;
+  font-size: 14px;                 /* Desktop/Large Link */
+  font-weight: 600;
   line-height: 140%;
   color: var(--black);
   transition: color var(--blue-fade);
@@ -495,8 +532,10 @@ html.is-blue .xp-hero__approach { color: var(--white); }
   flex: none;
   width: 24px;
   height: 24px;
-  color: var(--accent, var(--sky));
+  color: var(--black);
+  transition: color var(--blue-fade);
 }
+html.is-blue .xp-index__icon { color: var(--white); }
 /* The arrow points down the page, so on hover it rehearses the trip -- a slow
    hover in place rather than a one-shot nudge, which reads as the link being
    live rather than as something that already happened. */
@@ -508,7 +547,7 @@ html.is-blue .xp-hero__approach { color: var(--white); }
 .xp-index__link:focus-visible .xp-index__icon {
   animation: xp-index-bob 1.4s ease-in-out infinite;
 }
-html.is-blue .xp-index__num,
+html.is-blue .xp-index__num { color: var(--header-border-dk); }
 html.is-blue .xp-index__name { color: var(--white); }
 
 /* ------------------------------------------------------------- CAPABILITY */
@@ -541,6 +580,9 @@ html.is-blue .xp-index__name { color: var(--white); }
   position: sticky;
   top: 0;
   display: flex;
+  /* the text column is the board's own square now, the two level with each
+     other on the bottom edge rather than the text running the whole fold */
+  align-items: flex-end;
   height: 100svh;
   min-height: 0;
   width: 100%;
@@ -551,11 +593,18 @@ html.is-blue .xp-index__name { color: var(--white); }
 /* A 2x2: both columns span the full 632 and space-between their own pair, so
    the number and the open accordion sit on the top edge and the title and the
    collapsed accordion on the bottom one. */
+/* One column, not two. Figma has pulled the number and title together at
+   the top of a single 376 and left the body and the accordion on the
+   bottom edge below them -- the board keeps the other half of the row. */
 .cap__copy {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: stretch;
-  width: min(800px, 100%);
+  align-items: flex-start;
+  /* Figma widened the column's text from 376 to the whole 500 it stands in:
+     the title sets on one line and the body runs the full measure. */
+  width: min(500px, 100%);
+  height: 500px;
 }
 
 /* --- header: a display-sized number over the title (the old description is
@@ -565,24 +614,28 @@ html.is-blue .xp-index__name { color: var(--white); }
    bottom one -- the gap is the floor they close to, not their spacing. */
 .cap__head {
   display: flex;
+  flex: none;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 24px;
-  width: min(376px, 100%);
+  justify-content: flex-start;
+  gap: 16px;
+  width: 100%;
 }
 .cap__num {
+  /* Figma has taken the number off the desktop header -- the title stands
+     alone there and the accent shows on the accordion rule instead. The
+     phone keeps it, so it is turned off here and back on at that width. */
+  display: none;
   font-family: var(--font-narrow);
-  font-size: 4.5rem;               /* Desktop/H1 -- 72, Bold */
-  font-weight: 700;
-  line-height: 105%;
-  letter-spacing: .02em;
+  font-size: 36px;                 /* Desktop/Number -- 36, SemiBold */
+  font-weight: 600;
+  line-height: 100%;
+  letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--accent, var(--sky));
 }
 .cap__title {
   margin: 0;
   font-family: var(--font);
-  max-width: 300px;                /* Figma sets the title on a 300 measure */
   font-size: 24px;                 /* Desktop/H3 */
   font-weight: 600;
   line-height: 140%;
@@ -638,10 +691,12 @@ html.is-blue .xp-index__name { color: var(--white); }
 /* --- accordions --- */
 .cap__acc {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  justify-content: space-between;  /* open accordion top, collapsed bottom */
-  gap: 16px;
-  width: min(376px, 100%);
+  justify-content: flex-end;       /* both sit on the bottom edge */
+  gap: 0;                          /* the accordion head's 24 does the spacing */
+  width: 100%;
+  min-height: 0;
 }
 .acc { display: flex; flex-direction: column; }
 .acc__head { margin: 0; }
@@ -695,7 +750,7 @@ html.is-blue .xp-index__name { color: var(--white); }
   transition: opacity .25s linear, transform .25s var(--ease-out-quart);
 }
 .acc__icon::after { transform: translate(-50%, -50%) rotate(90deg); }
-.acc.is-open .acc__icon::after { opacity: 0; transform: translate(-50%, -50%) rotate(0deg); }
+.cap.is-open .acc__icon::after { opacity: 0; transform: translate(-50%, -50%) rotate(0deg); }
 
 /* 0fr -> 1fr animates the panel's real height without measuring it in JS. */
 .acc__panel {
@@ -703,15 +758,34 @@ html.is-blue .xp-index__name { color: var(--white); }
   grid-template-rows: 0fr;
   transition: grid-template-rows .4s var(--ease-out-quart);
 }
-.acc.is-open .acc__panel { grid-template-rows: 1fr; }
-.acc__inner { overflow: hidden; min-height: 0; }
-/* the Figma 24 between a header and its panel, clipped away when closed */
-.acc__inner > :first-child { margin-top: 24px; }
+.cap.is-open .acc__panel { grid-template-rows: 1fr; }
 
-.cap__body { width: min(376px, 100%); }
-.cap__body > p {
-  max-width: 340px;
-  margin: 0 0 12px;                /* Figma: Description stack gap */
+/* The overview and the list of areas are one pair, exactly as on the areas
+   page: the description is open to begin with and closes as the list opens,
+   so the column trades one reading for the other instead of growing. */
+.cap__desc {
+  display: grid;
+  grid-template-rows: 1fr;
+  /* the fade is carried along: on its own the rows transition replaces the
+     one [data-fade] sets, and the description snapped in while the
+     accordion beside it faded */
+  transition: grid-template-rows .4s var(--ease-out-quart, cubic-bezier(.165,.84,.44,1)),
+              var(--fade-in);
+}
+.cap.is-open .cap__desc { grid-template-rows: 0fr; }
+.cap__desc-inner { display: flex; flex-direction: column; gap: 12px; overflow: hidden; min-height: 0; }
+.cap__lead {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 16px;                 /* Desktop/H4 */
+  font-weight: 600;
+  line-height: 140%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+html.is-blue .cap__lead { color: var(--white); }
+.cap__desc-inner > p {
+  margin: 0;
   font-family: var(--font);
   font-size: 14px;                 /* Desktop/Body */
   font-weight: 300;
@@ -719,7 +793,11 @@ html.is-blue .xp-index__name { color: var(--white); }
   color: var(--black);
   transition: color var(--blue-fade);
 }
-.cap__body > p:last-child { margin-bottom: 0; }
+html.is-blue .cap__desc-inner > p { color: var(--white); }
+.acc__inner { overflow: hidden; min-height: 0; }
+/* the Figma 24 between a header and its panel, clipped away when closed */
+.acc__inner > :first-child { margin-top: 24px; }
+
 
 /* No longer pills: one wrapping run of uppercase labels in the capability's
    accent, divided by slashes. The separator is generated rather than marked
@@ -756,7 +834,6 @@ html.is-blue .tag { color: var(--white); }
        to ARRIVE there in step with the background --- */
 html.is-blue .cap__title,
 html.is-blue .acc__title,
-html.is-blue .cap__body > p { color: var(--white); }
 html.is-blue .acc__btn { color: var(--white); }
 /* The three-bar mark above each capability title. */
 .nugget--h { display: flex; }
@@ -793,7 +870,7 @@ html.is-blue .acc__btn { color: var(--white); }
 /* ========================================================== TABLET / BELOW */
 
 @media (max-width: 991px) {
-  .xp-hero__title { font-size: 3.25rem; }
+  .xp-hero__title { font-size: 4rem; }
   .pegboard { --pb: min(340px, 30vw, 46svh); }
 }
 
@@ -840,10 +917,18 @@ html.is-blue .acc__btn { color: var(--white); }
     justify-content: flex-end;
     gap: 0;
     width: 100%;
+    height: auto;
     min-height: 0;
   }
-  /* no room for it at this width, and deliberately so */
-  .xp-index { display: none; }
+  /* The index has a screen of its own at this width too now -- the second
+     of the two the hero runs to -- sitting on the board's line exactly as
+     the copy does on the first. Figma: 64 rows, no gap between them. */
+  .xp-hero--index .xp-hero__text,
+  .xp-hero--index .xp-index { width: 100%; }
+  .xp-index__link { height: 64px; }
+  .xp-index__text { gap: 12px; }
+  .xp-index__num { font-size: 16px; font-weight: 600; }
+  .xp-index__name { max-width: none; font-size: 12px; font-weight: 500; }  /* Mobile/Large Link */
   /* Figma has put the scroll hint back between the heading and the copy --
      a short rule of its own on the left edge rather than the full-height
      one that stood beside the copy. One column again, 32 throughout. */
@@ -856,18 +941,28 @@ html.is-blue .acc__btn { color: var(--white); }
     gap: 32px;
     min-height: 0;
   }
-  .xp-hero__title { flex: none; font-size: 2rem; }            /* Mobile/H2 */
+  .xp-hero__title { flex: none; font-size: 2.5rem; }          /* Mobile/H1 */
   /* The rule is the slack in the fold: it stands at its 48 wherever there
      is room, and on a shorter screen it is the first thing to give, down
      to 12, so the words never reach the board. Type never shrinks. */
   .xp-hero__hint {
-    --line-w: 2px;
+    --line-w: 1px;
     --line-h: 48px;
     flex: 0 1 auto;
     min-height: 12px;
   }
-  /* Figma's intro column is 300 inside the 342 frame. */
-  .xp-hero__copy { flex: none; gap: 12px; max-width: 300px; }
+  /* Figma's intro column is 300 inside the 342 frame, and the two
+     statements stack again at this width rather than standing side by
+     side as they do on the desktop's 700. */
+  .xp-hero__copy {
+    flex: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    max-width: 300px;
+  }
+  .xp-hero__mission,
+  .xp-hero__approach { flex: none; width: 100%; padding-right: 0; }
   .xp-hero__mission {
     max-width: none;
     font-size: 16px;           /* Mobile/H3 -- and it loses the title case */
@@ -881,7 +976,7 @@ html.is-blue .acc__btn { color: var(--white); }
      handover the observer fires on the pair of them and each number, title
      and accordion lifts its 16px again -- the copy rides up and down for
      the whole swipe. The handover IS the entrance here. */
-  .cap-track [data-fade] { opacity: 1; transform: none; transition: none; }
+  .cap [data-fade] { opacity: 1; transform: none; transition: none; }
 
   .cap { padding: 96px var(--gutter) 24px; }
   .cap__wave { display: block; }
@@ -913,11 +1008,14 @@ html.is-blue .acc__btn { color: var(--white); }
   .cap__acc { flex: 0 1 auto; min-height: 0; }
   .acc, .acc__panel { min-height: 0; }
 
-  .cap__num   { font-size: 2.5rem; }                 /* Mobile/H1 */
-  .cap__title { font-size: 16px; }   /* Mobile/H3, on the same 300 measure */
+  .cap { align-items: stretch; }
+  .cap__copy  { height: auto; }
+  .cap__acc   { gap: 24px; }
+  .cap__lead  { font-size: 14px; }                   /* Mobile/H4 */
+  .cap__num   { display: block; font-size: 24px; }   /* the phone keeps it */
+  .cap__title { max-width: 300px; font-size: 16px; }          /* Mobile/H3 */
   .acc__title { font-size: 14px; }                   /* Mobile/H4 */
-  .cap__body  { width: 100%; }
-  .cap__body > p { max-width: none; font-size: 12px; }  /* Mobile/Body */
+  .cap__desc-inner > p { font-size: 12px; }                   /* Mobile/Body */
   .tag-cloud { width: 100%; }
 
   /* --- pegboard: hero furniture, not a fixed companion --------------------
@@ -925,9 +1023,19 @@ html.is-blue .acc__btn { color: var(--white); }
      it plays out in the first fold and then scrolls away with the hero
      instead of riding along over the capabilities. js/pegboard.js drives it
      on a timer at this width rather than off the scroll position. */
+  /* Two hero screens, one board: the stage covers both and the card inside
+     pins to the fold, so it holds its place while the column under it
+     changes from the copy to the index -- then scrolls away with the second
+     screen rather than riding over the capabilities. */
   .peg-stage {
     position: absolute;
     inset: 0 0 auto 0;
+    /* the copy's screen plus the index's track */
+    height: 250svh;
+  }
+  .peg-stage__inner {
+    position: sticky;
+    top: 0;
     height: 100svh;
   }
   .peg-stage__inner {

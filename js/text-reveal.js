@@ -102,7 +102,12 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     document.querySelectorAll("[" + ATTR + "]").forEach((el) => {
       splitText(el);
-      observer.observe(el);
+      // data-reveal="manual" is driven by something else holding a scroll
+      // clock: it asks for the reveal by hand rather than on coming into
+      //   el.dispatchEvent(new Event("reveal"))   / "unreveal" to put it back
+      el.addEventListener("reveal", () => animateText(el));
+      el.addEventListener("unreveal", () => resetText(el));
+      if (el.getAttribute(ATTR) !== "manual") observer.observe(el);
     });
   }
   init();

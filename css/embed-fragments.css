@@ -66,6 +66,12 @@
     100% { clip-path: inset(100% 0 0 0); }   /* shrunk away downward, at the bottom */
   }
 
+  /* words stay whole: the letters inside are inline-blocks, so a line could
+     otherwise break in the middle of one */
+  .scramble-hover-word {
+    display: inline-block;
+    white-space: nowrap;
+  }
 .scramble-hover-letter {
     display: inline-block;
     position: relative;

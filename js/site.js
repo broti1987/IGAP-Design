@@ -83,7 +83,8 @@
   function setupBlueMode() {
     var d = document.body.dataset;
     var section = document.querySelector(d.blueFrom || BLUE_FROM);
-    if (!section && (d.blueFrom || "") === "scroll") section = document.body;
+    var mode = d.blueFrom || "";
+    if (!section && (mode === "scroll" || mode === "top")) section = document.body;
     if (!section) return;
     var end = document.querySelector(d.blueUntil || BLUE_UNTIL);
     var root = document.documentElement;
@@ -94,14 +95,18 @@
        hero is light and the capabilities are navy, and waiting until the first
        capability lands means the colour changes while it is already on screen.
        Starting at once means the page is blue before anything blue arrives. */
-    var fromScroll = (d.blueFrom || "") === "scroll";
+    var fromScroll = mode === "scroll";
+    /* data-blue-from="top" starts blue on the first pixel of the page rather
+       than the first pixel of SCROLL. The about page wants that: its hero is
+       navy and everything after it is light, so there is nothing to wait for. */
+    var fromTop = mode === "top";
 
     function apply() {
       queued = false;
       var vh = window.innerHeight;
       var endTop = end ? end.getBoundingClientRect().top : Infinity;
-      var started = fromScroll
-        ? (window.scrollY || document.documentElement.scrollTop) > 0
+      var started = fromTop ? true
+        : fromScroll ? (window.scrollY || document.documentElement.scrollTop) > 0
         : section.getBoundingClientRect().top <= 0;
       root.classList.toggle("is-blue", started && endTop > vh * (1 - BLUE_HOLD));
     }

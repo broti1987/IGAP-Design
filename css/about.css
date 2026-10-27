@@ -1,0 +1,908 @@
+/* ===========================================================================
+   ABOUT — "The IGAP Approach"
+   ---------------------------------------------------------------------------
+   Two pieces. A navy hero with the map of India beside it, and then one
+   screen that HOLDS for five steps: the heading and the index never move,
+   while the copy and the artwork change under them. The scroll length is
+   five screens; js/about-art.js reads the fraction and sets the step.
+
+   Figma: 1440 x 900 sections, padding 124 / 72 / 72 / 72, a 1296 x 704
+   container split space-between, text 650 and artwork 600 x 490.
+   ========================================================================= */
+
+/* The scene gradient and the dot field are fixed layers, so the page has to
+   sit above them -- the same arrangement the areas page uses. */
+.is-about .page { position: relative; z-index: 3; }
+
+/* The navy is painted by .scene-bg::after, whose opacity rides --bg-wash, so
+   the ground crosses on the same clock as the type. This page starts navy for
+   its hero and turns light for the five steps; js/site.js owns is-blue. */
+:root { --bg-wash: 0; }
+html.is-blue { --bg-wash: 1; }
+.scene-bg::after { transition: opacity var(--blue-fade); }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* ------------------------------------------------------------------ STAGE */
+/* The hero and the five steps are two rows of one grid, and the artwork is a
+   column beside them spanning both -- so it can be sticky across the pair.
+   The map the hero draws is the same map the first step keeps; nothing is
+   handed over, because nothing is replaced. */
+.ab-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 650px) 600px;
+  justify-content: space-between;
+  column-gap: 24px;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+/* The artwork is drawn off-centre inside its own 600 box -- the map runs
+   from 160 to 610 of it, so the box's middle is not the picture's middle.
+   Nudging the column left by 100 puts the picture itself in the middle of
+   what is left of the page beside the text, rather than the box. snap()
+   re-reads the svg's position afterwards, so the lattice still lands. */
+.ab-stage__art {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  position: relative;
+  left: -60px;              /* six cells left, then three back */
+}
+.ab-art {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  height: 100svh;
+}
+
+/* ------------------------------------------------------------------- HERO */
+.ab-hero {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  min-height: 100svh;
+  padding-block: 124px 72px;
+}
+.ab-hero__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+}
+.ab-hero__text {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  width: min(650px, 100%);
+}
+.ab-hero__title {
+  max-width: 600px;
+  margin: 0;
+  font-family: var(--font-narrow);
+  font-size: 4.5rem;               /* Desktop/H1 = 72 */
+  font-weight: 700;
+  line-height: 105%;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--white);
+  transition: color var(--blue-fade);
+}
+html:not(.is-blue) .ab-hero__title,
+html:not(.is-blue) .ab-hero__mission,
+html:not(.is-blue) .ab-hero__copy p { color: var(--black); }
+/* Figma: two 301 columns in the 650 with a 48 between them, the mission on
+   the left and the two paragraphs on the right, both on the same baseline. */
+.ab-hero__intro {
+  display: flex;
+  align-items: flex-end;
+  gap: 48px;
+}
+.ab-hero__lead,
+.ab-hero__copy { flex: 1 1 0; min-width: 0; max-width: 301px; }
+/* Figma: the Scroll Hint Arrow heads the left intro column -- a 2x94 frame at
+   (72, 438), 32 above the Mission Statement, holding a single 1px line stroked
+   in `#4597FF`. The homepage's scroll rule, at this frame's own height. */
+.ab-hero__lead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+}
+.ab-hero__hint {
+  --line-h: 94px;
+  --line-w: 1px;
+  --line-color: var(--cerulean);
+  --line-speed: 1.6s;
+  display: block;
+  flex: none;
+  width: var(--line-w);
+  height: var(--line-h);
+  background: var(--line-color);
+  animation: igap-scroll-line var(--line-speed) cubic-bezier(.7, 0, .3, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab-hero__hint { animation: none; clip-path: none; }
+}
+.ab-hero__mission {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 18px;                 /* Desktop/H4 */
+  font-weight: 600;
+  line-height: 140%;
+  color: var(--white);
+}
+.ab-hero__copy { display: flex; flex-direction: column; gap: 12px; }
+.ab-hero__copy p {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 14px;                 /* Desktop/Body */
+  font-weight: 300;
+  line-height: 160%;
+  color: var(--white);
+}
+.ab-hero__art { flex: none; width: 600px; max-width: 46vw; }
+
+/* ------------------------------------------------- WHAT SHAPES OUR WORK */
+/* Five steps, one screen. The section is as tall as the steps it carries and
+   the screen inside it pins for the whole run. */
+/* Five steps, one screen each, plus the screen the pin itself occupies --
+   so the run below is exactly five viewport heights and a step is one. */
+.ab-work {
+  grid-column: 1;
+  grid-row: 2;
+  position: relative;
+  height: calc(6 * 100svh);
+}
+.ab-work__pin {
+  position: sticky;
+  top: 0;
+  display: flex;
+  /* stretch, so the column inside is the frame's own 704 and the heading and
+     the index can take its top and bottom edges the way Figma has them */
+  align-items: stretch;
+  height: 100svh;
+  padding-block: 124px 72px;
+}
+.ab-work__inner {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+}
+/* the two 313 columns of the 650, as in the hero */
+.ab-work__text,
+.ab-work__copy { flex: 0 1 313px; min-width: 0; }
+.ab-work__text {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.ab-work__title {
+  max-width: 300px;
+  margin: 0;
+  font-family: var(--font-narrow);
+  font-size: 3.5rem;               /* Desktop/H2 = 56 */
+  font-weight: 700;
+  line-height: 105%;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+
+/* The index: the step you are on is black, the rest sit in the muted grey
+   and move up to it as you reach them. */
+/* Figma: a 2px track down the left of the index with a 24px thumb, and the
+   list 24 to its right. The thumb is the section's scroll bar -- the script
+   rides it down the track as the five steps run. */
+.ab-index-wrap { display: flex; gap: 24px; }
+.ab-index__track {
+  position: relative;
+  flex: none;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--light-grey);
+  transition: background var(--blue-fade);
+}
+html.is-blue .ab-index__track { background: var(--cobalt); }
+.ab-index__thumb {
+  position: absolute;
+  left: 0;
+  width: 2px;
+  height: 24px;
+  border-radius: 1px;
+  background: var(--black);
+  top: calc((100% - 24px) * var(--k, 0));
+  transition: background var(--blue-fade);
+}
+html.is-blue .ab-index__thumb { background: var(--white); }
+
+.ab-index {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ab-index__item {
+  font-family: var(--font);
+  font-size: 18px;                 /* Desktop/H4 */
+  font-weight: 600;
+  line-height: 140%;
+  color: var(--light-grey);        /* Figma: accent/light, the same on both modes */
+  transition: color .45s var(--ease-out-quart);
+}
+/* each line is a button: it takes you to its own step */
+.ab-index__link {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ab-index__item.is-on { color: var(--black); }
+html.is-blue .ab-index__item.is-on { color: var(--white); }
+.ab-index__item:not(.is-on) .ab-index__link:hover { color: var(--grey); }
+html.is-blue .ab-index__item:not(.is-on) .ab-index__link:hover { color: var(--grey); }
+.ab-index__num { flex: none; }
+
+/* The copy: five panels in one box, one shown at a time. They are stacked so
+   the column never changes height as the step turns over. */
+.ab-work__copy {
+  position: relative;
+  align-self: flex-end;
+  min-height: 260px;
+}
+.ab-panel {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .4s var(--ease-out-quart), transform .4s var(--ease-out-quart);
+  pointer-events: none;
+}
+.ab-panel.is-on { opacity: 1; transform: none; pointer-events: auto; }
+html.is-blue .ab-work__title { color: var(--white); }
+.ab-panel__lead {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 16px;                 /* Desktop/H4 */
+  font-weight: 600;
+  line-height: 140%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+html.is-blue .ab-panel__lead { color: var(--white); }
+.ab-panel p {
+  max-width: 313px;
+  margin: 0;
+  font-family: var(--font);
+  font-size: 14px;                 /* Desktop/Body */
+  font-weight: 300;
+  line-height: 160%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+html.is-blue .ab-panel p { color: var(--white); }
+
+/* ---------------------------------------------------------------- ARTWORK */
+/* Figma draws the artwork on the same 20 lattice as the page's dot field --
+   one artwork dot per background dot -- so the map reads as part of the
+   field. The field is 15 elsewhere on the site; here it takes the 20 the
+   frame is drawn on, and js/about-art.js nudges the svg so the two grids
+   land on each other exactly. */
+:root { --dot-spacing: 20px; }
+
+.ab-art__svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+/* --- the map ------------------------------------------------------------
+   One dot per cell, drawn by the script. Outlined while it is the ground
+   under the first step, filled in the accents when it becomes the subject of
+   the last, and away in between. Mode-aware: border grey on paper, cobalt on
+   navy, which is what the dot field itself does. */
+/* opacity is set frame by frame from the scroll, so it carries no
+   transition of its own -- a transition here would lag the scroll */
+.ab-map__dot {
+  fill: none;
+  stroke: var(--light-grey);
+  stroke-width: 1;
+  /* fill keeps the staggered delay -- that cascade is the lit map at the end.
+     stroke does not: a staggered stroke makes the draw-in sweep from grey to
+     blue, and a dot should simply arrive in the mode it belongs to.
+
+     --fd and --fe are the fill's own duration and curve. The map's first
+     lighting keeps the default -- half a second, linear, on the cascade --
+     because that is a sweep and wants to be even. The idle turnover after
+     it sets them long and eased instead, so a cell drifts from one accent
+     to the next rather than being repainted. */
+  transition: fill var(--fd, .5s) var(--fe, linear) var(--d, 0ms),
+              stroke var(--blue-fade),
+              transform .22s var(--ease-out-quart);
+}
+/* The map arrives rather than being there: every cell starts at nothing and
+   they come up one after another, opening outward from the middle, the lot
+   inside half a second. --i is the cell's rank out from the centre. An animation rather than a
+   transition, so it runs off the clock from the moment the dot exists and
+   cannot be missed between two frames. */
+@keyframes ab-draw {
+  from { opacity: 0; transform: scale(.2); }
+  to   { opacity: 1; transform: none; }
+}
+.ab-map__dot {
+  transform-origin: center;
+  transform-box: fill-box;
+  /* backwards, not both: the animation holds the dot back until its turn,
+     but lets go once it has arrived, so the wipe can take it away again */
+  animation: ab-draw .26s var(--ease-out-quart) calc(var(--i, 0) * 2ms) backwards;
+  /* the whole disc answers the pointer, not just the ring it is drawn as */
+  pointer-events: all;
+  /* --s is the pointer halo: see about-art.js. At rest it is 1 and this
+     declaration draws exactly what the dot is. */
+  transform: scale(var(--s, 1));
+}
+html.is-blue .ab-map__dot { stroke: var(--cobalt); }
+/* transparent rather than none: the map now stands through the network step
+   unlit, so the lighting is watched rather than hidden behind a wipe, and a
+   stroke going to `none` snaps where one going to transparent fades out on
+   the same cascade the fill comes up on. */
+.ab-map.is-lit .ab-map__dot {
+  fill: var(--lit, var(--sky));
+  stroke: transparent;
+  transition: fill .5s linear var(--d, 0ms), stroke .5s linear var(--d, 0ms),
+              transform .22s var(--ease-out-quart);
+}
+/* The hero's twinkle: a handful of cells take an accent for a moment and
+   give it back. The blue-mode stroke above is a class and a type deep, so
+   the twinkle has to be said again under it or it never shows on navy. */
+/* A keyframe, not a transition. The whole life of an accent is in here --
+   up out of the cobalt, held, and back down into it -- so both ends are as
+   slow as each other, which a transition could not do: the class going away
+   takes its own timing with it, and the cell snapped back. It also keeps the
+   dot's `stroke` transition free for the page's light-to-navy change, which
+   a long one turned into a visible wash on load. The twinkle only ever runs
+   on the navy, so the cobalt is always what it comes out of and returns to. */
+@keyframes ab-twinkle {
+  0%       { stroke: var(--cobalt); }
+  40%, 60% { stroke: var(--tw, var(--sky)); }
+  100%     { stroke: var(--cobalt); }
+}
+/* Once the field is up, the draw-in comes off the dots for good. It has to:
+   `animation` is one property, so putting the twinkle on a cell REPLACED
+   ab-draw, and taking the twinkle off PUT IT BACK -- and a re-applied
+   animation plays. Every accent that ended was followed by its cell
+   collapsing to a fifth of its size and springing out again. That pop, a few
+   times a second once the field was full, was the "twinkling": the colour
+   was behaving, the geometry was not. */
+.ab-map.is-drawn .ab-map__dot { animation: none; }
+/* --- the lit map breathes -----------------------------------------------
+   Step five is the map as subject rather than ground, and a field of 218
+   identical dots is a texture, not a thing that is alive. Each one drifts
+   between its size and its own --bs -- some out past it, some in under it,
+   none of them in step, every one already part way through when the map
+   lights. The pointer's own swell is still the --s it has always been: the
+   keyframes multiply by it rather than replacing it, so hovering still
+   pushes the field out from under the cursor while it breathes. */
+@keyframes ab-breathe {
+  from { transform: scale(var(--s, 1)); }
+  to   { transform: scale(calc(var(--s, 1) * var(--bs, 1.25))); }
+}
+.ab-map.is-lit .ab-map__dot {
+  animation: ab-breathe var(--bt, 7s) ease-in-out var(--bd, 0s) infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab-map.is-lit .ab-map__dot { animation: none; }
+}
+
+/* While the field is still coming up, a cell can be drawing in AND holding
+   an accent: two animations, on different properties, both named here so
+   neither replaces the other. This is how the map arrives already in colour
+   instead of arriving grey and having forty-odd cells take an accent in one
+   frame once it is up -- which is a cut however softly each of them then
+   fades. Past the draw, the .is-drawn pair below takes over. */
+.ab-map__dot.is-twinkle {
+  animation: ab-draw .26s var(--ease-out-quart) calc(var(--i, 0) * 2ms) backwards,
+             ab-twinkle var(--tt, 2.6s) ease-in-out var(--tdly, 0s) both;
+}
+.ab-map.is-drawn .ab-map__dot.is-twinkle,
+html.is-blue .ab-map.is-drawn .ab-map__dot.is-twinkle {
+  /* --tdly is negative on the cells seeded when the map first stands up, so
+     each of those starts part way through its own fade and the field is
+     already full of colour rather than filling over the first ten seconds */
+  animation: ab-twinkle var(--tt, 2.6s) ease-in-out var(--tdly, 0s) both;
+}
+
+/* --- the four discs -----------------------------------------------------
+   The same four all the way down. Only their place, size and accent change,
+   so a step reads as the arrangement moving rather than one picture
+   replacing another.
+
+   None of it is eased here. The scroll holds the arrangement for most of a
+   step and then carries it over to the next one, and about-art.js works out
+   every in-between frame from the scroll position -- so the artwork is wound
+   by the scroll rather than fired off at the step line, and it never snaps
+   from one arrangement to the next. */
+/* the disc layer never takes the pointer -- the map underneath is what
+   answers it, at every step */
+.ab-discs { pointer-events: none; }
+.ab-disc {
+  fill: var(--c, var(--sky));
+  fill-opacity: var(--fo, .3);
+  stroke: var(--c, var(--sky));
+  stroke-width: var(--sw, 1);
+  /* the one thing on the discs that is not wound by the scroll: the ring
+     the pointer is standing in on the stack, which grows a tenth. Safe to
+     ease, because it is transform and the scroll drives cx, cy and r. */
+  transform-origin: center;
+  transform-box: fill-box;
+  transition: transform .25s var(--ease-out-quart);
+}
+.ab-mark {
+  fill: var(--white);
+  stroke: var(--c, var(--sky));
+  stroke-width: 1;
+}
+html.is-blue .ab-mark { fill: var(--navy); }
+
+/* Each disc takes its turn to pulse, round the four: Figma's Pulse is the
+   inner ring at about three quarters of the disc, filled a touch stronger,
+   and it swells out to the rim and goes. */
+@keyframes ab-pulse {
+  0%        { transform: scale(1);    opacity: 1; }
+  30%, 100% { transform: scale(1.37); opacity: 0; }
+}
+.ab-pulse {
+  fill: var(--c, var(--sky));
+  fill-opacity: .15;
+  stroke: var(--c, var(--sky));
+  stroke-width: 1;
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.is-pulsing .ab-pulse {
+  animation: ab-pulse 6s var(--ease-out-quart) infinite;
+  animation-delay: calc(var(--i, 0) * 1.5s);
+}
+
+/* The stack's outermost circle sends a pulse the other way -- out past its
+   own rim rather than up to it, so the concentric step reads as something
+   broadcasting. It rides on the outer disc, so it takes that disc's accent. */
+/* the stack's single broadcast keeps its long, slow push... */
+@keyframes ab-ring {
+  0%        { transform: scale(1);    opacity: .9; }
+  72%, 100% { transform: scale(1.26); opacity: 0; }
+}
+/* ...while the chain's are quick, because four of them have to fit in the
+   time it takes the swell to pass down the line */
+@keyframes ab-ring-quick {
+  0%        { transform: scale(1);    opacity: .9; }
+  38%, 100% { transform: scale(1.26); opacity: 0; }
+}
+.ab-ring {
+  fill: none;
+  stroke: var(--c, var(--green));
+  stroke-width: 1;
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.is-ringing .ab-ring[data-ring="0"] {
+  animation: ab-ring 3.4s var(--ease-out-quart) infinite;
+}
+.is-ringing-each .ab-ring {
+  animation: ab-ring-quick var(--chain) var(--ease-out-quart) infinite;
+  animation-delay: calc(var(--i, 0) * var(--chain-step));
+}
+
+/* The chain runs as a ripple: a circle swells a tenth, the next starts while
+   the one before it is still on its way back down, and what travels along the
+   line is a wave rather than four separate events. The ring a circle throws is
+   on the same clock, so it swells and sends at once.
+
+   The wave does not restart at the first circle every time -- it runs out to
+   the fourth and comes back: 1 2 3 4, a beat's rest, 4 3 2 1, a beat's rest.
+   Every circle grows exactly twice a cycle, the ends included; what makes an
+   end an end is that its two come close together, because that is where the
+   wave turns. A shared animation with a per-circle delay cannot do this (a
+   delay shifts the whole timeline, it does not reverse the order), so each of
+   the four has its own keyframes over one 2.6s cycle of ten beats. Where a
+   circle's two passes nearly meet -- the fourth at the far turn, the first
+   across the cycle line -- it dips to 1.03 between them instead of coming all
+   the way back, so the turn reads as one gesture rather than two knocks. */
+:root { --chain: 2.6s; --chain-step: .26s; }
+@keyframes ab-swell-0 {        /* beats 8 and 0: the near turn, over the line */
+  0%          { transform: scale(1.03); }
+  9%          { transform: scale(1.1); }
+  27%, 80%    { transform: scale(1); }
+  89%         { transform: scale(1.1); }
+  100%        { transform: scale(1.03); }
+}
+@keyframes ab-swell-1 {        /* beats 1 and 7 */
+  0%, 10%     { transform: scale(1); }
+  19%         { transform: scale(1.1); }
+  37%, 70%    { transform: scale(1); }
+  79%         { transform: scale(1.1); }
+  97%, 100%   { transform: scale(1); }
+}
+@keyframes ab-swell-2 {        /* beats 2 and 6 */
+  0%, 20%     { transform: scale(1); }
+  29%         { transform: scale(1.1); }
+  47%, 60%    { transform: scale(1); }
+  69%         { transform: scale(1.1); }
+  87%, 100%   { transform: scale(1); }
+}
+@keyframes ab-swell-3 {        /* beats 3 and 5: the far turn */
+  0%, 30%     { transform: scale(1); }
+  39%         { transform: scale(1.1); }
+  50%         { transform: scale(1.03); }
+  59%         { transform: scale(1.1); }
+  77%, 100%   { transform: scale(1); }
+}
+.is-ringing-each .ab-disc {
+  animation: var(--swell, ab-swell-0) var(--chain) var(--ease-out-quart) infinite;
+}
+
+/* --- the radar ----------------------------------------------------------
+   Figma adds a hand to the Research step: a 1px rule from the middle of the
+   stack out to its rim. It turns clockwise, and what it turns up are blips
+   sitting on the map's own cells between the rings -- never on one, where
+   they would read as beads on the line. A blip is brightest the instant the
+   hand passes it and has faded by the time the hand comes round again. */
+.ab-radar {
+  opacity: 0;
+  transition: opacity .45s var(--ease-out-quart);
+}
+.ab-radar.is-sweeping { opacity: 1; }
+/* the wake behind the hand: thin slices of the dial with the alpha stepping
+   down, which is how you get a gradient that runs round a centre in SVG */
+.ab-radar__trail path { fill: var(--white); stroke: none; }
+html.is-blue .ab-radar__trail path { fill: var(--navy); }
+.ab-radar__hand {
+  stroke: var(--white);
+  stroke-width: 1;
+  transition: stroke var(--blue-fade);
+}
+html.is-blue .ab-radar__hand { stroke: var(--navy); }
+.ab-radar__blip {
+  fill: var(--white);
+  fill-opacity: .7;
+  opacity: 0;
+}
+
+/* --- the network --------------------------------------------------------
+   Wound by the scroll like everything else: the lines run out from nothing
+   and retract the same way, and the nodes arrive and leave one after
+   another, each from its own place in the order. The pips hold on longest:
+   they stand on map cells, so they are still there when the map comes back
+   under them and can simply become part of it. */
+.ab-net { opacity: 1; }
+
+/* The runs that come and go: shorter hops between nodes already near each
+   other, each on its own offset of the same loop, so the network reads as
+   something being worked out rather than a finished diagram. */
+@keyframes ab-flicker {
+  0%        { opacity: 0; }
+  10%, 28%  { opacity: .5; }
+  42%, 100% { opacity: 0; }
+}
+/* the same travelling band as the drawn lines, so they read as one system */
+.ab-extra { stroke: url(#ab-wire); stroke-width: 1; opacity: 0; }
+.ab-net__extra.is-live .ab-extra {
+  animation: ab-flicker 5.5s linear infinite;
+  animation-delay: calc(var(--i, 0) * -0.213s);   /* spread over the loop */
+}
+/* the wire carries a tiling colour band rather than a flat stroke */
+.ab-wire__a { stop-color: var(--sky); }
+.ab-wire__b { stop-color: var(--green); }
+.ab-wire__c { stop-color: var(--teal); }
+.ab-edge {
+  fill: none;
+  stroke: url(#ab-wire);
+  stroke-width: 1;
+  /* dasharray is the line's own length and dashoffset how much of it the
+     scroll has yet to draw -- both set by the script, per line */
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+}
+.ab-node {
+  fill: var(--paper);
+  stroke: var(--sky);
+  stroke-width: 1;
+  transform-origin: center;
+  transform-box: fill-box;
+  transform: scale(.4);
+  opacity: 0;
+  transition: fill var(--blue-fade);
+}
+html.is-blue .ab-node { fill: var(--navy); }
+.ab-node__pip {
+  fill: var(--green);
+  transform-origin: center;
+  transform-box: fill-box;
+  transform: scale(.4);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ab-pulse, .ab-ring, .ab-disc, .ab-extra { animation: none; }
+  .ab-disc, .ab-mark, .ab-map__dot, .ab-edge, .ab-node, .ab-node__pip { transition: none; }
+  .ab-map__dot { animation: none; }
+  .ab-map__dot { transform: none; }
+}
+
+/* ===========================================================================
+   TYPOGRAPHIC MOMENT
+   ---------------------------------------------------------------------------
+   Figma draws this twice at 1440 x 900: the same composition, once with the
+   prose switched off and once with it on. So it is one sticky screen held for
+   two folds. Nothing moves between them -- the type lands in the first and
+   the prose arrives around it in the second. The prose is in the flow on both
+   folds, just held at nothing, so there is nothing to shift.
+
+   Three 300 columns on the page's own 72 gutter, spread across the measure to
+   72 / 570 / 1068, and a band 530 deep sitting 72 off the foot. Each pair runs
+   ACROSS two of them -- "from research" in the first, "to action" at the head
+   of the second -- with a curve carrying the eye over the gap. Every column
+   spreads its own contents, and the sums land on Figma's y positions: the
+   statement at 495 and the second block at 480 fall out of the spacing rather
+   than being placed.
+   ========================================================================= */
+.tm {
+  position: relative;
+  height: calc(3 * 100svh);        /* one screen held, two folds of scroll */
+}
+.tm__pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+}
+.tm__inner {
+  position: relative;              /* the two connectors hang off this */
+  display: grid;
+  grid-template-columns: repeat(3, 300px);
+  justify-content: space-between;
+  align-items: end;                /* the band sits off the foot */
+  height: 100%;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  padding-block: 124px 72px;
+}
+.tm-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 530px;
+  min-width: 0;
+}
+
+/* --- the type ------------------------------------------------------------
+   Two lines of Narrow Bold, ranged left, 300 to the column. Each is its own
+   entrance: it waits a little below where it belongs, at nothing, until the
+   scroll reaches its beat, then fades in and rises into place. Plain, so the
+   drawn connectors are what the eye follows between the phrases. */
+.tm-line {
+  margin: 0;
+  width: 300px;
+  max-width: 100%;
+  font-family: var(--font-narrow);
+  font-size: 56px;                 /* Desktop/H2 */
+  font-weight: 700;
+  line-height: 105%;
+  text-transform: uppercase;
+  color: var(--black);
+  opacity: 0;
+  transform: translateY(24px);
+  transition: color var(--blue-fade),
+              opacity .7s var(--ease-out-quart),
+              transform .7s var(--ease-out-quart);
+}
+.tm-line.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .tm-line { opacity: 1; transform: none; transition: color var(--blue-fade); }
+}
+html.is-blue .tm-line { color: var(--white); }
+
+/* --- the connectors ------------------------------------------------------
+   Placed against the measure rather than inside a column, because each one
+   crosses from one to the next. Drawn by the scroll, head arriving with the
+   tip -- a marker would sit at the destination from the first frame. */
+.tm-arrow {
+  position: absolute;
+  overflow: visible;
+  pointer-events: none;
+}
+.tm-word { display: inline-block; }
+.tm-arc__line,
+.tm-arc__head {
+  fill: none;
+  stroke: var(--sky);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tm-arc--green .tm-arc__line,
+.tm-arc--green .tm-arc__head { stroke: var(--green); }
+.tm-arc__head { opacity: 0; transform: scale(.5); }   /* origin set with the tip */
+
+/* --- the prose -----------------------------------------------------------
+   The second fold. Each block comes up a little as it arrives, and all of it
+   is wound by the scroll, so going back up puts it away again. */
+.tm-copy, .tm-block, .tm-statement {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.tm-copy { display: flex; flex-direction: column; gap: 8px; }
+.tm-copy p, .tm-block p {
+  max-width: 300px;
+  margin: 0;
+  font-family: var(--font);
+  font-size: 14px;                 /* Desktop/Body */
+  font-weight: 300;
+  line-height: 160%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+.tm-block h3 {
+  max-width: 280px;
+  margin: 0;
+  font-family: var(--font);
+  font-size: 16px;                 /* Desktop/H4 */
+  font-weight: 600;
+  line-height: 160%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+.tm-statement {
+  width: 300px;
+  max-width: 100%;
+  margin: 0;
+  font-family: var(--font);
+  font-size: 24px;                 /* Desktop/H3 */
+  font-weight: 600;
+  line-height: 140%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+html.is-blue .tm-copy p,
+html.is-blue .tm-block p,
+html.is-blue .tm-block h3,
+html.is-blue .tm-statement { color: var(--white); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tm-copy, .tm-block, .tm-statement { opacity: 1; transform: none; }
+  .tm-arc__head { opacity: 1; transform: none; }
+}
+
+/* ======================================================== OUR PEOPLE =====
+   Figma 564:192400: a 900 section, 124 over and 72 under, the 1296 measure
+   split into two 648s that abut -- text in the left one, the cluster in the
+   right. Figma's own x coordinates are what sets that, not the 24 the
+   auto-layout carries: 72 to 720 and 720 to 1368. */
+.ab-people {
+  display: flex;
+  align-items: center;
+  min-height: 100svh;
+  padding: 124px var(--gutter) 72px;
+}
+.ab-people__inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1296px;
+  margin: 0 auto;
+}
+/* 300 for the title and its button, 24, then 324 for the two statements.
+   The block is 400 deep now and both columns close on the same floor: the
+   title holds the ceiling, the button the floor, and the two statements
+   stack up from that floor rather than from the top. */
+.ab-people__text {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  flex: 1 1 648px;
+  min-width: 0;
+  max-width: 648px;
+}
+.ab-people__head {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  /* Figma's 400: the 118 and the 50 at either end of it, not a gap */
+  min-height: 400px;
+  flex: 0 1 300px;
+  min-width: 0;
+}
+.ab-people__title {
+  margin: 0;
+  max-width: 300px;
+  font-family: var(--font-narrow);
+  font-size: 3.5rem;               /* Desktop/H2 = 56 */
+  font-weight: 700;
+  line-height: 105%;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+html.is-blue .ab-people__title { color: var(--white); }
+/* the column is 300 and the button is 139: it keeps its own width rather
+   than being stretched by the stack it sits at the foot of */
+.ab-people__head .btn { align-self: flex-start; }
+.ab-people__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 324px;
+  min-width: 0;
+}
+.ab-people__copy p {
+  margin: 0;
+  max-width: 300px;
+  font-family: var(--font);
+  font-size: 14px;                 /* Desktop/Body */
+  font-weight: 300;
+  line-height: 160%;
+  color: var(--black);
+  transition: color var(--blue-fade);
+}
+/* The two statements are not the same size: Figma sets the first in
+   Desktop/H5 and only the second in Desktop/Body, so the opening claim
+   carries and the detail under it recedes. */
+.ab-people__copy p:first-child {
+  font-size: 16px;                 /* Desktop/H5 */
+  font-weight: 600;
+}
+html.is-blue .ab-people__copy p { color: var(--white); }
+
+/* --- the cluster ---------------------------------------------------------
+   Every circle is one <circle>: the ring is its stroke, and a portrait is a
+   pattern in objectBoundingBox units, so the photograph follows the box and
+   growing one is a single attribute. Positions, sizes and the breathing all
+   come from js/people-art.js -- there is nothing to animate here, because a
+   transition would fight a value that is already set every frame. */
+.ab-people__art {
+  flex: 1 1 648px;
+  min-width: 0;
+  max-width: 648px;
+}
+.pp {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.pp-bub {
+  fill: none;
+  stroke: var(--a, var(--sky));
+  stroke-width: 1;
+}
+
+@media (max-width: 1024px) {
+  .ab-people { min-height: 0; padding-block: 96px 48px; }
+  .ab-people__inner { flex-direction: column; align-items: flex-start; gap: 48px; }
+  .ab-people__text, .ab-people__art { flex: none; width: 100%; max-width: none; }
+}
+@media (max-width: 680px) {
+  .ab-people__text { flex-direction: column; gap: 24px; }
+  .ab-people__head { flex: none; }
+  .ab-people__title { font-size: 2rem; }      /* Mobile/H2 */
+  .ab-people__copy { flex: none; }
+  .ab-people__copy p { max-width: none; font-size: 12px; }
+}

@@ -749,7 +749,7 @@ html.is-blue .ar-tag { color: var(--white); }
     gap: 32px;
   }
   .ar-hero__title { max-width: none; font-size: 2rem; }       /* Mobile/H2 */
-  .ar-hero__hint { display: block; --line-w: 2px; --line-h: 48px; }
+  .ar-hero__hint { display: block; --line-w: 1px; --line-h: 48px; }
   .ar-hero__copy { gap: 8px; max-width: 300px; }
   .ar-hero__mission  { font-size: 16px; }                     /* Mobile/H3 */
   .ar-hero__approach { font-size: 12px; }                     /* Mobile/Intro */

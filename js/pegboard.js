@@ -96,7 +96,18 @@
 
   /* ---------------- Geometry ---------------- */
   const STEP = 260 / 11, R = 6.405;
-  const px = i => 2 + i * STEP;
+  /* The icons are drawn on a 12 x 12 peg space and always will be. The board
+     they sit on is wider than that on a desktop -- Figma's card leaves a lot
+     of empty margin inside it, and filling that with more pegs at the SAME
+     pitch keeps the icons their own size while the field reaches the edges.
+     OFF_PEG re-centres the 12 inside the larger grid, so no icon coordinate
+     has to change. The phone keeps the plain 12: its card is small enough
+     that a denser field would just thin the dots out. */
+  const PEGS_ICON = 12;
+  const GRID = matchMedia('(min-width: 768px)').matches ? 16 : PEGS_ICON;
+  const OFF_PEG = (GRID - PEGS_ICON) / 2;
+  const SPAN = 4 + (GRID - 1) * STEP;
+  const px = i => 2 + (i + OFF_PEG) * STEP;
   const NS = 'http://www.w3.org/2000/svg';
   const el = (tag, attrs, parent) => {
     const n = document.createElementNS(NS, tag);
@@ -105,10 +116,14 @@
     return n;
   };
 
+  svg.setAttribute('viewBox', '0 0 ' + SPAN.toFixed(2) + ' ' + SPAN.toFixed(2));
   const gPegs = document.getElementById('peg-pegs');
-  for (let y = 0; y < 12; y++) for (let x = 0; x < 12; x++)
-    el('circle', { class: 'peg', cx: px(x), cy: px(y), r: 2 }, gPegs);
+  /* drawn in grid space, so the field covers the whole board */
+  for (let y = 0; y < GRID; y++) for (let x = 0; x < GRID; x++)
+    el('circle', { class: 'peg', cx: 2 + x * STEP, cy: 2 + y * STEP, r: 2 }, gPegs);
   const gRings = document.getElementById('peg-rings');
+  /* the markers stay with the icon space -- they are part of the artwork,
+     not the board's frame, so a wider field grows around them */
   RING_PEGS.forEach(([x, y]) => el('circle', { class: 'ring', cx: px(x), cy: px(y), r: R }, gRings));
 
   function hex(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
@@ -410,8 +425,9 @@
 
   let drag = null, canDrag = false, current = null, edited = -1;
   const EDGE = STEP * 0.6, OFF = STEP * 1.2;
-  const clampPt = p => p.map(v => Math.min(264 + EDGE, Math.max(-EDGE, v)));
-  const pegOf = v => Math.min(11, Math.max(0, Math.round((v - 2) / STEP)));
+  const clampPt = p => p.map(v => Math.min(SPAN + EDGE, Math.max(-EDGE, v)));
+  const pegOf = v => Math.min(PEGS_ICON - 1, Math.max(0,
+    Math.round((v - 2) / STEP) - OFF_PEG));
 
   function grab(s, e) {
     const k = s.k, x = current && current.list[k];
@@ -472,7 +488,13 @@
      its band is the length of its track (dwell + pass), not its own height.
      The existing head-of-band hold then covers the pinned stretch, which is
      exactly the "finish on approach, hold while it is in view" behaviour. */
+  /* The hero runs to two screens now -- the copy, then the index -- and the
+     board holds its resting state across both: the morph starts when
+     capability 01 arrives. Both screens are bands of their own so the
+     scroll-to-t mapping keeps its one-band-per-screen rhythm. */
+  const idx = document.getElementById('xp-hero-index');
   const sections = [document.getElementById('xp-hero'),
+                    idx && (idx.closest('.cap-track') || idx),
                     ...Array.from(rail.querySelectorAll('.cap'))
                       .map(c => c.closest('.cap-track') || c)].filter(Boolean);
   const footer = document.querySelector('.site-footer');
@@ -534,7 +556,12 @@
     const span = spans[k] || 1;
     const u = clamp01((pos - starts[k]) / span);
     const m = clamp01((u - BAND_HOLD) / (1 - BAND_HOLD));
-    return Math.min(N, k + ease(m));
+    /* The hero runs to two screens, so there is one more band than there
+       are icons: bands are [hero, index, cap 01 .. cap 06] against icons
+       [rest, 01 .. 06]. Shifting by one keeps every capability on its own
+       icon -- without it each one showed the next -- and leaves the board
+       at rest across both hero screens, easing to 01 as 01 comes up. */
+    return Math.min(N, Math.max(0, k - 1 + ease(m)));
   }
 
   /* The board belongs to the rail, so it has to retire once the rail is done.

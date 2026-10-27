@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IGAP — The IGAP Approach</title>
+  <meta name="description" content="IGAP works on consequential questions where government, regulation and markets converge. Research and policy advocacy, regulatory strategy, government engagement, policy communications, market strategy and coalitions.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=Archivo+Narrow:wght@400;500;600;700&family=Space+Grotesk:wght@500&display=swap">
+
+  <link rel="stylesheet" href="css/embed-fragments.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/about.css">
+
+  <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="images/webclip.png">
+</head>
+
+<body class="is-about" data-blue-from="top" data-blue-until=".ab-work">
+
+<!-- ============================================================= HEADER -->
+<header class="site-header" data-menu-root>
+  <nav class="menu" aria-label="Main menu" hidden>
+    <div class="menu__bg"></div>
+    <div class="menu__inner">
+      <ul class="menu__links">
+        <li><a href="index.html">about us</a></li>
+        <li><a href="capabilities.html" aria-current="page">our work</a></li>
+        <li><a href="#">knowledge</a></li>
+        <li><a href="#">events</a></li>
+        <li><a href="#">contact</a></li>
+      </ul>
+      <ul class="menu__socials">
+        <li><a href="#">reports</a></li>
+        <li><a href="#">blogs</a></li>
+        <li><a href="#">igap primers</a></li>
+        <li><a href="#">media</a></li>
+      </ul>
+    </div>
+    <button class="menu__close" type="button" data-menu-close aria-label="Close menu">
+      <img src="images/System-Icons_2.svg" width="24" height="24" alt="">
+    </button>
+  </nav>
+
+  <div class="header-bar">
+    <div class="header-bar__slot header-bar__slot--left">
+      <button class="btn-menu" type="button" data-menu-open aria-expanded="false">
+        <img src="images/menu-icon.svg" width="24" height="24" alt="">
+        <span class="btn-label btn-label--menu">Menu</span>
+      </button>
+      <span class="hl hl--left" aria-hidden="true"></span>
+    </div>
+
+    <a class="site-logo" href="index.html">
+      <img src="images/Logo-coloured.png" alt="IGAP">
+    </a>
+
+    <div class="header-bar__slot header-bar__slot--right">
+      <a class="btn-work" href="#">
+        <span class="btn-label">Work With IGAP</span>
+        <img src="images/Arrow-Dark.svg" alt="" width="24" height="24">
+      </a>
+      <span class="hl hl--right" aria-hidden="true"></span>
+    </div>
+  </div>
+</header>
+
+<header class="site-header site-header--mobile" data-menu-root>
+  <nav class="menu" aria-label="Main menu" hidden>
+    <div class="menu__bg"></div>
+    <div class="menu__inner">
+      <ul class="menu__links">
+        <li><a href="index.html">about us</a></li>
+        <li><a href="capabilities.html" aria-current="page">our work</a></li>
+        <li><a href="#">knowledge</a></li>
+        <li><a href="#">events</a></li>
+        <li><a href="#">contact</a></li>
+      </ul>
+      <ul class="menu__socials">
+        <li><a href="#">reports</a></li>
+        <li><a href="#">blogs</a></li>
+        <li><a href="#">igap primers</a></li>
+        <li><a href="#">media</a></li>
+      </ul>
+    </div>
+    <button class="menu__close" type="button" data-menu-close aria-label="Close menu">
+      <img src="images/System-Icons_2.svg" width="24" height="24" alt="">
+    </button>
+  </nav>
+
+  <div class="header-bar header-bar--mobile">
+    <a class="site-logo site-logo--mobile" href="index.html">
+      <img src="images/Logo-coloured.png" alt="IGAP">
+    </a>
+    <button class="btn-menu" type="button" data-menu-open aria-expanded="false">
+      <img src="images/menu-icon.svg" width="24" height="24" alt="">
+      <span class="btn-label btn-label--menu">Menu</span>
+    </button>
+  </div>
+</header>
+
+<!-- ======================================================= BACKDROP -->
+<!-- Page gradient + navy wash. This page is in blue mode end to end, so the
+     wash is pinned at 1 rather than driven by a scroll clock. -->
+<div class="scene-bg" aria-hidden="true"></div>
+
+<!-- The dot field, exactly as built for the homepage: one tiled base layer
+     plus a cursor-following halo of four masked ring layers. -->
+<div class="dotfield" aria-hidden="true">
+  <div class="dotfield__layer dotfield__band"></div>
+  <div class="dotfield__halo">
+    <div class="dotfield__layer dotfield__ring dotfield__ring--3"></div>
+    <div class="dotfield__layer dotfield__ring dotfield__ring--2"></div>
+    <div class="dotfield__layer dotfield__ring dotfield__ring--1"></div>
+    <div class="dotfield__layer dotfield__ring dotfield__ring--0"></div>
+  </div>
+</div>
+
+<main class="page">
+
+  <!-- -------------------------------------------------- HERO + STEPS --
+       The hero and the five steps share one stage, because they share one
+       piece of artwork: it is sticky across the pair. Behind the hero the
+       map draws itself in dot by dot and then picks up accents at random,
+       like lights coming on in different places; that same map is the one
+       the first step keeps, and the discs grow in over it. -->
+  <div class="ab-stage">
+
+    <div class="ab-stage__art">
+      <div class="ab-art" aria-hidden="true">
+        <svg class="ab-art__svg" viewBox="0 0 600 490" fill="none" focusable="false">
+          <!-- the wire's colour band: it tiles across the artwork and the
+               script slides it, so the accent travels along the lines -->
+          <defs>
+            <linearGradient id="ab-wire" gradientUnits="userSpaceOnUse"
+                            x1="0" y1="0" x2="160" y2="160" spreadMethod="repeat">
+              <stop class="ab-wire__a" offset="0"/>
+              <stop class="ab-wire__b" offset="0.35"/>
+              <stop class="ab-wire__c" offset="0.65"/>
+              <stop class="ab-wire__a" offset="1"/>
+            </linearGradient>
+          </defs>
+          <g class="ab-map" data-map></g>
+          <g class="ab-net" data-net></g>
+          <g class="ab-discs" data-discs>
+            <circle class="ab-disc" data-disc="0"/>
+            <circle class="ab-disc" data-disc="1"/>
+            <circle class="ab-disc" data-disc="2"/>
+            <circle class="ab-disc" data-disc="3"/>
+            <circle class="ab-pulse" data-pulse="0"/>
+            <circle class="ab-pulse" data-pulse="1"/>
+            <circle class="ab-pulse" data-pulse="2"/>
+            <circle class="ab-pulse" data-pulse="3"/>
+            <circle class="ab-ring" data-ring="0"/>
+            <circle class="ab-ring" data-ring="1"/>
+            <circle class="ab-ring" data-ring="2"/>
+            <circle class="ab-ring" data-ring="3"/>
+            <circle class="ab-mark" data-mark="0"/>
+            <circle class="ab-mark" data-mark="1"/>
+            <circle class="ab-mark" data-mark="2"/>
+            <circle class="ab-mark" data-mark="3"/>
+          </g>
+          <g class="ab-radar" data-radar>
+            <g class="ab-radar__trail" data-trail></g>
+            <g data-blips></g>
+            <line class="ab-radar__hand" data-hand x1="385" y1="245" x2="385" y2="45"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <section class="ab-hero" id="ab-hero">
+    <div class="ab-hero__inner">
+      <div class="ab-hero__text">
+        <h1 class="ab-hero__title" data-reveal>The IGAP Approach</h1>
+        <div class="ab-hero__intro">
+          <div class="ab-hero__lead">
+            <span class="ab-hero__hint" aria-hidden="true"></span>
+            <p class="ab-hero__mission" data-fade>The Indian Governance and Policy Project (IGAP) is a research led policy and strategic advisory organisation working across public policy, governance, markets, geopolitics and strategic affairs.</p>
+          </div>
+          <div class="ab-hero__copy" data-fade-group>
+            <p>We approach public policy not only as a question of rules and regulation, but also of institutions, markets, state capacity and political economy. Our work examines how these interact with India&rsquo;s developmental priorities and with a changing economic, technological and geopolitical environment.</p>
+            <p>IGAP brings together legal, policy, economic and sectoral expertise to understand complex questions and develop approaches that are rigorous, contextually grounded and workable in practice.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------- WHAT SHAPES OUR WORK --
+       One screen that holds for five steps. The heading and the index never
+       move; the copy and the artwork change under them, and the index marks
+       where you are. The scroll length is five screens, read as a fraction
+       by js/about-art.js. -->
+    <section class="ab-work" id="ab-work">
+    <div class="ab-work__pin">
+      <div class="ab-work__inner">
+        <div class="ab-work__text">
+          <h2 class="ab-work__title" data-reveal>What Shapes Our Work</h2>
+          <!-- The index doubles as the page's scroll bar: the track runs the
+               height of the list and the thumb rides the five steps. Each line
+               is a button, so the index is a way through the section as well as
+               a reading of where you are in it. -->
+          <div class="ab-index-wrap">
+            <div class="ab-index__track" aria-hidden="true"><span class="ab-index__thumb"></span></div>
+            <ol class="ab-index">
+            <li class="ab-index__item is-on" data-step="0"><button class="ab-index__link" type="button"><span class="ab-index__num">01</span> Markets &amp; Institutions</button></li>
+            <li class="ab-index__item" data-step="1"><button class="ab-index__link" type="button"><span class="ab-index__num">02</span> Research</button></li>
+            <li class="ab-index__item" data-step="2"><button class="ab-index__link" type="button"><span class="ab-index__num">03</span> Institutional Reality</button></li>
+            <li class="ab-index__item" data-step="3"><button class="ab-index__link" type="button"><span class="ab-index__num">04</span> Indian Realities</button></li>
+            <li class="ab-index__item" data-step="4"><button class="ab-index__link" type="button"><span class="ab-index__num">05</span> National Ambition</button></li>
+            </ol>
+          </div>
+        </div>
+        <div class="ab-work__copy">
+          <article class="ab-panel is-on" data-step="0">
+            <h3 class="ab-panel__lead">India is building markets and institutions together</h3>
+            <p>In many sectors, India is not simply regulating mature markets. It is building capacity, setting rules, attracting investment, creating institutions and developing domestic capability while pursuing wider economic, developmental and strategic objectives.</p>
+            <p>Policy therefore cannot be understood in isolation from markets, state capacity, political economy or the wider geopolitical environment. We look at these together.</p>
+          </article>
+          <article class="ab-panel" data-step="1">
+            <h3 class="ab-panel__lead">Research should have consequences</h3>
+            <p>Good research should improve decisions, test assumptions, sharpen public debate and strengthen the evidence on which policy and institutional choices are made.</p>
+            <p>It should also help identify important questions before they become urgent policy problems.</p>
+          </article>
+          <article class="ab-panel" data-step="2">
+            <h3 class="ab-panel__lead">Strategy must survive contact with institutions</h3>
+            <p>Policy does not operate only on paper, and strategy cannot be developed in isolation from how institutions actually work.</p>
+            <p>We pay attention to where authority sits, how governments and regulators make decisions, what institutions are capable of doing, how policy is implemented across the Union and the states, and what execution requires in practice.</p>
+            <p>A policy that cannot survive institutional reality is not yet a workable policy.</p>
+          </article>
+          <article class="ab-panel" data-step="3">
+            <h3 class="ab-panel__lead">India needs answers grounded in Indian realities</h3>
+            <p>Comparative experience matters. But policy frameworks cannot simply be transplanted across jurisdictions.</p>
+            <p>India’s developmental priorities, federal structure, political economy, institutional capacity, market structure and strategic environment shape both the challenges it faces and the approaches most likely to work.</p>
+            <p>Our work is grounded in those realities while remaining informed by global experience.</p>
+          </article>
+          <article class="ab-panel" data-step="4">
+            <h3 class="ab-panel__lead">National ambition and constitutional values belong together</h3>
+            <p>IGAP works to advance legitimate national security, economic, developmental and governance priorities while remaining firmly anchored in constitutional values, the rule of law and institutional accountability.</p>
+            <p>Durable public policy requires both the capacity to pursue national priorities and the institutions, safeguards and accountability that give public action legitimacy.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+    </section>
+  </div><!-- /.ab-stage -->
+
+  <!-- ------------------------------------------- TYPOGRAPHIC MOMENT --
+       Two folds held on one sticky screen. The first builds the argument
+       as typography and nothing else: a phrase arrives, a line is drawn
+       from it, and the phrase it turns into arrives at the other end --
+       twice. The second brings the prose in around what the type has
+       already said. Figma: About / Typographic Moment 1 and 2. -->
+  <section class="tm" id="tm">
+    <div class="tm__pin">
+      <div class="tm__inner">
+
+        <div class="tm-col tm-col--a">
+          <h2 class="tm-line" data-beat="0"><span class="tm-word">From</span><br><span class="tm-word">Research</span></h2>
+          <div class="tm-copy tm-copy--notes" data-copy="0">
+            <p>Complex policy questions rarely yield useful answers through research alone or strategy alone.</p>
+            <p>Together, they help us identify what matters, what is feasible, where trade-offs lie and what effective action will require.</p>
+            <p>Research builds evidence, tests assumptions and develops long-term expertise. Advisory tests those ideas against institutional realities, market dynamics and implementation challenges.</p>
+          </div>
+        </div>
+
+        <div class="tm-col tm-col--b">
+          <h2 class="tm-line" data-beat="1"><span class="tm-word">To</span><br><span class="tm-word">Action</span></h2>
+          <p class="tm-statement" data-copy="3">Together, they allow us to move from analysis to judgement, and from judgement to action.</p>
+          <h2 class="tm-line" data-beat="2"><span class="tm-word">From</span><br><span class="tm-word">Analysis</span></h2>
+        </div>
+
+        <div class="tm-col tm-col--c">
+          <div class="tm-block" data-copy="1">
+            <h3>Each disciplines the other.</h3>
+            <p>Research keeps our advisory work evidence-led and attentive to longer-term questions. Practical engagement keeps our research grounded in how institutions and markets actually work.</p>
+          </div>
+          <div class="tm-block" data-copy="2">
+            <h3>Research and advisory strengthen each other</h3>
+            <p>Independent research gives us space to pursue questions beyond an immediate mandate and contribute to issues of wider public importance. Advisory brings us closer to the realities of decision-making and implementation.</p>
+          </div>
+          <h2 class="tm-line" data-beat="3"><span class="tm-word">To</span><br><span class="tm-word">Judgement</span></h2>
+        </div>
+
+        <!-- The two connectors run between the halves of each pair, across the
+             gap from one column to the next: out of the first line of the
+             phrase on the left, into the second line of the phrase it becomes. -->
+        <svg class="tm-arrow tm-arc--sky" data-arc="0" data-from="0" data-to="1"
+             fill="none" aria-hidden="true" focusable="false">
+          <path class="tm-arc__line"/>
+          <path class="tm-arc__head"/>
+        </svg>
+        <svg class="tm-arrow tm-arc--green" data-arc="1" data-from="2" data-to="3"
+             fill="none" aria-hidden="true" focusable="false">
+          <path class="tm-arc__line"/>
+          <path class="tm-arc__head"/>
+        </svg>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- -------------------------------------------------------- OUR PEOPLE
+       Figma 564:192400. Text in the left 648, the cluster in the right one:
+       six portraits and eleven empty rings, drifting (js/people-art.js). -->
+  <section class="ab-people" id="ab-people">
+    <div class="ab-people__inner">
+      <div class="ab-people__text">
+        <div class="ab-people__head">
+          <h2 class="ab-people__title" data-reveal>Our People</h2>
+          <div class="btn btn--sky" data-fade>
+            <a class="btn__label-wrap" href="#"><span class="btn-label">Meet The Team</span></a>
+            <span class="hl" aria-hidden="true"></span>
+          </div>
+        </div>
+        <div class="ab-people__copy" data-fade-group>
+          <p>IGAP brings together lawyers, policy professionals, economists, researchers and strategic advisers with experience across government, industry and public institutions.</p>
+          <p>We combine diverse disciplinary expertise with practical experience of policymaking, regulation and implementation. This enables us to translate complex challenges into clear, actionable advice.</p>
+        </div>
+      </div>
+      <div class="ab-people__art">
+        <svg class="pp" viewBox="0 0 648 704" data-people aria-hidden="true" focusable="false">
+          <defs>
+          <pattern id="pp-face-1" patternContentUnits="objectBoundingBox" width="1" height="1">
+            <rect width="1" height="1" style="fill: var(--sky); opacity: .22"/>
+            <image width="1" height="1" preserveAspectRatio="xMidYMid slice" href="images/people/01.webp"/>
+          </pattern>
+          <pattern id="pp-face-2" patternContentUnits="objectBoundingBox" width="1" height="1">
+            <rect width="1" height="1" style="fill: var(--green); opacity: .22"/>
+            <image width="1" height="1" preserveAspectRatio="xMidYMid slice" href="images/people/02.webp"/>
+          </pattern>
+          <pattern id="pp-face-3" patternContentUnits="objectBoundingBox" width="1" height="1">
+            <rect width="1" height="1" style="fill: var(--sky); opacity: .22"/>
+            <image width="1" height="1" preserveAspectRatio="xMidYMid slice" href="images/people/03.webp"/>
+          </pattern>
+          <pattern id="pp-face-4" patternContentUnits="objectBoundingBox" width="1" height="1">
+            <rect width="1" height="1" style="fill: var(--green); opacity: .22"/>
+            <image width="1" height="1" preserveAspectRatio="xMidYMid slice" href="images/people/04.webp"/>
+          </pattern>
+          <pattern id="pp-face-5" patternContentUnits="objectBoundingBox" width="1" height="1">
+            <rect width="1" height="1" style="fill: var(--teal); opacity: .22"/>
+            <image width="1" height="1" preserveAspectRatio="xMidYMid slice" href="images/people/05.webp"/>
+          </pattern>
+          <pattern id="pp-face-6" patternContentUnits="objectBoundingBox" width="1" height="1">
+            <rect width="1" height="1" style="fill: var(--violet); opacity: .22"/>
+            <image width="1" height="1" preserveAspectRatio="xMidYMid slice" href="images/people/06.webp"/>
+          </pattern>
+          </defs>
+        <circle class="pp-bub pp-bub--face" data-bub data-x="185" data-y="189" data-r="60" data-min="42" data-max="70" style="--a: var(--sky); fill: url(#pp-face-1)"/>
+        <circle class="pp-bub pp-bub--face" data-bub data-x="492" data-y="472" data-r="60" data-min="42" data-max="70" style="--a: var(--green); fill: url(#pp-face-2)"/>
+        <circle class="pp-bub pp-bub--face" data-bub data-x="410" data-y="231" data-r="50" data-min="42" data-max="70" style="--a: var(--sky); fill: url(#pp-face-3)"/>
+        <circle class="pp-bub pp-bub--face" data-bub data-x="274" data-y="300" data-r="70" data-min="42" data-max="70" style="--a: var(--green); fill: url(#pp-face-4)"/>
+        <circle class="pp-bub pp-bub--face" data-bub data-x="264" data-y="442" data-r="52" data-min="42" data-max="70" style="--a: var(--teal); fill: url(#pp-face-5)"/>
+        <circle class="pp-bub pp-bub--face" data-bub data-x="366" data-y="376" data-r="42" data-min="42" data-max="70" style="--a: var(--violet); fill: url(#pp-face-6)"/>
+        <circle class="pp-bub" data-bub data-x="339" data-y="447" data-r="13" style="--a: var(--sky)"/>
+        <circle class="pp-bub" data-bub data-x="138" data-y="534" data-r="6" style="--a: var(--sky)"/>
+        <circle class="pp-bub" data-bub data-x="522" data-y="287" data-r="6" style="--a: var(--green)"/>
+        <circle class="pp-bub" data-bub data-x="366" data-y="466" data-r="6" style="--a: var(--green)"/>
+        <circle class="pp-bub" data-bub data-x="456" data-y="275" data-r="6" style="--a: var(--green)"/>
+        <circle class="pp-bub" data-bub data-x="432" data-y="324" data-r="18" style="--a: var(--green)"/>
+        <circle class="pp-bub" data-bub data-x="492" data-y="546" data-r="12" style="--a: var(--green)"/>
+        <circle class="pp-bub" data-bub data-x="144" data-y="358" data-r="12" style="--a: var(--teal)"/>
+        <circle class="pp-bub" data-bub data-x="510" data-y="382" data-r="6" style="--a: var(--teal)"/>
+        <circle class="pp-bub" data-bub data-x="292" data-y="171" data-r="18" style="--a: var(--violet)"/>
+        <circle class="pp-bub" data-bub data-x="410" data-y="147" data-r="9" style="--a: var(--violet)"/>
+        <circle class="pp-bub" data-bub data-x="96" data-y="120" data-r="9" style="--a: var(--violet)"/>
+        <circle class="pp-bub" data-bub data-x="228" data-y="96" data-r="6" style="--a: var(--sky)"/>
+        <circle class="pp-bub" data-bub data-x="556" data-y="180" data-r="12" style="--a: var(--sky)"/>
+        <circle class="pp-bub" data-bub data-x="596" data-y="330" data-r="6" style="--a: var(--violet)"/>
+        <circle class="pp-bub" data-bub data-x="588" data-y="440" data-r="9" style="--a: var(--green)"/>
+        <circle class="pp-bub" data-bub data-x="560" data-y="600" data-r="6" style="--a: var(--sky)"/>
+        <circle class="pp-bub" data-bub data-x="430" data-y="620" data-r="12" style="--a: var(--teal)"/>
+        <circle class="pp-bub" data-bub data-x="180" data-y="640" data-r="9" style="--a: var(--violet)"/>
+        <circle class="pp-bub" data-bub data-x="84" data-y="266" data-r="6" style="--a: var(--green)"/>
+        <circle class="pp-bub" data-bub data-x="240" data-y="528" data-r="9" style="--a: var(--teal)"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- The homepage's closing section, as on the other pages. -->
+  <section class="cta-section">
+    <h2 class="h1 h1--center h1--narrow" data-reveal>Have a complex policy or institutional question?</h2>
+    <p class="intro intro--center" data-fade>We can help make sense of it and shape a way forward.</p>
+    <div class="btn btn--green">
+      <a class="btn__label-wrap" href="#"><span class="btn-label">Let’s Start a Conversation</span></a>
+      <span class="hl" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+
+      <div class="footer-brand">
+        <div class="footer-brand__top">
+          <div class="footer-logo">
+            <img src="images/Footer-Logo.png" alt="IGAP — Indian Governance and Policy Project" width="150" height="48">
+          </div>
+          <p class="footer-tagline">Shaping better governance, one<br>conversation at a time.</p>
+        </div>
+        <div class="footer-brand__foot">
+          <div class="footer-field">
+            <span class="footer-label">Email Us</span>
+            <a class="footer-email" href="mailto:relations@igap.in">relations@igap.in</a>
+          </div>
+          <div class="footer-field footer-locations">
+            <span class="footer-label">Locations</span>
+            <ul class="footer-locations__list">
+              <li>New Delhi</li>
+              <li>Bengaluru</li>
+              <li>Hyderabad</li>
+              <li>Singapore</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-right">
+        <form class="footer-form" method="post" action="#">
+          <p class="footer-form__title">Receive new research, policy insights and updates from IGAP</p>
+          <div class="footer-form__field">
+            <input class="footer-form__input" type="email" name="email" autocomplete="email"
+                   placeholder="Enter your Email Address" aria-label="Email address" required>
+            <button class="footer-form__submit" type="submit" aria-label="Subscribe">
+              <img src="images/Arrow.svg" width="24" height="24" alt="">
+            </button>
+            <span class="footer-form__nugget" aria-hidden="true"></span>
+          </div>
+        </form>
+
+        <div class="footer-links">
+          <nav class="footer-nav" aria-label="Footer">
+            <a href="index.html">home</a>
+            <a href="#">about</a>
+            <a href="capabilities.html">What We do</a>
+            <a href="#">knowledge</a>
+            <a href="#">events</a>
+            <a href="#">Contact</a>
+          </nav>
+          <div class="footer-aside">
+            <nav class="footer-social" aria-label="Social media">
+              <a href="#">Linkedin</a>
+              <a href="#">Facebook</a>
+              <a href="#">Instagram</a>
+            </nav>
+            <nav class="footer-legal" aria-label="Legal">
+              <a href="#">terms of use</a>
+              <a href="#">privacy policy</a>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+</main>
+
+<script src="js/text-reveal.js"></script>
+<script src="js/scramble-hover.js"></script>
+<script src="js/fade-in.js"></script>
+<script src="js/site.js"></script>
+<script src="js/dot-field.js"></script>
+<script src="js/about-art.js"></script>
+<script src="js/typo-moment.js"></script>
+<script src="js/people-art.js"></script>
+<script src="js/cursor.js"></script>
+
+</body>
+</html>
