@@ -137,13 +137,22 @@
       e.style.setProperty('--i', k);
     }
 
+    /* The nodes are not all one green. A fixed run of accents, so it is the
+       same network every time: green still carries it, with sky and teal
+       coming through often enough to read as a mix of disciplines rather
+       than a mix of colours. Violet stays out -- it is the one accent the
+       sky connectors behind them cannot hold without going muddy. */
+    var NACC = ['--green', '--sky', '--green', '--teal', '--green',
+                '--green', '--teal', '--sky', '--green', '--teal', '--sky'];
     NODES.forEach(function (n, i) {
       var p = n.split(',');
       /* the two are the same size: the white disc is there to knock a hole
-         in the connectors running under the node and to carry the sky rim,
-         not to stand out past the green as a halo */
-      el('circle', { class: 'ab-node', cx: p[0], cy: p[1], r: 4 }, net);
-      el('circle', { class: 'ab-node__pip', cx: p[0], cy: p[1], r: 4 }, net);
+         in the connectors running under the node and to carry the rim, not
+         to stand out past the colour as a halo */
+      var ring = el('circle', { class: 'ab-node', cx: p[0], cy: p[1], r: 4 }, net);
+      var pip  = el('circle', { class: 'ab-node__pip', cx: p[0], cy: p[1], r: 4 }, net);
+      pip.style.fill = 'var(' + NACC[i % NACC.length] + ')';
+      ring.style.stroke = 'var(' + NACC[i % NACC.length] + ')';
     });
   }
 
