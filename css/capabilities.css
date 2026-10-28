@@ -352,11 +352,12 @@ html.is-blue .client {
   display: flex;
   align-items: stretch;
   gap: 48px;
-  /* Figma: 700 x 500, sitting on the bottom edge of the 704. The index used
+  /* Figma: 600 x 500, sitting on the bottom edge of the 704. The index used
      to share this block; it has a screen of its own now, so the measure is
      the copy's alone and the height is stated rather than borrowed from the
-     six rows next door. */
-  width: min(700px, 100%);
+     six rows next door. The 600 carries down: the two statements under the
+     heading are flex 1 1 0 either side of a 24, so they take 288 each. */
+  width: min(600px, 100%);
   height: 500px;
 }
 .xp-hero__intro-col { flex: 1 1 0; min-width: 0; }
@@ -620,21 +621,19 @@ html.is-blue .xp-index__name { color: var(--white); }
   gap: 16px;
   width: 100%;
 }
+/* The number is back, and it is part of the title line now rather than a
+   display of its own: same family, same size, same weight, only the accent
+   separating it. So it inherits all of that and states nothing but colour --
+   which also keeps it right at the phone's smaller title size without a
+   second rule to maintain. */
 .cap__num {
-  /* Figma has taken the number off the desktop header -- the title stands
-     alone there and the accent shows on the accordion rule instead. The
-     phone keeps it, so it is turned off here and back on at that width. */
-  display: none;
-  font-family: var(--font-narrow);
-  font-size: 36px;                 /* Desktop/Number -- 36, SemiBold */
-  font-weight: 600;
-  line-height: 100%;
-  letter-spacing: .1em;
-  text-transform: uppercase;
   color: var(--accent, var(--sky));
 }
 .cap__title {
   margin: 0;
+  /* Figma sets the title in 400 of the 500 column, so the longer ones take
+     two lines rather than running the full width */
+  max-width: 400px;
   font-family: var(--font);
   font-size: 24px;                 /* Desktop/H3 */
   font-weight: 600;
@@ -892,6 +891,24 @@ html.is-blue .acc__btn { color: var(--white); }
        Text        two accordions at gap 24, stacked from the top            */
 
 @media (max-width: 767px) {
+  /* --- hero into index: a dissolve, not a scroll --------------------------
+     The two hero screens stop being two screens here. The hero gets a track
+     two folds deep so it can pin inside it, and the index's track is pulled
+     up by the same two folds so it starts at the top of the hero's -- both
+     are then stuck to the same fold at once, one over the other, and
+     js/hero-xfade.js fades the first out as it fades the second in. Nothing
+     rises from below; the column simply changes in place, with the board
+     behind it untouched.
+
+     The budget is what it was: 200 for the hero's track and 250 for the
+     index's, overlapping entirely, is the same 250 the two screens took
+     when they were stacked -- so .peg-stage's 250svh still covers them. */
+  .xp-hero-track { position: relative; height: 200svh; }
+  .xp-hero-track > .xp-hero { position: sticky; top: 0; height: 100svh; }
+  .xp-hero-track + .cap-track { margin-top: -200svh; height: 250svh; }
+  /* the dissolve owns these two, so nothing else may transition them */
+  .xp-hero-track > .xp-hero, .xp-hero--index { transition: none; will-change: opacity; }
+
   /* The board is hero furniture at this width, and it spans the gutters:
      24 clear on the left, the right and the bottom at any screen size --
      342 square on the 390 Figma draws it at. Its size is what the hero
@@ -927,7 +944,16 @@ html.is-blue .acc__btn { color: var(--white); }
   .xp-hero--index .xp-index { width: 100%; }
   .xp-index__link { height: 64px; }
   .xp-index__text { gap: 12px; }
-  .xp-index__num { font-size: 16px; font-weight: 600; }
+  /* Figma's mobile Large Link, which both indexes are built from: a 64 row
+     on 12 of padding, the number Archivo SemiBold 16 on 5% of tracking --
+     NOT the desktop's wide-tracked narrow 24 -- and the name Medium 12 on
+     140, 12 away from it. */
+  .xp-index__num {
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: .05em;
+  }
   .xp-index__name { max-width: none; font-size: 12px; font-weight: 500; }  /* Mobile/Large Link */
   /* Figma has put the scroll hint back between the heading and the copy --
      a short rule of its own on the left edge rather than the full-height
@@ -1012,8 +1038,8 @@ html.is-blue .acc__btn { color: var(--white); }
   .cap__copy  { height: auto; }
   .cap__acc   { gap: 24px; }
   .cap__lead  { font-size: 14px; }                   /* Mobile/H4 */
-  .cap__num   { display: block; font-size: 24px; }   /* the phone keeps it */
-  .cap__title { max-width: 300px; font-size: 16px; }          /* Mobile/H3 */
+  /* the number rides the title here too, so it needs no size of its own */
+  .cap__title { max-width: none; font-size: 20px; }           /* Mobile/H3 */
   .acc__title { font-size: 14px; }                   /* Mobile/H4 */
   .cap__desc-inner > p { font-size: 12px; }                   /* Mobile/Body */
   .tag-cloud { width: 100%; }
@@ -1149,7 +1175,7 @@ html.is-blue .acc__btn { color: var(--white); }
      clears a 667 screen by a few pixels; everything else has more room. */
   .cap { padding: 64px var(--gutter) 16px; }
   .cap__acc { gap: 16px; }
-  .cap__num { font-size: 2rem; }
+
 }
 
 @media (prefers-reduced-motion: reduce) {

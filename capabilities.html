@@ -25,18 +25,25 @@
   <nav class="menu" aria-label="Main menu" hidden>
     <div class="menu__bg"></div>
     <div class="menu__inner">
-      <ul class="menu__links">
-        <li><a href="index.html">about us</a></li>
-        <li><a href="capabilities.html" aria-current="page">our work</a></li>
-        <li><a href="#">knowledge</a></li>
-        <li><a href="#">events</a></li>
-        <li><a href="#">contact</a></li>
-      </ul>
-      <ul class="menu__socials">
+      <div class="menu__large">
+        <div class="menu__group">
+          <p class="menu__eyebrow">Our Expertise</p>
+          <ul class="menu__links">
+            <li><a href="capabilities.html">capabilities</a></li>
+            <li><a href="areas.html">Areas of Work</a></li>
+          </ul>
+        </div>
+        <ul class="menu__links">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="#">Knowledge</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <ul class="menu__small">
         <li><a href="#">reports</a></li>
-        <li><a href="#">blogs</a></li>
-        <li><a href="#">igap primers</a></li>
-        <li><a href="#">media</a></li>
+        <li><a href="#">events</a></li>
+        <li><a href="#">IGAP primers</a></li>
+        <li><a href="#">Media</a></li>
       </ul>
     </div>
     <button class="menu__close" type="button" data-menu-close aria-label="Close menu">
@@ -71,18 +78,25 @@
   <nav class="menu" aria-label="Main menu" hidden>
     <div class="menu__bg"></div>
     <div class="menu__inner">
-      <ul class="menu__links">
-        <li><a href="index.html">about us</a></li>
-        <li><a href="capabilities.html" aria-current="page">our work</a></li>
-        <li><a href="#">knowledge</a></li>
-        <li><a href="#">events</a></li>
-        <li><a href="#">contact</a></li>
-      </ul>
-      <ul class="menu__socials">
+      <div class="menu__large">
+        <div class="menu__group">
+          <p class="menu__eyebrow">Our Expertise</p>
+          <ul class="menu__links">
+            <li><a href="capabilities.html">capabilities</a></li>
+            <li><a href="areas.html">Areas of Work</a></li>
+          </ul>
+        </div>
+        <ul class="menu__links">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="#">Knowledge</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <ul class="menu__small">
         <li><a href="#">reports</a></li>
-        <li><a href="#">blogs</a></li>
-        <li><a href="#">igap primers</a></li>
-        <li><a href="#">media</a></li>
+        <li><a href="#">events</a></li>
+        <li><a href="#">IGAP primers</a></li>
+        <li><a href="#">Media</a></li>
       </ul>
     </div>
     <button class="menu__close" type="button" data-menu-close aria-label="Close menu">
@@ -140,6 +154,12 @@
   <div class="rail" id="rail">
 
     <!-- ------------------------------------------------------------ HERO -->
+    <!-- The track is inert on desktop (height auto, the hero scrolls away as
+         it always did). On a phone it becomes two screens deep so the hero
+         can pin inside it, and the index's track is pulled up over the top:
+         the two then share one fold and js/hero-xfade.js dissolves between
+         them instead of either one travelling. -->
+    <div class="xp-hero-track">
     <section class="xp-hero" id="xp-hero">
       <div class="xp-hero__text">
         <div class="xp-hero__intro-col">
@@ -152,6 +172,7 @@
         </div>
       </div>
     </section>
+    </div>
 
     <!-- ------------------------------------------------ HERO: THE INDEX --
          Figma gives the index a screen of its own, the second of two the
@@ -195,8 +216,7 @@
         <div class="cap__copy">
 
           <div class="cap__head">
-            <div class="cap__num" aria-hidden="true" data-fade>01</div>
-            <h2 class="cap__title" data-fade>Research &amp; Policy Advocacy</h2>
+            <h2 class="cap__title" data-fade><span class="cap__num" aria-hidden="true">01</span> Research &amp; Policy Advocacy</h2>
           </div>
 
           <div class="cap__wave" aria-hidden="true">
@@ -254,8 +274,7 @@
         <div class="cap__copy">
 
           <div class="cap__head">
-            <div class="cap__num" aria-hidden="true" data-fade>02</div>
-            <h2 class="cap__title" data-fade>Policy Insight &amp; Regulatory Strategy</h2>
+            <h2 class="cap__title" data-fade><span class="cap__num" aria-hidden="true">02</span> Policy Insight &amp; Regulatory Strategy</h2>
           </div>
 
           <div class="cap__wave" aria-hidden="true">
@@ -313,8 +332,7 @@
         <div class="cap__copy">
 
           <div class="cap__head">
-            <div class="cap__num" aria-hidden="true" data-fade>03</div>
-            <h2 class="cap__title" data-fade>Government Engagement &amp; Institutional Strategy</h2>
+            <h2 class="cap__title" data-fade><span class="cap__num" aria-hidden="true">03</span> Government Engagement &amp; Institutional Strategy</h2>
           </div>
 
           <div class="cap__wave" aria-hidden="true">
@@ -372,8 +390,7 @@
         <div class="cap__copy">
 
           <div class="cap__head">
-            <div class="cap__num" aria-hidden="true" data-fade>04</div>
-            <h2 class="cap__title" data-fade>Policy Communications, Issue Management &amp; Thought Leadership</h2>
+            <h2 class="cap__title" data-fade><span class="cap__num" aria-hidden="true">04</span> Policy Communications &amp; Thought Leadership</h2>
           </div>
 
           <div class="cap__wave" aria-hidden="true">
@@ -432,8 +449,7 @@
         <div class="cap__copy">
 
           <div class="cap__head">
-            <div class="cap__num" aria-hidden="true" data-fade>05</div>
-            <h2 class="cap__title" data-fade>Market, Investment &amp; Ecosystem Strategy</h2>
+            <h2 class="cap__title" data-fade><span class="cap__num" aria-hidden="true">05</span> Market, Investment &amp; Ecosystem Strategy</h2>
           </div>
 
           <div class="cap__wave" aria-hidden="true">
@@ -492,8 +508,7 @@
         <div class="cap__copy">
 
           <div class="cap__head">
-            <div class="cap__num" aria-hidden="true" data-fade>06</div>
-            <h2 class="cap__title" data-fade>Coalitions, Partnerships &amp; Industry Platforms</h2>
+            <h2 class="cap__title" data-fade><span class="cap__num" aria-hidden="true">06</span> Coalitions, Partnerships &amp; Industry Platforms</h2>
           </div>
 
           <div class="cap__wave" aria-hidden="true">
@@ -684,6 +699,7 @@
 <script src="js/site.js"></script>
 <script src="js/dot-field.js"></script>
 <script src="js/pegboard.js"></script>
+<script src="js/hero-xfade.js"></script>
 <script src="js/cursor.js"></script>
 
 </body>

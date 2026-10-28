@@ -2,11 +2,11 @@
    ---------------------------------------------------------------------------
    Three jobs, all of them about one piece of artwork:
 
-   1. Mode. This page is the inverse of capabilities.html: one dark section at
-      the top and paper below it, rather than light-then-blue. There is no
-      section-crossing to detect, so `is-blue` ships on in the markup and
-      comes off once the hero is half gone. (body carries a data-blue-from
-      that matches nothing, so site.js's own mode watcher stands down.)
+   1. Mode. The page opens on paper -- the hero and the index both -- and
+      turns navy for the eight areas, then back to paper for the closing
+      call. So `is-blue` is off in the markup and goes on for exactly the
+      stretch .ar-flow covers. (body carries a data-blue-from that matches
+      nothing, so site.js's own mode watcher stands down.)
 
    2. Lighting. The circle belonging to whichever area is crossing the middle
       of the viewport is lit; the rest stay muted. An IntersectionObserver
@@ -37,13 +37,54 @@
       queued = false;
       var r = hero.getBoundingClientRect();
       var inHero = r.bottom > window.innerHeight * 0.5;
-      root.classList.toggle('is-blue', inHero);
-      /* Two things change with the hero: the ring shows all eight in
-         colour up there and one at a time below (`is-all`), and it is drawn
-         at 550 up there against 1000 below (`is-wide`). */
+      /* Two things change, and they no longer change together. The ring
+         shows all eight in colour across BOTH hero screens -- the copy's
+         and the index's -- and only drops to one at a time once the areas
+         start (`is-all`). Its wide drawing still begins the moment the
+         first screen is done (`is-wide`), which is what the index wants. */
+      var idxEl = document.getElementById('ar-hero-index');
+      var inIndex = false;
+      if (idxEl) {
+        var ir = idxEl.getBoundingClientRect();
+        inIndex = ir.bottom > window.innerHeight * 0.5 && ir.top < window.innerHeight * 0.5;
+      }
+      /* Paper at the top, navy for the areas, paper again for the closing
+         call -- so the mode follows .ar-flow, which holds the eight tracks
+         and nothing else, rather than the hero. Half the screen is the
+         line, the same one the other two tests use. */
+      var flow = document.querySelector('.ar-flow');
+      var inAreas = false;
+      if (flow) {
+        var fr = flow.getBoundingClientRect();
+        inAreas = fr.top < window.innerHeight * 0.5 && fr.bottom > window.innerHeight * 0.5;
+      }
+      /* ...but not while either reading screen is the one on the fold. The
+         phone pulls every track up a whole fold so the sections can cross
+         into one another, which puts .ar-flow's top over the midline while
+         the index is still the thing you are looking at. */
+      /* On a phone the rect tests above are no use -- the overlapping
+         tracks put several sections across the middle of the screen at
+         once -- so js/area-xfade.js hands over the section it is actually
+         showing and that settles all three. Empty off mobile, and empty
+         below the last area, where the rects are right again. */
+      var sec = root.dataset.arSec || '';
+      if (sec) {
+        inHero  = sec === 'ar-hero';
+        inIndex = sec === 'ar-hero-index';
+        inAreas = !inHero && !inIndex;
+      }
+      root.classList.toggle('is-blue', inAreas && !inIndex && !inHero);
+      /* the phone drops the artwork under the fold while the index holds */
+      root.classList.toggle('is-idx', inIndex);
+      setHeroRing(inHero);
       if (svg) {
-        svg.classList.toggle('is-all', inHero);
-        svg.classList.toggle('is-wide', !inHero);
+        svg.classList.toggle('is-all', inHero || inIndex);
+        /* `is-wide` carries a translate and a 1.111 scale, so toggling it at
+           the hero's edge moved the artwork 191px in a single frame -- the
+           snap you see coming back to the top. It is on for good now, and
+           js/ring-grow.js supplies the size and the place for all three
+           screens continuously, with nothing to switch between them. */
+        svg.classList.add('is-wide');
       }
       inHeroNow = inHero;
       setSpin(inHero && !hovered);
@@ -65,9 +106,39 @@
     }
     addEventListener('scroll', onScroll, { passive: true });
     addEventListener('resize', onScroll);
+    /* js/area-xfade.js says when the section being read changes; without
+       this the two race on the same scroll event and the ring runs a
+       screen behind. */
+    addEventListener('ar:section', onScroll);
     /* NOT called here: applyMode clears the lit circle, and `circles` is not
        built until further down. Run once at the end, when it exists. */
     boot = applyMode;
+  }
+
+  /* On the phone's hero the artwork rises to meet the copy rather than
+     hanging off the bottom edge: Figma has it begin just under the reading,
+     not a third of a screen below it. Where "just under" falls depends on
+     how the heading wraps, so it is measured rather than written down.
+
+     The stylesheet parks the flower's middle on the bottom edge, which puts
+     its top .3929 of the ring box above that edge -- 275/700 of the box is
+     one circle, and the flower is two of those across. The shift is the
+     difference between where that lands and where the copy ends. Set
+     inline, so it beats the index's rule in the stylesheet; cleared the
+     moment the hero is not the screen being read, which hands the index
+     its drop back. Phones only -- the desktop hero has its own three-stop
+     journey in js/ring-grow.js. */
+  var HERO_GAP = 48;
+  var phone = matchMedia('(max-width: 767px)');
+  function setHeroRing(on) {
+    if (!ring) return;
+    var text = hero && hero.querySelector('.ar-hero__text');
+    if (!on || !phone.matches || !text) { ring.style.removeProperty('--ring-my'); return; }
+    var box = ring.getBoundingClientRect().height;        /* = --ring */
+    if (!box) return;
+    var artTop = window.innerHeight - box * (275 / 700);  /* with no shift */
+    var want = text.getBoundingClientRect().bottom + HERO_GAP;
+    ring.style.setProperty('--ring-my', (want - artTop).toFixed(1) + 'px');
   }
 
   /* --------------------------------------------------------- 2. lighting */
@@ -140,15 +211,10 @@
     }
   }
 
-  /* One slot, two readings. Scrolling an area into view puts its NUMBER in
-     the live circle, as the design file draws the sections; hovering in the
-     hero puts that area's ICON there instead -- the same glyph as the badge
-     at the head of its copy, which is what the hover frame draws. */
-  function showNum(c) {
-    if (!label) return;
-    label.textContent = ('0' + c.dataset.area).slice(-2);
-    mark(c, false);
-  }
+  /* One slot, one reading now. The number has gone to the head of the copy,
+     into the title line, so what stands at the centre of the live circle is
+     that area's glyph -- scrolled into view or hovered in the hero, it is
+     the same mark either way. */
   function showIcon(c) {
     if (!label) return;
     label.innerHTML = '<svg class="ring__icon" viewBox="0 0 48 48" aria-hidden="true">'
@@ -194,7 +260,7 @@
     circles.forEach(function (c) {
       var on = +c.dataset.area === n;
       c.classList.toggle('is-lit', on);
-      if (on) { lit = c; raise(c); if (!hovered) showNum(c); }
+      if (on) { lit = c; raise(c); if (!hovered) showIcon(c); }
     });
     applyWarp();
   }
@@ -348,7 +414,13 @@
     return best;
   }
 
-  function setHover(g) {
+  /* `bring` says whether this hover should fetch the circle round to the
+     reading slot. Pointing at the artwork itself never does -- the ring
+     stays exactly where it is and only lights up, because having it lurch
+     a third of a turn under the cursor reads as a fault. Pointing at a row
+     of the index does, which is the one place the move means something:
+     you asked for that area by name, so it comes to you. */
+  function setHover(g, bring) {
     if (hovered === g) return;
     if (hovered) hovered.classList.remove('is-hover');
     hovered = g;
@@ -367,18 +439,20 @@
 
          Below the hero the scroll already owns the rotation, so hovering
          only relights and nothing moves. */
-      if (inHeroNow) {
+      if (bring) {
         /* Two frames, not one. Dropping the spin and setting the target in
            the same frame leaves `transition: none` in the before-change
            style, so nothing transitions and the ring SNAPS to the slot.
-           Freeze first, let that style settle, then turn. */
+           Freeze first, let that style settle, then turn -- which is also
+           what carries the rotation it already had into the move instead
+           of starting the turn from nothing. */
         setSpin(false);
         var want = +g.dataset.area;
         requestAnimationFrame(function () { if (hovered === g) turn(want); });
       }
       showIcon(g);
     } else if (lit) {
-      raise(lit); showNum(lit);
+      raise(lit); showIcon(lit);
     } else {
       hideNum();
       if (inHeroNow) setSpin(true);   /* let the drift have it back */
@@ -393,9 +467,9 @@
   Array.prototype.forEach.call(document.querySelectorAll('.ar-index__link'), function (link) {
     var g = circles.filter(function (c) { return c.dataset.area === link.dataset.area; })[0];
     if (!g) return;
-    link.addEventListener('pointerenter', function () { setHover(g); });
+    link.addEventListener('pointerenter', function () { setHover(g, true); });
     link.addEventListener('pointerleave', function () { setHover(null); });
-    link.addEventListener('focus', function () { setHover(g); });
+    link.addEventListener('focus', function () { setHover(g, true); });
     link.addEventListener('blur',  function () { setHover(null); });
   });
 

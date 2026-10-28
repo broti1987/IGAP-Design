@@ -25,18 +25,25 @@
   <nav class="menu" aria-label="Main menu" hidden>
     <div class="menu__bg"></div>
     <div class="menu__inner">
-      <ul class="menu__links">
-        <li><a href="index.html">about us</a></li>
-        <li><a href="capabilities.html" aria-current="page">our work</a></li>
-        <li><a href="#">knowledge</a></li>
-        <li><a href="#">events</a></li>
-        <li><a href="#">contact</a></li>
-      </ul>
-      <ul class="menu__socials">
+      <div class="menu__large">
+        <div class="menu__group">
+          <p class="menu__eyebrow">Our Expertise</p>
+          <ul class="menu__links">
+            <li><a href="capabilities.html">capabilities</a></li>
+            <li><a href="areas.html">Areas of Work</a></li>
+          </ul>
+        </div>
+        <ul class="menu__links">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="#">Knowledge</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <ul class="menu__small">
         <li><a href="#">reports</a></li>
-        <li><a href="#">blogs</a></li>
-        <li><a href="#">igap primers</a></li>
-        <li><a href="#">media</a></li>
+        <li><a href="#">events</a></li>
+        <li><a href="#">IGAP primers</a></li>
+        <li><a href="#">Media</a></li>
       </ul>
     </div>
     <button class="menu__close" type="button" data-menu-close aria-label="Close menu">
@@ -71,18 +78,25 @@
   <nav class="menu" aria-label="Main menu" hidden>
     <div class="menu__bg"></div>
     <div class="menu__inner">
-      <ul class="menu__links">
-        <li><a href="index.html">about us</a></li>
-        <li><a href="capabilities.html" aria-current="page">our work</a></li>
-        <li><a href="#">knowledge</a></li>
-        <li><a href="#">events</a></li>
-        <li><a href="#">contact</a></li>
-      </ul>
-      <ul class="menu__socials">
+      <div class="menu__large">
+        <div class="menu__group">
+          <p class="menu__eyebrow">Our Expertise</p>
+          <ul class="menu__links">
+            <li><a href="capabilities.html">capabilities</a></li>
+            <li><a href="areas.html">Areas of Work</a></li>
+          </ul>
+        </div>
+        <ul class="menu__links">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="#">Knowledge</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <ul class="menu__small">
         <li><a href="#">reports</a></li>
-        <li><a href="#">blogs</a></li>
-        <li><a href="#">igap primers</a></li>
-        <li><a href="#">media</a></li>
+        <li><a href="#">events</a></li>
+        <li><a href="#">IGAP primers</a></li>
+        <li><a href="#">Media</a></li>
       </ul>
     </div>
     <button class="menu__close" type="button" data-menu-close aria-label="Close menu">
@@ -249,39 +263,30 @@
   </div><!-- /.ab-stage -->
 
   <!-- ------------------------------------------- TYPOGRAPHIC MOMENT --
-       Two folds held on one sticky screen. The first builds the argument
-       as typography and nothing else: a phrase arrives, a line is drawn
-       from it, and the phrase it turns into arrives at the other end --
-       twice. The second brings the prose in around what the type has
-       already said. Figma: About / Typographic Moment 1 and 2. -->
+       One screen, seven beats, all of them taken from the scroll: the phrase
+       arrives, a line is drawn out of it, the phrase it becomes arrives at
+       the far end -- then a dotted stem carries the argument down the middle
+       column and the same thing happens again, one row lower and one column
+       right. No prose on this screen at all; it follows in its own, shorter
+       one below. Figma: About / Typographic Moment 1. -->
   <section class="tm" id="tm">
     <div class="tm__pin">
       <div class="tm__inner">
 
         <div class="tm-col tm-col--a">
           <h2 class="tm-line" data-beat="0"><span class="tm-word">From</span><br><span class="tm-word">Research</span></h2>
-          <div class="tm-copy tm-copy--notes" data-copy="0">
-            <p>Complex policy questions rarely yield useful answers through research alone or strategy alone.</p>
-            <p>Together, they help us identify what matters, what is feasible, where trade-offs lie and what effective action will require.</p>
-            <p>Research builds evidence, tests assumptions and develops long-term expertise. Advisory tests those ideas against institutional realities, market dynamics and implementation challenges.</p>
-          </div>
         </div>
 
         <div class="tm-col tm-col--b">
           <h2 class="tm-line" data-beat="1"><span class="tm-word">To</span><br><span class="tm-word">Action</span></h2>
-          <p class="tm-statement" data-copy="3">Together, they allow us to move from analysis to judgement, and from judgement to action.</p>
+          <!-- Figma "Vector 14": a dotted rule down the column's left edge,
+               drawn by the scroll, which is what carries the eye from the
+               end of the first pair to the start of the second. -->
+          <span class="tm-stem" data-stem="0" aria-hidden="true"></span>
           <h2 class="tm-line" data-beat="2"><span class="tm-word">From</span><br><span class="tm-word">Analysis</span></h2>
         </div>
 
         <div class="tm-col tm-col--c">
-          <div class="tm-block" data-copy="1">
-            <h3>Each disciplines the other.</h3>
-            <p>Research keeps our advisory work evidence-led and attentive to longer-term questions. Practical engagement keeps our research grounded in how institutions and markets actually work.</p>
-          </div>
-          <div class="tm-block" data-copy="2">
-            <h3>Research and advisory strengthen each other</h3>
-            <p>Independent research gives us space to pursue questions beyond an immediate mandate and contribute to issues of wider public importance. Advisory brings us closer to the realities of decision-making and implementation.</p>
-          </div>
           <h2 class="tm-line" data-beat="3"><span class="tm-word">To</span><br><span class="tm-word">Judgement</span></h2>
         </div>
 
@@ -300,6 +305,40 @@
         </svg>
 
       </div>
+    </div>
+  </section>
+
+  <!-- The prose the type has earned, in its own band rather than a second
+       held screen -- Figma draws it 436 tall, about half a fold, with the
+       three columns closing on one baseline. -->
+  <section class="tm-prose" id="tm-prose">
+    <!-- A column at a time, not a paragraph at a time: each of the three
+         arrives as one block, in reading order, 180 apart. -->
+    <div class="tm-prose__inner" data-fade-group=".tm-prose__col" data-fade-stagger="180">
+
+      <div class="tm-prose__col">
+        <div class="tm-copy">
+          <p>Complex policy questions rarely yield useful answers through research alone or strategy alone.</p>
+          <p>Together, they help us identify what matters, what is feasible, where trade-offs lie and what effective action will require.</p>
+          <p>Research builds evidence, tests assumptions and develops long-term expertise. Advisory tests those ideas against institutional realities, market dynamics and implementation challenges.</p>
+        </div>
+      </div>
+
+      <div class="tm-prose__col">
+        <div class="tm-block">
+          <h3>Each disciplines the other.</h3>
+          <p>Research keeps our advisory work evidence-led and attentive to longer-term questions. Practical engagement keeps our research grounded in how institutions and markets actually work.</p>
+        </div>
+        <div class="tm-block">
+          <h3>Research and advisory strengthen each other</h3>
+          <p>Independent research gives us space to pursue questions beyond an immediate mandate and contribute to issues of wider public importance. Advisory brings us closer to the realities of decision-making and implementation.</p>
+        </div>
+      </div>
+
+      <div class="tm-prose__col">
+        <p class="tm-statement">Together, they allow us to move from analysis to judgement, and from judgement to action.</p>
+      </div>
+
     </div>
   </section>
 
@@ -348,34 +387,44 @@
             <rect width="1" height="1" style="fill: var(--violet); opacity: .22"/>
             <image width="1" height="1" preserveAspectRatio="xMidYMid slice" href="images/people/06.webp"/>
           </pattern>
+          <!-- The metaball. A blur wide enough to reach across a small gap,
+               then an alpha ramp steep enough to turn that haze back into a
+               hard edge: two shapes inside one blurred field merge into one
+               silhouette before they actually touch, which is the whole
+               effect. It is applied to a layer of plain discs BEHIND the
+               photographs, each a little smaller than the face it stands
+               for, so on its own it is hidden and all you ever see of it is
+               the bridge that forms when two people come close. -->
+          <filter id="pp-goo" x="-20%" y="-20%" width="140%" height="140%"
+                  color-interpolation-filters="sRGB">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur"/>
+            <feColorMatrix in="blur" type="matrix" result="goo"
+                           values="1 0 0 0 0
+                                   0 1 0 0 0
+                                   0 0 1 0 0
+                                   0 0 0 30 -13.5"/>
+          </filter>
           </defs>
+
+        <!-- behind everything: the dots, which js/people-art.js makes -->
+        <g class="pp-dots" data-dots></g>
+
+        <!-- the melding layer, one disc per portrait -->
+        <g class="pp-goo" filter="url(#pp-goo)" data-goo>
+          <circle class="pp-blob" data-blob="0" style="--a: var(--sky)"/>
+          <circle class="pp-blob" data-blob="1" style="--a: var(--green)"/>
+          <circle class="pp-blob" data-blob="2" style="--a: var(--sky)"/>
+          <circle class="pp-blob" data-blob="3" style="--a: var(--green)"/>
+          <circle class="pp-blob" data-blob="4" style="--a: var(--teal)"/>
+          <circle class="pp-blob" data-blob="5" style="--a: var(--violet)"/>
+        </g>
+
         <circle class="pp-bub pp-bub--face" data-bub data-x="185" data-y="189" data-r="60" data-min="42" data-max="70" style="--a: var(--sky); fill: url(#pp-face-1)"/>
         <circle class="pp-bub pp-bub--face" data-bub data-x="492" data-y="472" data-r="60" data-min="42" data-max="70" style="--a: var(--green); fill: url(#pp-face-2)"/>
         <circle class="pp-bub pp-bub--face" data-bub data-x="410" data-y="231" data-r="50" data-min="42" data-max="70" style="--a: var(--sky); fill: url(#pp-face-3)"/>
         <circle class="pp-bub pp-bub--face" data-bub data-x="274" data-y="300" data-r="70" data-min="42" data-max="70" style="--a: var(--green); fill: url(#pp-face-4)"/>
         <circle class="pp-bub pp-bub--face" data-bub data-x="264" data-y="442" data-r="52" data-min="42" data-max="70" style="--a: var(--teal); fill: url(#pp-face-5)"/>
         <circle class="pp-bub pp-bub--face" data-bub data-x="366" data-y="376" data-r="42" data-min="42" data-max="70" style="--a: var(--violet); fill: url(#pp-face-6)"/>
-        <circle class="pp-bub" data-bub data-x="339" data-y="447" data-r="13" style="--a: var(--sky)"/>
-        <circle class="pp-bub" data-bub data-x="138" data-y="534" data-r="6" style="--a: var(--sky)"/>
-        <circle class="pp-bub" data-bub data-x="522" data-y="287" data-r="6" style="--a: var(--green)"/>
-        <circle class="pp-bub" data-bub data-x="366" data-y="466" data-r="6" style="--a: var(--green)"/>
-        <circle class="pp-bub" data-bub data-x="456" data-y="275" data-r="6" style="--a: var(--green)"/>
-        <circle class="pp-bub" data-bub data-x="432" data-y="324" data-r="18" style="--a: var(--green)"/>
-        <circle class="pp-bub" data-bub data-x="492" data-y="546" data-r="12" style="--a: var(--green)"/>
-        <circle class="pp-bub" data-bub data-x="144" data-y="358" data-r="12" style="--a: var(--teal)"/>
-        <circle class="pp-bub" data-bub data-x="510" data-y="382" data-r="6" style="--a: var(--teal)"/>
-        <circle class="pp-bub" data-bub data-x="292" data-y="171" data-r="18" style="--a: var(--violet)"/>
-        <circle class="pp-bub" data-bub data-x="410" data-y="147" data-r="9" style="--a: var(--violet)"/>
-        <circle class="pp-bub" data-bub data-x="300" data-y="190" data-r="9" style="--a: var(--sky)"/>
-        <circle class="pp-bub" data-bub data-x="345" data-y="265" data-r="6" style="--a: var(--teal)"/>
-        <circle class="pp-bub" data-bub data-x="470" data-y="350" data-r="12" style="--a: var(--green)"/>
-        <circle class="pp-bub" data-bub data-x="215" data-y="375" data-r="9" style="--a: var(--violet)"/>
-        <circle class="pp-bub" data-bub data-x="380" data-y="470" data-r="6" style="--a: var(--green)"/>
-        <circle class="pp-bub" data-bub data-x="440" data-y="410" data-r="6" style="--a: var(--sky)"/>
-        <circle class="pp-bub" data-bub data-x="320" data-y="500" data-r="9" style="--a: var(--teal)"/>
-        <circle class="pp-bub" data-bub data-x="300" data-y="130" data-r="6" style="--a: var(--violet)"/>
-        <circle class="pp-bub" data-bub data-x="520" data-y="350" data-r="6" style="--a: var(--green)"/>
-        <circle class="pp-bub" data-bub data-x="170" data-y="300" data-r="12" style="--a: var(--sky)"/>
         </svg>
       </div>
     </div>

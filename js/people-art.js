@@ -1,6 +1,6 @@
 /* --------------------------------------------------------------- OUR PEOPLE
-   Figma 564:192400. Seventeen circles in a 648 x 704 field: six portraits
-   and eleven empty rings, in the four accents.
+   Figma 564:192400. Six portraits adrift in a 648 x 704 field, with a
+   scatter of small coloured dots around them.
 
    Nothing here is scroll-driven. The cluster simply lives: every circle
    drifts on a breeze of its own, the portraits breathe between the smallest
@@ -18,12 +18,32 @@
    objectBoundingBox units: the image follows the circle's box, so growing
    one is one attribute and the photograph scales with it. Until there are
    photographs the pattern paints its accent at a sixteenth, and an href on
-   the <image> covers it. */
+   the <image> covers it.
+
+   TWO THINGS RIDE ALONG WITH THEM:
+
+   The metaball. Behind the photographs sits a layer of plain discs, one per
+   portrait, a little smaller than the face it stands for and run through a
+   blur-then-sharpen filter. On its own each disc is hidden behind its
+   photograph; when two people drift close the blurred fields overlap and
+   the alpha ramp turns the overlap back into solid colour, so a bridge
+   forms between them before they actually touch and breaks when they part.
+   Nothing here decides when that happens -- it falls out of the filter, so
+   it is the distance between them that draws it.
+
+   The dots. Not in the markup, because there are sixty of them and they are
+   decoration: a centre-weighted scatter between 4 and 8 across, in the four
+   accents, drifting on the same breeze as everything else. They are left
+   out of the meetings below -- at this size being shoved about by a passing
+   face reads as a glitch rather than a touch, and sixty more bodies in a
+   pairwise loop is work for nothing. */
 (function () {
   var art = document.querySelector('[data-people]');
   if (!art) return;
   var nodes = [].slice.call(art.querySelectorAll('[data-bub]'));
   if (!nodes.length) return;
+  var blobs = [].slice.call(art.querySelectorAll('[data-blob]'));
+  var dotHost = art.querySelector('[data-dots]');
 
   var W = 648, H = 704, TAU = Math.PI * 2;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -35,6 +55,44 @@
       DRAG = 0.9,    /* speed kept per second */
       VMAX = 26,     /* px/s, nothing moves faster than this */
       REST = 0.45;   /* how much of a meeting is given back */
+
+  /* --- the dots -----------------------------------------------------
+     Scattered from the middle out rather than evenly: a random radius taken
+     to the 2.6 power pulls them in hard towards the centre of the field,
+     which is where the faces are, and leaves the corners quiet -- the
+     higher the power, the tighter the gather. Seeded off the index so the
+     scatter is the same every load -- a composition, not a surprise each
+     time. */
+  var ACCENTS = ['--sky', '--green', '--violet', '--teal'];
+  var DOTS = 60, D = [];
+  (function makeDots() {
+    if (!dotHost) return;
+    var NS = 'http://www.w3.org/2000/svg';
+    var seed = 20240917;
+    function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+    for (var i = 0; i < DOTS; i++) {
+      var ang = rnd() * TAU;
+      var rad = Math.pow(rnd(), 2.6) * 0.52;          /* 0 at the middle, .52 at the edge */
+      var x = W / 2 + Math.cos(ang) * rad * W;
+      var y = H / 2 + Math.sin(ang) * rad * H;
+      var r = 2 + rnd() * 2;                           /* 4 to 8 across */
+      var el = document.createElementNS(NS, 'circle');
+      el.setAttribute('class', 'pp-dot');
+      el.style.setProperty('--a', 'var(' + ACCENTS[i % 4] + ')');
+      dotHost.appendChild(el);
+      D.push({
+        el: el, hx: x, hy: y, x: x, y: y, vx: 0, vy: 0, r: r,
+        w1: 0.061 + (i % 9) * 0.0107, w2: 0.047 + (i % 11) * 0.0083,
+        p1: i * 1.73, p2: i * 2.57
+      });
+    }
+  }());
+  function drawDot(d) {
+    d.el.setAttribute('cx', d.x.toFixed(1));
+    d.el.setAttribute('cy', d.y.toFixed(1));
+    d.el.setAttribute('r',  d.r.toFixed(1));
+  }
+  D.forEach(drawDot);
 
   var B = nodes.map(function (el, i) {
     var r  = +el.getAttribute('data-r');
@@ -52,16 +110,41 @@
       w1: 0.071 + (i % 5) * 0.0131,
       w2: 0.053 + (i % 7) * 0.0097,
       p1: i * 2.11, p2: i * 1.37,
-      m: r * r                       /* a big circle gives less than a small one */
+      m: r * r,                      /* a big circle gives less than a small one */
+      blob: null
     };
   });
+
+  /* Which blob belongs to which circle: the discs are declared in the same
+     order as the portraits, so the nth portrait drives the nth blob. */
+  var faces = nodes.filter(function (el) { return el.classList.contains('pp-bub--face'); });
+  function blobFor(b) {
+    var k = faces.indexOf(b.el);
+    return k < 0 ? null : blobs[k];
+  }
+  /* Only 2 under the photograph. Every pixel the disc gives up here is two
+     pixels of gap the filter has to span before a bridge appears, so the
+     disc is kept as close to the face as it can be without its own edge
+     showing past it. The alpha ramp does the hiding instead: its threshold
+     sits a shade above a half, which pulls the silhouette just inside the
+     disc it was made from. */
+  var BLOB_IN = 4;
 
   function draw(b) {
     b.el.setAttribute('cx', b.x.toFixed(1));
     b.el.setAttribute('cy', b.y.toFixed(1));
     b.el.setAttribute('r',  b.r.toFixed(1));
+    var g = b.blob;
+    if (g) {
+      g.setAttribute('cx', b.x.toFixed(1));
+      g.setAttribute('cy', b.y.toFixed(1));
+      g.setAttribute('r',  Math.max(1, b.r - BLOB_IN).toFixed(1));
+    }
   }
 
+  /* after blobFor exists, not beside the map that builds B -- `faces` is
+     declared below it and would still be undefined here */
+  B.forEach(function (b) { b.blob = blobFor(b); });
   B.forEach(draw);
   if (reduce) return;
 
@@ -110,6 +193,17 @@
           b.vx += nx * jm * tb; b.vy += ny * jm * tb;
         }
       }
+    }
+
+    /* the dots keep to themselves: home and breeze, no meetings */
+    for (i = 0; i < D.length; i++) {
+      var d0 = D[i];
+      d0.vx += (Math.sin(t * d0.w1 * TAU + d0.p1) * AIR + (d0.hx - d0.x) * HOME) * dt;
+      d0.vy += (Math.cos(t * d0.w2 * TAU + d0.p2) * AIR + (d0.hy - d0.y) * HOME) * dt;
+      var kd = Math.pow(DRAG, dt);
+      d0.vx *= kd; d0.vy *= kd;
+      d0.x += d0.vx * dt; d0.y += d0.vy * dt;
+      drawDot(d0);
     }
 
     /* and the field's own edges, which answer softer than a circle does */

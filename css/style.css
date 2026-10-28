@@ -450,17 +450,23 @@ p, h1, h2, h3, h4 { margin: 0; }
 .btn-work img             { transition: filter .12s ease; }
 
 /* --- menu overlay --- */
+/* ------------------------------------------------------------- 5b. MENU
+   Figma "Menu — Desktop" 627:106123. A navy sheet over the page at nine
+   tenths, and on it two columns bottom-aligned to each other and centred in
+   what the 72 of padding leaves: the headline nav on the left under its
+   green eyebrow, and the lighter reading list ranged right.
+
+   The sheet slides in from the left and the two columns follow a beat
+   later, which is the same entrance the old menu had -- what changed is
+   what is on it. */
 .menu {
   position: absolute;
   inset: 0;
   z-index: 88888;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   width: 100vw;
-  max-width: 1110px;
   height: 100svh;
-  margin: 0 auto;
 }
 .menu[hidden] { display: none; }
 
@@ -475,68 +481,92 @@ p, h1, h2, h3, h4 { margin: 0; }
   transition: transform .5s var(--ease-out-quart);
 }
 .menu__inner {
+  position: relative;
+  z-index: 999999;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-end;             /* both columns close on one line */
   justify-content: space-between;
   width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
 }
-.menu__links,
-.menu__socials {
+.menu__large,
+.menu__small {
   opacity: 0;
   transform: translateX(-20px);
   transition: opacity .2s ease, transform .2s var(--ease-out-quart);
 }
+
+/* --- the headline column --- */
+.menu__large { display: flex; flex-direction: column; gap: 72px; }
+.menu__group { display: flex; flex-direction: column; gap: 16px; }
+.menu__eyebrow {
+  margin: 0;
+  font-family: var(--font-narrow);
+  font-size: 12px;                   /* Desktop/Eyebrow */
+  font-weight: 600;
+  line-height: 160%;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--green);
+}
 .menu__links {
-  z-index: 999999;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  margin-left: 65px;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 .menu__links a {
   display: block;
-  padding: 12px 0;
   font-family: var(--font-narrow);
-  font-size: 2rem;
-  font-weight: 500;
-  line-height: 110%;
-  letter-spacing: .05em;
+  font-size: 56px;                   /* Desktop/H2 */
+  font-weight: 700;
+  line-height: 100%;
+  letter-spacing: .02em;
   text-transform: uppercase;
   color: var(--white);
+  text-decoration: none;
   transition: color .2s;
 }
 .menu__links a:hover { color: var(--green); }
 
-.menu__socials {
-  z-index: 9999999;
+/* --- the reading list --- */
+.menu__small {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 24px;
-  margin-right: 170px;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
-.menu__socials a {
+.menu__small a {
   font-family: var(--font-narrow);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 130%;
+  font-size: 24px;                   /* Desktop/Number */
+  font-weight: 700;
+  line-height: 100%;
   letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--white);
+  text-decoration: none;
   transition: color .2s;
 }
-.menu__socials a:hover { color: var(--green); }
+.menu__small a:hover { color: var(--sky); }
 
+/* Figma puts it where the burger was, so the button turns into the circle
+   that closes it rather than moving somewhere else. */
 .menu__close {
   position: absolute;
-  inset: 0 auto auto 0;
+  inset: 40px auto auto 65px;
   z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  margin: 65px 0 0 65px;
+  width: 32px;
+  height: 32px;
   border: 1px solid var(--white);
   border-radius: 100px;
   -webkit-backdrop-filter: blur(20px);
@@ -546,10 +576,10 @@ p, h1, h2, h3, h4 { margin: 0; }
 }
 
 /* open state */
-.menu.is-open .menu__bg     { transform: translateX(0); }
-.menu.is-open .menu__links,
-.menu.is-open .menu__socials { opacity: 1; transform: translateX(0); transition-duration: .5s; }
-.menu.is-open .menu__close   { opacity: 1; transition-duration: .5s; }
+.menu.is-open .menu__bg { transform: translateX(0); }
+.menu.is-open .menu__large,
+.menu.is-open .menu__small { opacity: 1; transform: translateX(0); transition-duration: .5s; }
+.menu.is-open .menu__close { opacity: 1; transition-duration: .5s; }
 
 /* -------------------------------------------------------------- 6. HERO */
 .hero { position: relative; overflow: visible; }
@@ -1305,8 +1335,11 @@ html.is-blue { --border-default: var(--header-border-dk); }
 @media screen and (max-width: 991px) {
   :root { --gutter: 40px; --dot-spacing: 12px; }
 
-  .menu__links   { margin-left: 140px; }
-  .menu__socials { margin-right: 140px; }
+  /* The old menu indented its link column by hand at this width and pushed
+     its right-hand list in to match. The new one builds its own two columns
+     and positions them off the page gutter, so both of those are not just
+     unnecessary -- the 140 was shoving every headline link off the right
+     edge of a phone. (.menu__socials is gone with the old markup.) */
 
   /* hero — the action pair is what overflowed. The headline also has to come
      down: at 4.5rem "MARKETS." alone is ~340px, which plus the actions beat the
@@ -1355,8 +1388,12 @@ html.is-blue { --border-default: var(--header-border-dk); }
 }
 
 @media screen and (max-width: 767px) {
+  /* The reading list is not dropped here any more -- it was the only place
+     those four pages were linked from. It comes down in size and keeps its
+     place beside the headline column until the phone stacks them. */
+  .menu__large { gap: 48px; }
   .menu__links a { font-size: 48px; }
-  .menu__socials { display: none; }
+  .menu__small a { font-size: 20px; }
 }
 
 @media screen and (max-width: 479px) {
@@ -1394,17 +1431,20 @@ html.is-blue { --border-default: var(--header-border-dk); }
     margin: auto 0;   /* centres, and unlike justify-content never clips the top */
     flex-direction: column;
     align-items: flex-start;
-    gap: 40px;
-    padding-left: 0;
+    gap: 48px;
+    padding-inline: 0;
   }
-  .menu__links   { margin-left: 0; }
-  .menu__links a { padding: 10px 0; font-size: 32px; }
-  .menu__socials {
-    display: flex;
+  /* One column, everything ranged left on the gutter: the desktop's
+     right-hand list has nothing to sit beside once the two stack, so it
+     falls in under the headline nav rather than hanging off the edge. */
+  .menu__large   { gap: 40px; }
+  .menu__links a { font-size: 32px; }
+  .menu__small {
     align-items: flex-start;
     gap: 16px;
-    margin-right: 0;
   }
+  .menu__small a { font-size: 16px; }
+  /* top right, where the phone's own menu button is */
   .menu__close { inset: 17px 16px auto auto; margin: 0; }
 
   /* type */

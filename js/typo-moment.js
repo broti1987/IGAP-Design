@@ -1,16 +1,20 @@
 /* ===========================================================================
    ABOUT — the typographic moment
    ---------------------------------------------------------------------------
-   One sticky screen held for two folds of scroll, and every beat in it is
-   taken from the scroll position rather than fired on a timer.
+   One sticky screen and seven beats, every one of them taken from the
+   scroll position rather than fired on a timer:
 
-   FOLD ONE builds the argument as typography, in six beats: the first phrase
-   reveals, the line is drawn out of it, the phrase it becomes reveals at the
-   far end -- then the same again, below and to the right. The reveal is the
-   page's own, the one its h1 uses (js/text-reveal.js); this file only says
-   when.
+       from research  ->  the sky curve  ->  to action
+                              the dotted stem
+       from analysis  ->  the green curve  ->  to judgement
 
-   FOLD TWO brings the prose in around what the type has already said.
+   so the argument is read in the order it is made, one thing at a time. The
+   stem down the middle column is what carries the first pair into the
+   second; without it the two rows read as two unrelated statements.
+
+   The prose is no longer part of this. It has its own band underneath and
+   arrives on the page's ordinary reveal, which is why nothing here knows
+   about it any more.
 
    Everything is reversible: a beat that has not been reached puts its element
    back, so scrolling up unbuilds the section in the order it was built.
@@ -31,16 +35,17 @@
   }
   var lines  = byIndex('[data-beat]', 'data-beat');
   var arcs   = byIndex('[data-arc]', 'data-arc');
-  var copies = byIndex('[data-copy]', 'data-copy');
+  var stems  = byIndex('[data-stem]', 'data-stem');
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* Where each beat falls along the two folds, 0 at the top of the section's
-     travel and 1 at the foot. Fold one is everything under .5. */
-  var LINE_AT = [0.03, 0.22, 0.30, 0.46];         /* the four phrases */
-  var ARC_AT  = [[0.08, 0.20], [0.34, 0.44]];     /* each pair's connector */
-  /* the notes, then the two blocks -- and the statement they add up to on
-     its own at the end, after everything it is drawn from is there */
-  var COPY_AT = [[0.52, 0.66], [0.56, 0.70], [0.60, 0.74], [0.80, 0.94]];
+  /* Where each beat falls along the travel, 0 at the top and 1 at the foot.
+     They interlock on purpose: each phrase lands exactly where the line
+     pointing at it finishes, so the connector hands over to the word rather
+     than the two happening at once. The last quarter is left empty, so the
+     finished sentence is held for a moment before the screen lets go. */
+  var LINE_AT = [0.04, 0.26, 0.50, 0.74];         /* the four phrases */
+  var ARC_AT  = [[0.10, 0.26], [0.56, 0.74]];     /* each pair's connector */
+  var STEM_AT = [[0.32, 0.50]];                   /* and the stem between them */
 
   function clamp(t) { return t < 0 ? 0 : t > 1 ? 1 : t; }
   function ease(t) { return 1 - Math.pow(1 - t, 3); }
@@ -73,6 +78,17 @@
   }
   function place() {
     var host = inner.getBoundingClientRect();
+    /* The stem hangs under the first word of the phrase it leads to, on its
+       middle rather than its left edge -- it reads as coming out of the
+       word that way instead of running alongside the column. */
+    stems.forEach(function (el) {
+      var w = word(2, 0);                       /* "From", of FROM ANALYSIS */
+      if (!w) return;
+      var col = el.parentNode.getBoundingClientRect();
+      var r = w.getBoundingClientRect();
+      el.style.setProperty('--stem-x',
+        (r.left + r.width / 2 - col.left - 0.5).toFixed(1) + 'px');
+    });
     arcs.forEach(function (svg) {
       var a = word(svg.getAttribute('data-from'), 0);   /* "from" */
       var b = word(svg.getAttribute('data-to'), 1);     /* "action" */
@@ -137,11 +153,9 @@
       head.style.transform = 'scale(' + (0.5 + 0.5 * h).toFixed(3) + ')';
     });
 
-    copies.forEach(function (el, j) {
-      var c = COPY_AT[j];
-      var k = ease(clamp((u - c[0]) / (c[1] - c[0])));
-      el.style.opacity = k.toFixed(3);
-      el.style.transform = 'translateY(' + (16 * (1 - k)).toFixed(1) + 'px)';
+    stems.forEach(function (el, j) {
+      var s = STEM_AT[j];
+      el.style.setProperty('--draw', ease(clamp((u - s[0]) / (s[1] - s[0]))).toFixed(3));
     });
   }
   function onScroll() { if (!queued) { queued = true; requestAnimationFrame(read); } }

@@ -663,7 +663,11 @@ html.is-blue .ab-node { fill: var(--navy); }
    ========================================================================= */
 .tm {
   position: relative;
-  height: calc(3 * 100svh);        /* one screen held, two folds of scroll */
+  /* One screen held, a fold and a half of scroll to play the seven beats
+     through. It used to be three folds because the prose was built on this
+     same screen; the prose has its own band now, so the travel is only what
+     the sequence needs. */
+  height: calc(2.5 * 100svh);
 }
 .tm__pin {
   position: sticky;
@@ -681,15 +685,67 @@ html.is-blue .ab-node { fill: var(--navy); }
   max-width: var(--page-max);
   margin-inline: auto;
   padding-inline: var(--gutter);
-  padding-block: 124px 72px;
+  /* 72 all round and the 530 band centred in what is left, which is where
+     Figma's y185 comes from on a 900 */
+  padding-block: 72px;
+  align-items: center;
 }
+/* The band has come down to 400 -- Figma's frame hugs at 544 now, which is
+   the 400 plus its 72 either side, where it used to draw a full 900 screen.
+   So the four phrases sit closer together and the stem between them is
+   shorter. */
 .tm-col {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 530px;
+  height: 400px;
   min-width: 0;
 }
+/* The first phrase stands at the head of the band, the last at its foot, and
+   the middle column stacks its three on an explicit 24 -- 118 + 24 + 116 +
+   24 + 118 is the 400 exactly, so nothing has to be spread to fit. */
+.tm-col--a { justify-content: flex-start; }
+.tm-col--b { justify-content: flex-start; gap: 24px; }
+.tm-col--c { justify-content: flex-end; }
+
+/* Each column now ranges its phrase differently: left where the sentence
+   starts, centred where it turns, right where it ends. So the four read as
+   one line of argument travelling across the page rather than four blocks
+   pinned to the same left edge.
+
+   The connectors and the stem need no help with this -- all three are
+   measured off the words themselves, so centring the type moves what they
+   are drawn between and they follow. */
+.tm-col--a .tm-line { text-align: left; }
+.tm-col--b .tm-line { text-align: center; }
+.tm-col--c .tm-line { text-align: right; }
+
+/* --- the dotted stem -----------------------------------------------------
+   Figma "Vector 14": 1px black, a 4 on 4 dash, 116 tall, 24 clear of the
+   phrase above and below it.
+
+   It is drawn rather than faded: the scroll winds a clip down the line so
+   the dashes arrive one after another, the same reading the two curves get.
+   A gradient rather than a border, because a dashed border cannot be
+   clipped progressively without the dashes shifting. */
+.tm-stem {
+  --draw: 0;
+  display: block;
+  flex: none;
+  width: 1px;
+  height: 116px;
+  /* Centred on the word it points at rather than ranged with the column.
+     What that comes to depends on how "FROM" measures once the face has
+     loaded, so js/typo-moment.js sets it alongside the two curves, which
+     are placed off the type for the same reason. */
+  margin-left: var(--stem-x, 0px);
+  color: var(--black);
+  background-image: repeating-linear-gradient(
+    to bottom, currentColor 0 4px, transparent 4px 8px);
+  clip-path: inset(0 0 calc((1 - var(--draw)) * 100%) 0);
+  transition: color var(--blue-fade);
+}
+html.is-blue .tm-stem { color: var(--white); }
+@media (prefers-reduced-motion: reduce) { .tm-stem { --draw: 1; } }
 
 /* --- the type ------------------------------------------------------------
    Two lines of Narrow Bold, ranged left, 300 to the column. Each is its own
@@ -704,6 +760,7 @@ html.is-blue .ab-node { fill: var(--navy); }
   font-size: 56px;                 /* Desktop/H2 */
   font-weight: 700;
   line-height: 105%;
+  letter-spacing: .02em;           /* Figma: 2%, same as every narrow head */
   text-transform: uppercase;
   color: var(--black);
   opacity: 0;
@@ -741,11 +798,32 @@ html.is-blue .tm-line { color: var(--white); }
 .tm-arc__head { opacity: 0; transform: scale(.5); }   /* origin set with the tip */
 
 /* --- the prose -----------------------------------------------------------
-   The second fold. Each block comes up a little as it arrives, and all of it
-   is wound by the scroll, so going back up puts it away again. */
-.tm-copy, .tm-block, .tm-statement {
-  opacity: 0;
-  transform: translateY(16px);
+   Its own band under the held screen, 436 tall where Figma draws it -- about
+   half a fold -- with the three columns closing on one baseline rather than
+   starting from one. Nothing is pinned here and nothing is wound by the
+   scroll: it arrives once, on the page's own reveal (js/fade-in.js), which
+   is all a block of reading needs.
+
+   The columns have swapped since the last version: the two blocks are in the
+   middle now and the statement they add up to stands alone on the right. */
+.tm-prose { position: relative; }
+.tm-prose__inner {
+  display: grid;
+  grid-template-columns: repeat(3, 300px);
+  justify-content: space-between;
+  align-items: end;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  /* no band padding: the three columns are the section */
+  padding-block: 0;
+}
+.tm-prose__col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;                       /* Figma: between the two blocks */
+  min-width: 0;
 }
 .tm-copy { display: flex; flex-direction: column; gap: 8px; }
 .tm-copy p, .tm-block p {
@@ -785,7 +863,6 @@ html.is-blue .tm-block h3,
 html.is-blue .tm-statement { color: var(--white); }
 
 @media (prefers-reduced-motion: reduce) {
-  .tm-copy, .tm-block, .tm-statement { opacity: 1; transform: none; }
   .tm-arc__head { opacity: 1; transform: none; }
 }
 
@@ -893,6 +970,18 @@ html.is-blue .ab-people__copy p { color: var(--white); }
   stroke: var(--a, var(--sky));
   stroke-width: 1;
 }
+/* The scatter: solid, not outlined, and small enough that the field reads as
+   texture around the faces rather than as more circles. */
+.pp-dot {
+  fill: var(--a, var(--sky));
+  opacity: .55;
+}
+/* The melding layer. Solid discs, since the filter works on what is painted
+   -- an outline has nothing in it to blur into a bridge. It sits under the
+   photographs in source order, and each disc is smaller than its face, so
+   the only part of it that ever shows is the join between two people. */
+.pp-blob { fill: var(--a, var(--sky)); }
+@media (prefers-reduced-motion: reduce) { .pp-goo { display: none; } }
 
 @media (max-width: 1024px) {
   .ab-people { min-height: 0; padding-block: 96px 48px; }
